@@ -60,7 +60,9 @@ const items = ref([
                     ></i>
                 </router-link>
             </template>
-            <template #end> </template>
+            <template #end>
+                <csa-user class="mx-2" />
+            </template>
         </Menubar>
     </div>
 </template>

@@ -50,7 +50,7 @@ onMounted(() => {
         :numScroll="1"
         circular
         :showNavigators="false"
-        :autoplayInterval="2200"
+        :autoplayInterval="2100"
     >
         <template #item="slotProps">
             <img

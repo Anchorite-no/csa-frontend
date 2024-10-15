@@ -9,3 +9,17 @@
 .link {
     @apply text-neutral-800 dark:text-neutral-300 hover:text-sky-700 dark:hover:text-sky-500 transition-colors;
 }
+
+@keyframes notyf-ripple {
+    0% {
+        transform: scale(0) translateY(-45%) translateX(13%);
+    }
+
+    100% {
+        transform: scale(1) translateY(-45%) translateX(13%);
+    }
+}
+
+.notyf__ripple {
+    animation: notyf-ripple 0.4s ease-out forwards !important;
+}

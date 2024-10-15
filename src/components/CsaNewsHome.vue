@@ -1,34 +1,50 @@
 <script setup>
-const data = ref([
-    { title: '测试1', time: '2021-10-10', id: 1 },
-    { title: '测试2', time: '2021-10-11', id: 2 },
-    { title: '测试3', time: '2021-10-12', id: 3 },
-    { title: '测试4', time: '2021-10-13', id: 4 },
-    { title: '测试5', time: '2021-10-14', id: 5 },
-    { title: '测试6', time: '2021-10-15', id: 6 },
-    {
-        title: '测试7测试7测试7测试7测试7测试7测试7测试7',
-        time: '2021-10-16',
-        id: 7,
-    },
-])
+const axios = inject('axios')
+
+const data = ref([])
+
+axios
+    .get('/news/list', {
+        params: { page: 1, size: 8 },
+    })
+    .then(res => {
+        data.value = res.data
+    })
 </script>
 
 <template>
     <div class="news m-8">
         <div class="text-2xl font-bold">最新动态</div>
         <div class="mb-6">Latest news</div>
-        <div v-for="item in data" :key="item.id">
-            <div class="flex justify-between gap-x-8">
-                <router-link
-                    class="w-128 whitespace-nowrap text-ellipsis overflow-hidden link"
-                    :to="{ name: 'news', params: { id: item.id } }"
-                >
-                    {{ item.title }}
-                </router-link>
-                <div class="shrink-0 whitespace-nowrap">{{ item.time }}</div>
+        <div v-if="data">
+            <div v-for="item in data" :key="item.nid">
+                <div class="flex justify-between gap-x-8">
+                    <router-link
+                        class="w-[30vw] text-[1.05rem] whitespace-nowrap text-ellipsis overflow-hidden link"
+                        :to="{ name: 'news', params: { id: item.nid } }"
+                    >
+                        {{ item.title }}
+                    </router-link>
+                    <div class="shrink-0 whitespace-nowrap">
+                        {{
+                            new Date(
+                                item.first_publish * 1000
+                            ).toLocaleDateString('zh-CN', {
+                                month: '2-digit',
+                                day: '2-digit',
+                            })
+                        }}
+                    </div>
+                </div>
+                <Divider class="!my-3" />
             </div>
-            <Divider />
+        </div>
+        <div v-else>
+            <Skeleton height="2rem" class="mb-4"></Skeleton>
+            <Skeleton height="2rem" class="mb-4"></Skeleton>
+            <Skeleton height="2rem" class="mb-4"></Skeleton>
+            <Skeleton height="2rem" class="mb-4"></Skeleton>
+            <Skeleton height="2rem" class="mb-4"></Skeleton>
         </div>
     </div>
 </template>

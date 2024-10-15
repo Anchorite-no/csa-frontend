@@ -1,7 +1,7 @@
 <template>
     <footer
         id="bottom-footer"
-        class="text-white text-center p-4 bg-neutral-900 border-2 border-neutral-800"
+        class="text-center p-4 bg-neutral-200 border-t-2 border-neutral-300"
     >
         <p>© 2024 浙江大学学生网络空间协会. All rights reserved.</p>
     </footer>

@@ -21,14 +21,14 @@ const data = ref([
         <div v-for="item in data" :key="item.id">
             <div class="flex justify-between gap-x-8">
                 <router-link
-                    class="w-64 whitespace-nowrap text-ellipsis overflow-hidden link"
+                    class="w-[15vw] whitespace-nowrap text-ellipsis overflow-hidden link"
                     :to="{ name: 'event', params: { id: item.id } }"
                 >
                     {{ item.title }}
                 </router-link>
                 <div class="shrink-0 whitespace-nowrap">{{ item.time }}</div>
             </div>
-            <Divider />
+            <Divider class="!my-3" />
         </div>
     </div>
 </template>

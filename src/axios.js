@@ -34,13 +34,14 @@ instance.interceptors.response.use(
     },
     error => {
         if (error.response?.status === 401) {
+            window.notyf.error('登录已过期，请重新登录')
             const userStore = useUserStore()
             userStore.logout()
             router.push({ name: 'login' })
         } else if (typeof error.response?.data?.detail === 'string') {
-            console.error(error.response.data.detail)
+            window.notyf.error(error.response.data.detail)
         } else {
-            console.error(error)
+            window.notyf.error('未知错误')
         }
         return Promise.reject(error)
     }
