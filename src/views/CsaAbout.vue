@@ -96,21 +96,37 @@ onMounted(() => {
       <div class="content-wrapper">
         <h2 class="fade-in">发展历程</h2>
         <div class="timeline">
-          <div class="timeline-item fade-in">
-            <div class="year">2023/xx/xx</div>
-            <div class="event">协会正式成立</div>
+          <div class="timeline-item fade-in left">
+            <div class="timeline-content">
+              <img src="@/assets/about/timeline/founding.jpg" alt="协会成立" class="timeline-image">
+              <div class="year">2023/xx/xx</div>
+              <div class="event">协会正式成立</div>
+              <div class="event-description">浙江大学学生网络空间安全协会正式成立，开启网络安全人才培养新篇章</div>
+            </div>
           </div>
-          <div class="timeline-item fade-in">
-            <div class="year">2023/xx/xx</div>
-            <div class="event">xxx竞赛？写点厉害的成就(?)</div>
+          <div class="timeline-item fade-in right">
+            <div class="timeline-content">
+              <img src="@/assets/about/timeline/recruitment24.jpg" alt="纳新大会" class="timeline-image">
+              <div class="year">2024/xx/xx</div>
+              <div class="event">24届纳新大会吃吃吃</div>
+              <div class="event-description">欢迎新成员加入大家庭!</div>
+            </div>
           </div>
-          <div class="timeline-item fade-in">
-            <div class="year">2023/xx/xx</div>
-            <div class="event">纳新(吸收新鲜血液)、全员大会</div>
+          <div class="timeline-item fade-in left">
+            <div class="timeline-content">
+              <img src="@/assets/about/timeline/whole_staff_meeting24.jpg" alt="全员大会" class="timeline-image">
+              <div class="year">2024/xx/xx</div>
+              <div class="event">24届全员大会听取蛙声一片</div>
+              <div class="event-description">举办全员大会，看各路神仙大显神通</div>
+            </div>
           </div>
-          <div class="timeline-item fade-in">
-            <div class="year">2024/xx/xx</div>
-            <div class="event">公布协会官网</div>
+          <div class="timeline-item fade-in right">
+            <div class="timeline-content">
+              <img src="@/assets/about/timeline/website_founding.png" alt="官网上线" class="timeline-image">
+              <div class="year">2024/xx/xx</div>
+              <div class="event">协会官网正式上线</div>
+              <div class="event-description">全新协会官网上线，搭建信息共享与展示平台(内容随便写的，后期按这个模版加内容就可以了(()))</div>
+            </div>
           </div>
         </div>
       </div>
@@ -275,7 +291,6 @@ h2 {
   transform: translateY(-5px);
   box-shadow: 0 6px 20px rgba(0,0,0,0.15);
 }
-
 .vision-icon {
   font-size: 2.5rem;
   margin-bottom: 1rem;
@@ -296,7 +311,7 @@ h2 {
 /* 时间线样式 */
 .timeline {
   position: relative;
-  max-width: 800px;
+  max-width: 1200px;
   margin: 2rem auto;
   padding: 2rem 0;
 }
@@ -306,25 +321,130 @@ h2 {
   position: absolute;
   top: 0;
   left: 50%;
-  width: 2px;
+  width: 3px;
   height: 100%;
-  background: #3498db;
+  background: linear-gradient(to bottom, #3498db, #2980b9);
   transform: translateX(-50%);
+  border-radius: 1.5px;
 }
 
 .timeline-item {
   position: relative;
-  margin: 2rem 0;
-  padding: 1rem;
-  background: #fff;
+  margin: 4rem 0;
+  width: 45%;
+}
+
+.timeline-item.left {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.timeline-item.right {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.timeline-content {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  background: #3498db;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.2);
+}
+
+.timeline-item.left::before {
+  right: -60px;
+  transform: translateY(-50%);
+}
+
+.timeline-item.right::before {
+  left: -60px;
+  transform: translateY(-50%);
+}
+
+.timeline-item::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 40px;
+  height: 2px;
+  background: #3498db;
+}
+
+.timeline-item.left::after {
+  right: -40px;
+  transform: translateY(-50%);
+}
+
+.timeline-item.right::after {
+  left: -40px;
+  transform: translateY(-50%);
+}
+
+.timeline-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  margin-bottom: 1rem;
 }
 
 .year {
   font-weight: bold;
   color: #3498db;
   margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.event {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.event-description {
+  color: #34495e;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.timeline-content:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 768px) {
+  .timeline-item {
+    width: 85%;
+    margin: 3rem auto;
+  }
+
+  .timeline-item.left::before,
+  .timeline-item.right::before {
+    left: -40px;
+  }
+
+  .timeline-item.left::after,
+  .timeline-item.right::after {
+    left: -20px;
+    width: 20px;
+  }
+
+  .timeline::before {
+    left: 0;
+  }
 }
 
 /* 团队成员样式 */
