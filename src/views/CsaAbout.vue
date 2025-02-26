@@ -1,12 +1,21 @@
 <!--  关于我们  -->
 
 <script setup>
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
+
+const parallaxBg = ref(null)
 
 onMounted(() => {
   const sections = document.querySelectorAll('.section')
 
   const handleScroll = () => {
+    // 视差滚动效果
+    if (parallaxBg.value) {
+      const scrolled = window.pageYOffset
+      parallaxBg.value.style.transform = `translateY(${-scrolled * 0.3}px)`
+    }
+
+    // 原有的section滚动效果
     sections.forEach(section => {
       const rect = section.getBoundingClientRect()
       const windowHeight = window.innerHeight
@@ -32,11 +41,16 @@ onMounted(() => {
 </script>
 
 <template>
+
   <head>
     <title>关于我们-CSA-网络空间安全协会</title>
     <meta name = 'about' content="协会介绍-about界面">
   </head>
+
   <div class="about-container">
+    <div class="parallax-bg" ref="parallaxBg"></div>
+    <div class="parallax-overlay"></div>
+
     <!-- 协会介绍板块 -->
     <section id="about" class="section">
       <div class="content-wrapper">
@@ -165,8 +179,32 @@ onMounted(() => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+  position: relative;
+  z-index: 1;
 }
 
+.parallax-bg {
+  position: fixed;
+  top: 0%;
+  left: 0;
+  width: 100%;
+  height: 250%;
+  background-image: url('@/assets/about/bg.jpg');
+  background-size: cover;
+  background-position: center;
+  transform: translateZ(0);
+  z-index: 0;
+  will-change: transform;
+}
+.parallax-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+  z-index: 0;
+}
 .section {
   min-height: 100vh;
   text-align: center;
