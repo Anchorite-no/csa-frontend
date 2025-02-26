@@ -11,8 +11,12 @@ onMounted(() => {
   const handleScroll = () => {
     // 视差滚动效果
     if (parallaxBg.value) {
-      const scrolled = window.pageYOffset
-      parallaxBg.value.style.transform = `translateY(${-scrolled * 0.3}px)`
+      const scrolled = window.scrollY
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight
+      // 计算滚动百分比，确保滚动到底部时图片底部对齐
+      const scrollPercentage = (scrolled / maxScroll) * 66.7
+      parallaxBg.value.style.transform = `translateY(-${scrollPercentage}%)`
+      //让背景图片position fixed， 再在这里加上一个位移，视差滚动马上就来了
     }
 
     // 原有的section滚动效果
@@ -25,7 +29,8 @@ onMounted(() => {
       const visibleRatio = Math.max(0, Math.min(1, visibleHeight / windowHeight))
 
       // 根据可见比例设置透明度和模糊效果
-      section.style.opacity = visibleRatio
+      section.style.opacity = (visibleRatio > 0.9) ? 1 : visibleRatio/0.9
+      //可见比例占到屏幕的90%就让它完全不透明吧,占满的要求还是有点高了
       section.style.backdropFilter = `blur(${5 - (visibleRatio * 5)}px)`
       section.style.transform = `translateY(${20 - (visibleRatio * 20)}px)`
     })
@@ -39,6 +44,7 @@ onMounted(() => {
   })
 })
 </script>
+
 
 <template>
 
@@ -138,7 +144,7 @@ onMounted(() => {
             <p>负责宣传活动</p>
           </div>
           <div class="team-member fade-in">
-            <img src="@/assets/about/team-avatar/secretary.png" class="member-avatar" alt="秘书部头像">
+            <img src="@/assets/about/team-avatar/secretary.jpg" class="member-avatar" alt="秘书部头像">
             <h3>秘书部</h3>
             <p>负责协会运营的大小事宜</p>
           </div>
@@ -185,13 +191,14 @@ onMounted(() => {
 
 .parallax-bg {
   position: fixed;
-  top: 0%;
+  top: 0;
   left: 0;
   width: 100%;
-  height: 250%;
-  background-image: url('@/assets/about/bg.jpg');
-  background-size: cover;
-  background-position: center;
+  height: 300%; /* 这里也不可以随便填，用来调整容器尺寸，图片自适应cover容器，故而调整背景图的显示尺寸，现在的滚动逻辑会受到这个参数的影响，但是好改，改一下倍率即可，背景图一旦选定则长期不改，可以接受。去handleScroll()里找视差效果实现的代码 */
+  background-image: url('@/assets/about/background/bg.jpg');
+  background-size: cover;  /* 如果使用100% auto的话，如果图片尺寸和容器大小没调好...那么图片会反复，还是别了 */
+  /*但是100% auto对变化大小的窗口表现更好，对手机端的表现应该也更好，考虑是否要优化 */
+  background-position: center top; /*水平方向居中对齐，垂直方向顶部对齐*/
   transform: translateZ(0);
   z-index: 0;
   will-change: transform;
