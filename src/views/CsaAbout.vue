@@ -5,27 +5,26 @@ import { onMounted, onUnmounted } from 'vue'
 
 onMounted(() => {
   const sections = document.querySelectorAll('.section')
-  
+
   const handleScroll = () => {
     sections.forEach(section => {
       const rect = section.getBoundingClientRect()
       const windowHeight = window.innerHeight
-      
-      // 计算section在视口中的可见比例
+
+      // 计算section在视口中的可见比例（相对于视口高度）
       const visibleHeight = Math.min(rect.bottom, windowHeight) - Math.max(rect.top, 0)
-      const sectionHeight = rect.height
-      const visibleRatio = Math.max(0, Math.min(1, visibleHeight / sectionHeight))
-      
+      const visibleRatio = Math.max(0, Math.min(1, visibleHeight / windowHeight))
+
       // 根据可见比例设置透明度和模糊效果
-      section.style.opacity = 0.3 + (visibleRatio * 0.7)
+      section.style.opacity = visibleRatio
       section.style.backdropFilter = `blur(${5 - (visibleRatio * 5)}px)`
       section.style.transform = `translateY(${20 - (visibleRatio * 20)}px)`
     })
   }
-  
+
   window.addEventListener('scroll', handleScroll)
   handleScroll() // 初始化时执行一次
-  
+
   onUnmounted(() => {
     window.removeEventListener('scroll', handleScroll)
   })
