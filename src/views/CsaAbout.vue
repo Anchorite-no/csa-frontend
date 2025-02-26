@@ -323,7 +323,13 @@ h2 {
   left: 50%;
   width: 3px;
   height: 100%;
-  background: linear-gradient(to bottom, #3498db, #2980b9);
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    #3498db 10%,
+    #3498db 90%,
+    transparent
+  );
   transform: translateX(-50%);
   border-radius: 1.5px;
 }
