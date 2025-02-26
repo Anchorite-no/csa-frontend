@@ -102,10 +102,10 @@
       </div>
     </section>
 
-    <!-- 主要活动展示 -->
+    <!-- 活动展示 -->
     <section id="activities" class="section">
       <div class="content-wrapper">
-        <h2 class="fade-in">主要活动展示</h2>
+        <h2 class="fade-in">活动展示</h2>
         <div class="activities-grid">
           <div class="activity-card fade-in">
             <h3>技术讲座</h3>
@@ -137,13 +137,14 @@
 }
 
 .section {
-  margin-bottom: 4rem;
+  margin-bottom: 10rem;
   text-align: center;
 }
 
 .content-wrapper {
   max-width: 1000px;
   margin: 0 auto;
+  padding: 2rem 0;
 }
 
 h2 {
@@ -274,7 +275,8 @@ h2 {
 }
 /* 淡入动画 */
 .fade-in {
-  animation: fadeIn_ani 2s ease-out forwards; /*使用CSS动画，保持最后一帧的状态*/
+  animation: fadeIn_ani 1.5s ease-out; /*使用CSS动画*/
+  /* 这里不要用forwards，不然animation会让元素强制保持最后一帧状态，导致其他过渡效果失效 */
 }
 @keyframes fadeIn_ani {
   from {
