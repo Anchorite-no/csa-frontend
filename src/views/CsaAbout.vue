@@ -90,16 +90,13 @@ const shiftRight = () => { //imgID全体右移, position在中间的和最左边
 const displayCards = computed(() => {
   const len = 5
 
-  return {
-    positions:  [
-      (position.value) % len,  // 确保不会出现负数
-      (position.value + 1) % len,
-      (position.value + 2) % len,
-      (position.value + 3) % len,
-      (position.value + 4) % len
-    ],
-    imgIDs: imgID
-  }
+  return [
+      [(position.value) % len, imgID[0]],
+      [(position.value + 1) % len, imgID[1]],
+      [(position.value + 2) % len, imgID[2]],
+      [(position.value + 3) % len, imgID[3]],
+      [(position.value + 4) % len, imgID[4]]
+    ]
 })
 
 const handleMouseDown = (e) => {
@@ -387,16 +384,16 @@ onUnmounted(() => {
         <div class="venue-carousel" @mousedown="handleMouseDown">
           <div class="venue-stage">
             <div
-              v-for="(position,index) in displayCards.positions"
+              v-for="([position, imgID],index) in displayCards"
               :key="index"
               class="venue-card"
               :style="getCardStyle(position)"
             >
             <!-- key为index，共5张卡片，可见的三张卡牌不会变更内容，隐藏的两张卡片顺序切换图片 -->
-              <img :src="venues[displayCards.imgIDs[index]].image" :alt="venues[displayCards.imgIDs[index]].title" class="venue-image">
+              <img :src="venues[imgID].image" :alt="venues[imgID].title" class="venue-image">
               <div class="venue-info">
-                <h3>{{ venues[displayCards.imgIDs[index]].title }}</h3>
-                <p>{{ venues[displayCards.imgIDs[index]].description }}</p>
+                <h3>{{ venues[imgID].title }}</h3>
+                <p>{{ venues[imgID].description }}</p>
               </div>
             </div>
           </div>
@@ -816,6 +813,7 @@ h2 {
   height: 600px;
   perspective: 1000px;
   user-select: none;
+  /* overflow:hidden */
 }
 
 .venue-stage {
@@ -840,10 +838,15 @@ h2 {
   transition: all 0.5s ease;
   cursor: grab;
   transform-origin: center center;
-}
 
-.venue-card:active {
-  cursor: grabbing;
+  &:active {
+    cursor: grabbing;
+  }
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  }
 }
 
 .venue-image {
@@ -854,18 +857,18 @@ h2 {
 
 .venue-info {
   padding: 1.5rem;
-}
 
-.venue-info h3 {
-  font-size: 1.5rem;
-  color: #2c3e50;
-  margin-bottom: 1rem;
-}
+  h3 {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+  }
 
-.venue-info p {
-  color: #34495e;
-  line-height: 1.6;
-  font-size: 1rem;
+  p {
+    color: #34495e;
+    line-height: 1.6;
+    font-size: 1rem;
+  }
 }
 
 @media (max-width: 768px) {
@@ -884,12 +887,14 @@ h2 {
     height: 200px;
   }
 
-  .venue-info h3 {
-    font-size: 1.2rem;
-  }
+  .venue-info {
+    h3 {
+      font-size: 1.2rem;
+    }
 
-  .venue-info p {
-    font-size: 0.9rem;
+    p {
+      font-size: 0.9rem;
+    }
   }
 }
 </style>
