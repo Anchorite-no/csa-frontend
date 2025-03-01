@@ -66,7 +66,7 @@ const fetchNameList = () => {
         })
         .then(res => {
             total.value = res.data.count
-            SigninList.value = res.data.list
+            SigninList.value = res.data.result
         })
 
     if (
@@ -79,6 +79,11 @@ const fetchNameList = () => {
 
 let timer1 = null
 let timer2 = null
+
+onUnmounted(() => {
+    clearInterval(timer1)
+    clearInterval(timer2)
+})
 
 watch(visible, value => {
     if (value) {
@@ -182,12 +187,12 @@ watch(visible, value => {
                 <DataTable :value="SigninList" class="mb-4">
                     <Column field="uid" header="学号">
                         <template #body="{ data }">
-                            <div class="min-w-48">{{ data.title }}</div>
+                            <div class="min-w-48">{{ data.uid }}</div>
                         </template>
                     </Column>
                     <Column field="uid" header="学号">
                         <template #body="{ data }">
-                            <div class="min-w-48">{{ data.title }}</div>
+                            <div class="min-w-48">{{ data.nick }}</div>
                         </template>
                     </Column>
                 </DataTable>
