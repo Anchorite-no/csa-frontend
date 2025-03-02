@@ -1,4 +1,5 @@
 <script setup>
+import CsaEmpty from '@/components/CsaEmpty.vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -94,6 +95,7 @@ watch([page, size, category], () => {
             </div>
             <div class="text-2xl mb-8">{{ table[category - 1].english }}</div>
             <div class="mb-10">
+                <CsaEmpty v-if="data.length === 0"></CsaEmpty>
                 <div class="flex flex-col gap-y-8">
                     <div v-for="(item, index) in data" :key="index">
                         <div
