@@ -112,6 +112,14 @@ const router = createRouter({
                         title: '活动管理',
                     },
                 },
+                {
+                    path: 'user',
+                    name: 'admin-users',
+                    component: () => import('../views/CsaAdminUser.vue'),
+                    meta: {
+                        title: '用户管理',
+                    },
+                },
             ],
         },
     ],

@@ -25,6 +25,7 @@ const options = {
     cache: {
         enable: false,
     },
+    cdn: 'https://cdn.jsdelivr.net/npm/vditor@3.10.9',
 }
 
 const data = reactive({
@@ -71,7 +72,6 @@ const cateOptions = eventCategory.slice(1).map((item, index) => {
 
 watch(visible, value => {
     if (value) {
-        console.log(props.eid)
         if (props.eid) {
             loading.value = true
             rendering.value = true
