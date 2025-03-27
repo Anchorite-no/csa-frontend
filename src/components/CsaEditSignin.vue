@@ -77,6 +77,39 @@ const fetchNameList = () => {
     }
 }
 
+const downloadNameList = () => {
+    axios
+        .get('/event/participations', {
+            params: {
+                eid: props.eid,
+                page: 1,
+                size: 0,
+            },
+        })
+        .then(res => {
+            // construct a csv file
+            const csv = res.data.result
+                .map(item => {
+                    return `${item.uid},${item.nick},${new Date(
+                        item.participation_time * 1000
+                    ).toLocaleString()}`
+                })
+                .join('\n')
+            const header = '学号,姓名,签到时间\n'
+            const filename = `签到名单_${props.eid}_${new Date().toLocaleString()}.csv`
+            const blob = new Blob([header + csv], {
+                type: 'text/csv;charset=utf-8;',
+            })
+            const link = document.createElement('a')
+            link.href = URL.createObjectURL(blob)
+            link.setAttribute('download', filename)
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+            URL.revokeObjectURL(link.href)
+        })
+}
+
 let timer1 = null
 let timer2 = null
 
@@ -187,16 +220,36 @@ watch(visible, value => {
                 <DataTable :value="SigninList" class="mb-4">
                     <Column field="uid" header="学号">
                         <template #body="{ data }">
-                            <div class="min-w-48">{{ data.uid }}</div>
+                            <div class="min-w-32">{{ data.uid }}</div>
                         </template>
                     </Column>
-                    <Column field="uid" header="学号">
+                    <Column field="uid" header="姓名">
                         <template #body="{ data }">
-                            <div class="min-w-48">{{ data.nick }}</div>
+                            <div class="min-w-32">{{ data.nick }}</div>
+                        </template>
+                    </Column>
+                    <Column field="uid" header="签到时间">
+                        <template #body="{ data }">
+                            <div class="min-w-32">
+                                {{
+                                    new Date(
+                                        data.participation_time * 1000
+                                    ).toLocaleString()
+                                }}
+                            </div>
                         </template>
                     </Column>
                 </DataTable>
-                <div class="flex justify-end">
+                <div class="flex justify-end items-center gap-4">
+                    <div>
+                        <Button
+                            type="button"
+                            label="导出"
+                            size="small"
+                            icon="pi pi-download"
+                            @click="downloadNameList"
+                        ></Button>
+                    </div>
                     <Paginator
                         v-model:page="page"
                         v-model:rows="size"
