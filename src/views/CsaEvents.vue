@@ -70,12 +70,14 @@ watch([page, size, category], () => {
 
 <template>
     <div
-        class="mx-auto py-12 px-12 xl:px-0 flex flex-col md:flex-row gap-x-12 xl:gap-x-20 justify-center"
+        class="mx-auto py-12 px-6 md:px-12 xl:px-0 flex flex-col md:flex-row gap-x-12 xl:gap-x-20 justify-center"
     >
         <div
-            class="sidebar w-full mb-20 md:w-64 md:h-[22rem] bg-gradient-to-r from-gray-900 to-gray-800 text-white shadow-lg rounded-xl p-4 md:p-8 shrink-0"
+            class="sidebar w-full mb-20 md:w-64 md:h-[38rem] bg-gradient-to-r from-white to-neutral-50 dark:from-gray-900 dark:to-gray-800 dark:text-white shadow-lg rounded-xl p-8 shrink-0"
         >
-            <div class="text-2xl font-bold mb-8 mt-8 text-center">内容分类</div>
+            <div class="text-2xl font-bold mb-8 mt-0 md:mt-8 text-center">
+                内容分类
+            </div>
             <div
                 class="flex flex-row flex-wrap md:flex-col gap-y-2 md:gap-y-4 gap-x-2 justify-center"
             >
@@ -99,7 +101,7 @@ watch([page, size, category], () => {
                 <div class="flex flex-col gap-y-8">
                     <div v-for="(item, index) in data" :key="index">
                         <div
-                            class="py-6 px-8 rounded-xl border border-neutral-200 dark:border-0 dark:bg-neutral-100/5 shadow-xl hover:scale-105 transition-transform cursor-pointer"
+                            class="py-3 px-3 md:py-6 md:px-8 rounded-xl border border-neutral-200 dark:border-0 dark:bg-neutral-100/5 shadow-xl hover:scale-105 transition-transform cursor-pointer"
                             @click="() => handleClick(item)"
                         >
                             <div
@@ -119,7 +121,7 @@ watch([page, size, category], () => {
                                     class="p-4 w-full flex grow justify-between items-start my-1"
                                 >
                                     <div>
-                                        <div class="text-xl font-bold mb-1">
+                                        <div class="text-xl font-bold mb-2">
                                             {{ item.title }}
                                         </div>
                                         <div class="flex gap-1" v-if="item.tag">
@@ -135,7 +137,7 @@ watch([page, size, category], () => {
                                                 ></Tag>
                                             </div>
                                         </div>
-                                        <div class="text-neutral-600 mt-3">
+                                        <div class="text-neutral-600 mt-2">
                                             {{ item.summary }}
                                         </div>
                                     </div>
@@ -183,23 +185,36 @@ watch([page, size, category], () => {
 .tab-button {
     padding: 1rem;
     margin-bottom: 0.5rem;
-    background-color: #1f2937;
-    color: white;
-    border: none;
+    background-color: #ffffff;
+    color: black;
+    border: 1px solid #e4e4e4;
     border-radius: 0.375rem;
     font-size: 1.125rem;
     transition:
-        background 0.3s ease,
-        transform 0.1s ease;
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
     cursor: pointer;
 }
 
 .tab-button:hover {
-    background-color: #4b5563;
+    background-color: #f9f9f9;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .tab-button:active {
     transform: scale(0.95);
+}
+@media (prefers-color-scheme: dark) {
+    .tab-button {
+        background-color: #1f2937;
+        color: white;
+        border: none;
+    }
+
+    .tab-button:hover {
+        background-color: #4b5563;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
 }
 </style>

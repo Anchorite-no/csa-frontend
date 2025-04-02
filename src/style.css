@@ -25,7 +25,7 @@
 }
 
 .main-menu {
-    @apply w-[100%] md:w-[80%] lg:w-[70%] xl:w-[60%] 2xl:w-[50%];
+    @apply w-[100%] md:w-[80%] lg:w-[70%] xl:w-[60%] 2xl:w-[50%] mx-4;
 }
 
 .main-part-lg {
