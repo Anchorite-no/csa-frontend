@@ -24,17 +24,17 @@ axios
 <template>
     <div class="main-part mx-auto py-16">
         <div v-if="data">
-            <div class="text-3xl font-bold mb-2">{{ data.title }}</div>
-            <div class="flex flex-col gap-x-1 mb-3" v-if="data.tag">
-                <div v-for="tag in data.tag.split(' ')" :key="tag">
-                    <Tag :value="tag" class="text-nowrap"></Tag>
-                </div>
-            </div>
+            <div class="text-3xl font-bold mb-4">{{ data.title }}</div>
             <div>
                 {{ data.publisher }}
             </div>
-            <div class="mb-6">
+            <div class="mb-2">
                 {{ new Date(data.first_publish * 1000).toLocaleDateString() }}
+            </div>
+            <div class="flex gap-x-2 mb-6" v-if="data.tag">
+                <div v-for="tag in data.tag.split(' ')" :key="tag">
+                    <Tag :value="tag" class="text-nowrap" />
+                </div>
             </div>
 
             <div
