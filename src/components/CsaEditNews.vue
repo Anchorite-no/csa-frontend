@@ -17,6 +17,7 @@ const options = {
     cache: {
         enable: false,
     },
+    cdn: 'https://cdn.jsdelivr.net/npm/vditor@3.10.9',
 }
 
 const visible = computed({

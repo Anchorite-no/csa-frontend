@@ -29,14 +29,14 @@ const router = createRouter({
                         title: '登录',
                     },
                 },
-                {
+                /* {
                     path: 'register',
                     name: 'register',
                     component: () => import('../views/CsaRegister.vue'),
                     meta: {
                         title: '注册',
                     },
-                },
+                }, */
                 {
                     path: 'about',
                     name: 'about',
@@ -110,6 +110,14 @@ const router = createRouter({
                     component: () => import('../views/CsaAdminEvent.vue'),
                     meta: {
                         title: '活动管理',
+                    },
+                },
+                {
+                    path: 'user',
+                    name: 'admin-users',
+                    component: () => import('../views/CsaAdminUser.vue'),
+                    meta: {
+                        title: '用户管理',
                     },
                 },
             ],

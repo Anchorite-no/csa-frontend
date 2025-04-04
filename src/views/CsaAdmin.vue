@@ -30,14 +30,7 @@ const items = ref([
                 label: '用户管理',
                 icon: 'pi pi-cog',
                 command: () => {
-                    router.push({ path: 'admin-users' })
-                },
-            },
-            {
-                label: '会员管理',
-                icon: 'pi pi-sign-out',
-                command: () => {
-                    router.push({ path: 'admin-members' })
+                    router.push({ name: 'admin-users' })
                 },
             },
         ],

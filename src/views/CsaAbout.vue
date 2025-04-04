@@ -1,5 +1,3 @@
-<!--  关于我们  -->
-
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue'
 
@@ -15,6 +13,8 @@ import Venue from './CsaAbout/AboutVenue.vue'
 import '@/assets/about/styles/about.css' //引入公有样式
 
 const parallaxBg = ref(null)
+let sections = [] // 缓存sections元素
+let rafId = null // 存储requestAnimationFrame ID
 
 // 添加节流函数， 原始函数+延迟时间(ms)
 function throttle(fn, delay) {
@@ -44,8 +44,14 @@ onMounted(() => {
 
     // section滚动效果
     sections.forEach(section => {
-      const rect = section.getBoundingClientRect()
-      const windowHeight = window.innerHeight
+        const rect = section.getBoundingClientRect()
+        const windowHeight = window.innerHeight
+        const visibleHeight =
+            Math.min(rect.bottom, windowHeight) - Math.max(rect.top, 0)
+        const visibleRatio = Math.max(
+            0,
+            Math.min(1, visibleHeight / windowHeight)
+        )
 
       // 计算section在视口中的可见比例（相对于视口高度）
       const visibleHeight = Math.min(rect.bottom, windowHeight) - Math.max(rect.top, 0)
@@ -67,7 +73,6 @@ onMounted(() => {
   })
 })
 </script>
-
 
 <template>
   <head>
