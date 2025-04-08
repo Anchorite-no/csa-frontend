@@ -138,4 +138,10 @@ onUnmounted(() => {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
   z-index: 0;
 }
+
+/* 浅浅调教一下右侧拖动条, 不要算了... 留着还一堆bug */
+html {
+  scrollbar-width: none;
+}
+
 </style>

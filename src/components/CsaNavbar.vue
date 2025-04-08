@@ -2,11 +2,9 @@
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const isCollapsed = ref(false)
 
-const toggleNav = () => {
-    isCollapsed.value = !isCollapsed.value
-}
+import { useNavbarStore } from '@/stores/navbar'
+const navbarStore = useNavbarStore()
 
 const items = ref([
     {
@@ -36,7 +34,16 @@ const items = ref([
     },
 ])
 
-const isAboutPage = computed(() => route.name === 'about')
+const isAboutPage = ref(false)
+watch(
+    () => route.name,
+    val => {
+        if (val !== 'about') {
+            isAboutPage.value = false
+            navbarStore.isCollapsed = false // 进入其他页面时收起导航栏
+        }
+    }
+)
 </script>
 
 <template>
@@ -44,8 +51,12 @@ const isAboutPage = computed(() => route.name === 'about')
     <div class="nav-button-container">
         <Button
             v-if="isAboutPage"
-            icon="pi pi-bars"
-            @click="toggleNav"
+            :icon="
+                navbarStore.isCollapsed
+                    ? 'pi pi-chevron-down'
+                    : 'pi pi-chevron-up'
+            "
+            @click="navbarStore.toggleNav"
             class="nav-toggle-btn"
             severity="secondary"
             text
@@ -57,7 +68,7 @@ const isAboutPage = computed(() => route.name === 'about')
         class="card"
         :class="[
             isAboutPage ? 'about-nav' : 'fixed-nav',
-            isCollapsed ? 'nav-collapsed' : '',
+            navbarStore.isCollapsed ? 'nav-collapsed' : '',
         ]"
     >
         <!-- 不确定其它页面是否也要采取position:absolute(这会带来一些问题)或者其他设置, 所以仅对about页面进行特殊处理，但navbar的z-index所有页面都设置得高一点应该是合理的，需要的话直接把about的判断去掉，全部用about-nav就行了(( -->
