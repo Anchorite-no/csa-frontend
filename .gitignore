@@ -28,3 +28,7 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+
+
+# About
+/src/assets/about/trash-bin/
