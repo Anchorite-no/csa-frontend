@@ -83,7 +83,7 @@ onMounted(() => {
 
 .info-section {
   margin-bottom: 2.5rem;
-  translate: 3vw 0;
+  padding-left: 3vw;
 }
 
 .info-title {
