@@ -1,5 +1,6 @@
 <script setup>
 import { useRoute } from 'vue-router'
+import { ref, inject, onMounted } from 'vue'
 import Showdown from 'showdown'
 
 const route = useRoute()
@@ -9,61 +10,589 @@ const axios = inject('axios')
 const converter = new Showdown.Converter()
 
 const data = ref(null)
+const loading = ref(true)
 
-axios
-    .get('/news/detail', {
-        params: {
-            nid: nid,
-        },
-    })
-    .then(res => {
-        data.value = res.data
-    })
+const fetchNewsDetail = async () => {
+    loading.value = true
+    try {
+        const response = await axios.get('/news/detail', {
+            params: {
+                nid: nid,
+            },
+        })
+        data.value = response.data
+    } catch (error) {
+        console.error('获取新闻详情失败:', error)
+    } finally {
+        loading.value = false
+    }
+}
+
+onMounted(() => {
+    fetchNewsDetail()
+})
 </script>
 
 <template>
-    <div class="main-part mx-auto py-16">
-        <div v-if="data">
-            <div class="text-3xl font-bold mb-4">{{ data.title }}</div>
-            <div>
-                {{ data.publisher }}
+    <div class="news-detail-container">
+        <!-- 加载状态 -->
+        <div v-if="loading" class="loading-state">
+            <div class="skeleton-header">
+                <div class="skeleton-title"></div>
+                <div class="skeleton-meta">
+                    <div class="skeleton-author"></div>
+                    <div class="skeleton-date"></div>
+                </div>
+                <div class="skeleton-tags">
+                    <div class="skeleton-tag"></div>
+                    <div class="skeleton-tag"></div>
+                </div>
             </div>
-            <div class="mb-2">
-                {{ new Date(data.first_publish * 1000).toLocaleDateString() }}
+            <div class="skeleton-content">
+                <div class="skeleton-paragraph"></div>
+                <div class="skeleton-paragraph"></div>
+                <div class="skeleton-paragraph"></div>
+                <div class="skeleton-paragraph"></div>
             </div>
-            <div class="flex gap-x-2 mb-6" v-if="data.tag">
-                <div v-for="tag in data.tag.split(' ')" :key="tag">
-                    <Tag :value="tag" class="text-nowrap" />
+        </div>
+
+        <!-- 新闻详情 -->
+        <div v-else-if="data" class="news-detail">
+            <!-- 新闻头部 -->
+            <div class="news-header">
+                <div class="news-category">
+                    <i class="pi pi-newspaper"></i>
+                    <span>新闻资讯</span>
+                </div>
+                
+                <h1 class="news-title">{{ data.title }}</h1>
+                
+                <div class="news-meta">
+                    <div class="meta-item">
+                        <i class="pi pi-user"></i>
+                        <span>发布者：{{ data.publisher }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="pi pi-calendar"></i>
+                        <span>发布时间：{{ new Date(data.first_publish * 1000).toLocaleDateString('zh-CN', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        }) }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="pi pi-eye"></i>
+                        <span>阅读量：{{ data.views || 0 }}</span>
+                    </div>
+                </div>
+
+                <div class="news-tags" v-if="data.tag">
+                    <span 
+                        v-for="tag in data.tag.split(' ')" 
+                        :key="tag"
+                        class="news-tag"
+                    >
+                        {{ tag }}
+                    </span>
                 </div>
             </div>
 
-            <div
-                class="main-content"
-                v-html="converter.makeHtml(data.content)"
-            ></div>
+            <!-- 新闻内容 -->
+            <div class="news-content">
+                <div 
+                    class="content-body"
+                    v-html="converter.makeHtml(data.content)"
+                ></div>
+            </div>
+
+            <!-- 新闻底部 -->
+            <div class="news-footer">
+                <div class="footer-divider"></div>
+                <div class="footer-info">
+                    <!-- <div class="info-item">
+                        <i class="pi pi-share-alt"></i>
+                        <span>分享到：</span>
+                        <div class="share-buttons">
+                            <button class="share-btn wechat">
+                                <i class="pi pi-comments"></i>
+                                微信
+                            </button>
+                            <button class="share-btn weibo">
+                                <i class="pi pi-globe"></i>
+                                微博
+                            </button>
+                        </div>
+                    </div> -->
+                    <div class="info-item">
+                        <i class="pi pi-arrow-left"></i>
+                        <router-link to="/news" class="back-link">
+                            返回新闻列表
+                        </router-link>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div v-else>
-            <Skeleton height="2rem" class="mb-2"></Skeleton>
-            <Skeleton height="1rem" width="6rem" class="mb-8"></Skeleton>
-            <Skeleton height="1.2rem" class="mb-2"></Skeleton>
-            <Skeleton height="1.2rem" class="mb-2"></Skeleton>
-            <Skeleton height="1.2rem" class="mb-2"></Skeleton>
-            <Skeleton height="1.2rem" class="mb-2"></Skeleton>
+
+        <!-- 错误状态 -->
+        <div v-else class="error-state">
+            <div class="error-icon">
+                <i class="pi pi-exclamation-triangle"></i>
+            </div>
+            <h3 class="error-title">新闻不存在</h3>
+            <p class="error-message">抱歉，您访问的新闻内容不存在或已被删除</p>
+            <router-link to="/news" class="back-btn">
+                <i class="pi pi-arrow-left"></i>
+                返回新闻列表
+            </router-link>
         </div>
     </div>
 </template>
 
-<style>
-.main-content p {
-    margin: 2rem 0;
-    width: 100%;
+<style scoped>
+.news-detail-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 40px 20px;
 }
 
-.main-content img {
-    margin: 2rem auto;
-    max-width: 40rem;
-    max-height: 30rem;
+/* 加载状态 */
+.loading-state {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.skeleton-header {
+    margin-bottom: 40px;
+}
+
+.skeleton-title {
+    height: 40px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.skeleton-meta {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.skeleton-author,
+.skeleton-date {
+    height: 16px;
+    width: 120px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+}
+
+.skeleton-tags {
+    display: flex;
+    gap: 10px;
+}
+
+.skeleton-tag {
+    height: 24px;
+    width: 80px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 12px;
+}
+
+.skeleton-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.skeleton-paragraph {
+    height: 16px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+}
+
+.skeleton-paragraph:nth-child(2) {
+    width: 90%;
+}
+
+.skeleton-paragraph:nth-child(3) {
+    width: 85%;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* 新闻详情 */
+.news-detail {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.news-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px;
+    text-align: center;
+}
+
+.news-category {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.news-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0 0 30px 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.news-meta {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+
+.meta-item i {
+    font-size: 1rem;
+}
+
+.news-tags {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.news-tag {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.news-content {
+    padding: 40px;
+}
+
+.content-body {
+    line-height: 1.8;
+    color: #333;
+    font-size: 1.05rem;
+}
+
+.content-body h1,
+.content-body h2,
+.content-body h3,
+.content-body h4,
+.content-body h5,
+.content-body h6 {
+    color: #333;
+    margin: 2rem 0 1rem 0;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.content-body h1 {
+    font-size: 1.8rem;
+    border-bottom: 2px solid #667eea;
+    padding-bottom: 10px;
+}
+
+.content-body h2 {
+    font-size: 1.5rem;
+    color: #667eea;
+}
+
+.content-body h3 {
+    font-size: 1.3rem;
+}
+
+.content-body p {
+    margin: 1.2rem 0;
+    text-align: justify;
+}
+
+.content-body ul,
+.content-body ol {
+    margin: 1.2rem 0;
+    padding-left: 2rem;
+}
+
+.content-body li {
+    margin: 0.5rem 0;
+}
+
+.content-body img {
+    max-width: 100%;
     height: auto;
+    border-radius: 8px;
+    margin: 2rem auto;
+    display: block;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.content-body blockquote {
+    border-left: 4px solid #667eea;
+    padding: 1rem 1.5rem;
+    margin: 2rem 0;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+}
+
+.content-body code {
+    background: #f8f9fa;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.9rem;
+    color: #e83e8c;
+}
+
+.content-body pre {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    border: 1px solid #e9ecef;
+    margin: 1.5rem 0;
+}
+
+.content-body pre code {
+    background: none;
+    padding: 0;
+    color: #333;
+}
+
+.content-body table {
     width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.content-body th,
+.content-body td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.content-body th {
+    background: #667eea;
+    color: white;
+    font-weight: 600;
+}
+
+.content-body tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+.news-footer {
+    background: #f8f9fa;
+    padding: 30px 40px;
+    border-top: 1px solid #e9ecef;
+}
+
+.footer-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #667eea, transparent);
+    margin-bottom: 25px;
+}
+
+.footer-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #666;
+    font-size: 0.95rem;
+}
+
+.info-item i {
+    color: #667eea;
+}
+
+.share-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.share-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border: 1px solid #e9ecef;
+    background: white;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.share-btn.wechat:hover {
+    background: #07c160;
+    color: white;
+    border-color: #07c160;
+}
+
+.share-btn.weibo:hover {
+    background: #e6162d;
+    color: white;
+    border-color: #e6162d;
+}
+
+.back-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.back-link:hover {
+    color: #764ba2;
+}
+
+/* 错误状态 */
+.error-state {
+    max-width: 500px;
+    margin: 100px auto;
+    text-align: center;
+    background: white;
+    padding: 60px 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.error-icon {
+    font-size: 4rem;
+    color: #ff6b6b;
+    margin-bottom: 20px;
+}
+
+.error-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 15px 0;
+}
+
+.error-message {
+    color: #666;
+    font-size: 1rem;
+    margin: 0 0 30px 0;
+    line-height: 1.6;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.back-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .news-detail-container {
+        padding: 20px 15px;
+    }
+    
+    .news-header {
+        padding: 30px 20px;
+    }
+    
+    .news-title {
+        font-size: 2rem;
+    }
+    
+    .news-meta {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .news-content {
+        padding: 30px 20px;
+    }
+    
+    .content-body {
+        font-size: 1rem;
+    }
+    
+    .news-footer {
+        padding: 25px 20px;
+    }
+    
+    .footer-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .share-buttons {
+        margin-top: 10px;
+    }
 }
 </style>

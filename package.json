@@ -14,9 +14,10 @@
         "@primevue/themes": "^4.1.0",
         "@tsparticles/engine": "^3.6.0",
         "@tsparticles/vue3": "^3.0.1",
-        "axios": "^1.7.7",
+        "axios": "^1.11.0",
         "body-scroll-lock": "4.0.0-beta.0",
         "crypto-js": "^4.2.0",
+        "element-plus": "^2.10.7",
         "notyf": "^3.10.0",
         "particles.vue3": "^2.12.0",
         "pinia": "^2.2.4",
@@ -29,7 +30,8 @@
         "vditor": "3.8.18",
         "vue": "^3.5.11",
         "vue-router": "^4.4.5",
-        "vue-vditor": "^0.0.7"
+        "vue-vditor": "^0.0.7",
+        "vuedraggable": "^4.1.0"
     },
     "devDependencies": {
         "@eslint/js": "^9.12.0",
@@ -46,6 +48,6 @@
         "tailwindcss": "^3.4.13",
         "unplugin-auto-import": "^0.18.3",
         "unplugin-vue-components": "^0.27.4",
-        "vite": "^5.4.9"
+        "vite": "^5.4.19"
     }
 }

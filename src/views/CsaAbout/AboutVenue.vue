@@ -5,13 +5,13 @@ import { ref, computed } from 'vue'
 const venues = [
   {
     image: new URL('@/assets/about/venue/main_room1.png', import.meta.url).href,
-    title: '网络空间安全协会活动室',
+    title: '浙江大学学生网安协会实践训练基地',
     description: '位于浙江大学紫金港校区蒙民伟楼226，是我们开展日常活动、技术交流和团队协作的主要场所。配备完善的网络设施和安全设备，为成员提供良好的学习环境。'
   },
   {
     image: new URL('@/assets/about/venue/main_room2.png', import.meta.url).href,
-    title: '活动室2',
-    description: '....'
+    title: '浙江大学学生网安协会实践训练基地',
+    description: '位于浙江大学紫金港校区蒙民伟楼226，是我们开展日常活动、技术交流和团队协作的主要场所。配备完善的网络设施和安全设备，为成员提供良好的学习环境。'
   },
   {
     image: new URL('@/assets/about/venue/meeting_room1.jpg', import.meta.url).href,

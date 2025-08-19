@@ -77,8 +77,8 @@ const openModal = dept => {
     }
 
     //记录当前导航栏状态，并关闭导航栏
-    originalNavbarState = navbarStore.isCollapsed //存储当前状态，以便恢复
-    navbarStore.setCollapsed(true)
+    // originalNavbarState = navbarStore.isCollapsed //存储当前状态，以便恢复
+    // navbarStore.setCollapsed(true)
 
     // 300ms后显示模态框，确保滚动动画完成再显示模态框
     setTimeout(() => {
@@ -94,7 +94,7 @@ const closeModal = () => {
     enableBodyScroll(document.body)
 
     //恢复导航栏
-    navbarStore.setCollapsed(originalNavbarState)
+    // navbarStore.setCollapsed(originalNavbarState)
 }
 
 // 组件卸载时清理事件监听

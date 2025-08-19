@@ -85,6 +85,14 @@ const router = createRouter({
                         title: '活动详情',
                     },
                 },
+                {
+                    path: 'recruit',
+                    name: 'recruit',
+                    component: () => import('../views/CsaRecruit.vue'),
+                    meta: {
+                        title: '招新',
+                    },
+                },
             ],
         },
         {
@@ -118,6 +126,14 @@ const router = createRouter({
                     component: () => import('../views/CsaAdminUser.vue'),
                     meta: {
                         title: '用户管理',
+                    },
+                },
+                {
+                    path: 'recruit',
+                    name: 'admin-recruit',
+                    component: () => import('../views/CsaAdminRecruit.vue'),
+                    meta: {
+                        title: '招新管理',
                     },
                 },
             ],

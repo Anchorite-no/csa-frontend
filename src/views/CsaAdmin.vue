@@ -1,5 +1,6 @@
 <script setup>
 import { useRouter } from 'vue-router'
+import { ref } from 'vue'
 
 const router = useRouter()
 
@@ -9,18 +10,18 @@ const items = ref([
         items: [
             {
                 label: '新闻管理',
-                icon: 'pi pi-plus',
+                icon: 'pi pi-file-edit',
                 command: () => {
                     router.push({ name: 'admin-news' })
                 },
             },
             {
                 label: '活动管理',
-                icon: 'pi pi-search',
+                icon: 'pi pi-calendar',
                 command: () => {
                     router.push({ name: 'admin-event' })
                 },
-            },
+            }
         ],
     },
     {
@@ -28,13 +29,20 @@ const items = ref([
         items: [
             {
                 label: '用户管理',
-                icon: 'pi pi-cog',
+                icon: 'pi pi-user',
                 command: () => {
                     router.push({ name: 'admin-users' })
                 },
             },
+            {
+                label: '纳新管理',
+                icon: 'pi pi-user',
+                command: () => {
+                    router.push({ name: 'admin-recruit' })
+                },
+            }
         ],
-    },
+    }
 ])
 </script>
 

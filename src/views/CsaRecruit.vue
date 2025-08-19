@@ -1,0 +1,796 @@
+<script setup>
+import { ref, reactive, inject } from 'vue';
+import draggable from 'vuedraggable';
+
+const axios = inject('axios')
+
+// Reactive state for your form data
+const form = reactive({
+  name: '',
+  render: true,
+  uid: '',
+  major_id: null,
+  major_name: '',
+  college_id: null,
+  college_name: '',
+  degree: null, 
+  grade: null, 
+  phone: '',
+  office_department_willing: 0,
+  competition_department_willing: 0,
+  research_department_willing: 0,
+  activity_department_willing: 0,
+  if_agree_to_be_reassigned: false,
+  if_be_member: false,
+  introduction: '',
+  skill: '',
+});
+
+// Validation errors
+const validationErrors = reactive({
+  name: '',
+  uid: '',
+  phone: ''
+});
+
+// Track if fields have been touched
+const fieldTouched = reactive({
+  name: false,
+  uid: false,
+  phone: false
+});
+
+// Resume upload state
+const resumeFile = ref(null);
+const resumeUploadStatus = ref('');
+const resumeUploadLoading = ref(false);
+
+// Validation functions
+const validateName = (name) => {
+  if (!name) {
+    validationErrors.name = '姓名不能为空';
+    return false;
+  }
+  if (name.length > 12) {
+    validationErrors.name = '姓名长度不能超过12个字符';
+    return false;
+  }
+  if (!/^[\u4e00-\u9fa5a-zA-Z\s]+$/.test(name)) {
+    validationErrors.name = '姓名只能包含中文、英文字母和空格';
+    return false;
+  }
+  validationErrors.name = '';
+  return true;
+};
+
+const validateUid = (uid) => {
+  if (!uid) {
+    validationErrors.uid = '学号不能为空';
+    return false;
+  }
+  if (!/^\d{1,10}$/.test(uid)) {
+    validationErrors.uid = '学号只能包含1-10位数字';
+    return false;
+  }
+  validationErrors.uid = '';
+  return true;
+};
+
+const validatePhone = (phone) => {
+  if (!phone) {
+    validationErrors.phone = '手机号不能为空';
+    return false;
+  }
+  if (!/^1[3-9]\d{9}$/.test(phone)) {
+    validationErrors.phone = '请输入正确的11位手机号码';
+    return false;
+  }
+  validationErrors.phone = '';
+  return true;
+};
+
+// Debounced validation functions for real-time feedback
+let nameValidationTimeout = null;
+let uidValidationTimeout = null;
+let phoneValidationTimeout = null;
+
+const debouncedValidateName = (name) => {
+  fieldTouched.name = true;
+  clearTimeout(nameValidationTimeout);
+  nameValidationTimeout = setTimeout(() => {
+    validateName(name);
+  }, 300);
+};
+
+const debouncedValidateUid = (uid) => {
+  fieldTouched.uid = true;
+  clearTimeout(uidValidationTimeout);
+  uidValidationTimeout = setTimeout(() => {
+    validateUid(uid);
+  }, 300);
+};
+
+const debouncedValidatePhone = (phone) => {
+  fieldTouched.phone = true;
+  clearTimeout(phoneValidationTimeout);
+  phoneValidationTimeout = setTimeout(() => {
+    validatePhone(phone);
+  }, 300);
+};
+
+// Real-time validation
+const validateForm = () => {
+  const nameValid = validateName(form.name);
+  const uidValid = validateUid(form.uid);
+  const phoneValid = validatePhone(form.phone);
+  
+  return nameValid && uidValid && phoneValid;
+};
+
+// Use a ref for the draggable list, which will be our source of truth for department order
+const departmentList = ref([
+  { id: 'office_department_willing', name: '办公室部' },
+  { id: 'competition_department_willing', name: '竞赛部' },
+  { id: 'research_department_willing', name: '科研部' },
+  { id: 'activity_department_willing', name: '活动部' },
+]);
+
+const majorSearchResults = ref([]);
+
+// Function to handle major name search
+const searchMajor = async () => {
+  // Only search if input has at least 2 characters
+  if (form.major_name.length < 2) {
+    majorSearchResults.value = [];
+    return;
+  }
+  try {
+    const response = await axios.post('/recruit/major_search', { major_name: form.major_name , grade: form.grade});
+    majorSearchResults.value = response.data;
+  } catch (error) {
+    console.error('Major search failed:', error);
+  }
+};
+
+// Function to handle major confirmation on blur
+const confirmMajor = async () => {
+  // If user leaves the input field, confirm the major
+  if (!form.major_name) return;
+  try {
+    const response = await axios.post('/recruit/major_confirm', { major_name: form.major_name , grade: form.grade});
+    if (response.data.length > 0) {
+      const confirmedMajor = response.data[0];
+      form.major_id = confirmedMajor.major_id;
+      form.major_name = confirmedMajor.major_name;
+      form.college_id = confirmedMajor.college_id;
+      form.college_name = confirmedMajor.college_name;
+      majorSearchResults.value = [];
+    }
+  } catch (error) {
+    console.error('Major confirmation failed:', error);
+  }
+};
+
+// Function to update department order
+const updateDepartmentOrder = () => {
+  console.log('Department order updated:', departmentList.value);
+  form.office_department_willing = departmentList.value.find(dept => dept.id === 'office_department_willing').order;
+  form.competition_department_willing = departmentList.value.find(dept => dept.id === 'competition_department_willing').order;
+  form.research_department_willing = departmentList.value.find(dept => dept.id === 'research_department_willing').order;
+  form.activity_department_willing = departmentList.value.find(dept => dept.id === 'activity_department_willing').order;
+};
+
+// Function to select a major from search results
+const selectMajor = (major) => {
+  form.major_name = major.major_name;
+  form.major_id = major.major_id;
+  form.college_id = major.college_id;
+  form.college_name = major.college_name;
+  majorSearchResults.value = []; // Clear results after selection
+};
+
+// Function to handle resume file selection
+const handleResumeFileChange = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    // 验证文件类型
+    if (file.type !== 'application/pdf') {
+      alert('请选择PDF格式的文件');
+      event.target.value = '';
+      return;
+    }
+    
+    // 验证文件大小 (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('文件大小不能超过10MB');
+      event.target.value = '';
+      return;
+    }
+    
+    resumeFile.value = file;
+    resumeUploadStatus.value = '文件已选择: ' + file.name;
+  }
+};
+
+// Function to upload resume
+const uploadResume = async () => {
+  if (!resumeFile.value) {
+    alert('请先选择PDF文件');
+    return false;
+  }
+  
+  if (!form.uid) {
+    alert('请先填写学号');
+    return false;
+  }
+  
+  resumeUploadLoading.value = true;
+  resumeUploadStatus.value = '正在上传...';
+  
+  try {
+    const formData = new FormData();
+    formData.append('uid', form.uid);
+    formData.append('resume_file', resumeFile.value);
+    
+    const response = await axios.post('/recruit/upload_resume', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    
+    resumeUploadStatus.value = '上传成功: ' + response.data.message;
+    alert('简历上传成功！');
+  } catch (error) {
+    console.error('Resume upload failed:', error);
+    if (error.response && error.response.data && error.response.data.detail) {
+      resumeUploadStatus.value = '上传失败: ' + error.response.data.detail;
+      alert(`上传失败: ${error.response.data.detail}`);
+    } else {
+      resumeUploadStatus.value = '上传失败，请重试';
+      alert('上传失败，请重试');
+    }
+  } finally {
+    resumeUploadLoading.value = false;
+  }
+  return true;
+};
+
+// Function to submit the form
+const submitForm = async () => {
+  // Mark all fields as touched for validation display
+  fieldTouched.name = true;
+  fieldTouched.uid = true;
+  fieldTouched.phone = true;
+  
+  // Validate form before submission
+  if (!validateForm()) {
+    alert('请检查表单中的错误信息');
+    return;
+  }
+
+  // Map the ordered list back to the form object
+  departmentList.value.forEach((dept, index) => {
+    form[dept.id] = index + 1; // 1-based ranking
+  });
+
+  // Create a new payload object to send to the backend
+  const payload = { ...form };
+
+  // Convert grade data: Ensure it's a number
+  if (payload.grade) {
+    payload.grade = parseInt(payload.grade, 10);
+  }
+  
+  // Convert degree data: Map Chinese names to numerical codes
+  const degreeMap = {
+    '学士': 0,
+    '硕士': 1,
+    '博士': 2,
+    '博士后': 3,
+  };
+  payload.degree = degreeMap[payload.degree] !== undefined ? degreeMap[payload.degree] : 4;
+
+  // Debug: Log the payload being sent
+  console.log('Sending payload to backend:', payload);
+
+  try {
+    const response = await axios.post('/recruit/recruit_confirm', payload);
+    alert(response.data.message);
+    if (resumeFile.value && !await uploadResume()) {
+      alert('简历上传失败');
+      return;
+    }
+  } catch (error) {
+    console.error('Full error response:', error.response);
+    if (error.response && error.response.data && error.response.data.detail) {
+      alert(`提交失败: ${error.response.data.detail}`);
+    } else {
+      alert('提交失败，请重试。');
+    }
+    console.error('Form submission failed:', error);
+  }
+};
+</script>
+
+<template>
+  <div class="form-container">
+    <form @submit.prevent="submitForm">
+      <h2 class="form-title" style="font-size: 24px;">2025浙江大学学生网络空间安全协会纳新报名表</h2>
+      <div class="description">
+        <span style="color: rgb(1, 98, 244);">欢迎报名浙江大学网络空间安全协会！</span>
+        <div>请抽出5-10分钟的时间认真阅读并填写本问卷，以便协会统计面试信息，谢谢您的配合~</div>
+        <div>温馨提示：如果对浙江大学学生网络空间安全协会（CSA）各部门职能暂不明确，可以查看<span style="color: rgb(1, 98, 244);">ZJU网小安</span><span style="color: rgb(0, 0, 0);">（</span>公众号）纳新推文，也可在<span style="color: rgb(1, 98, 244);">纳新咨询群</span>（二维码在问卷末尾）提问哦~</div>
+      </div>
+      
+      <div class="input-format-guide">
+        <h4>📝 填写说明：</h4>
+        <ul>
+          <li><span class="required">*</span> 表示必填字段</li>
+        </ul>
+      </div>
+      
+      <div class="form-group">
+        <label for="name">姓名: <span class="required">*</span></label>
+        <input 
+          type="text" 
+          id="name" 
+          v-model="form.name" 
+          @blur="validateName(form.name)"
+          @input="debouncedValidateName(form.name)"
+          required
+          :class="{ 'error-input': validationErrors.name && fieldTouched.name }"
+        >
+        <span v-if="validationErrors.name && fieldTouched.name" class="error-message">{{ validationErrors.name }}</span>
+      </div>
+
+      <div class="form-group">
+        <label for="render">性别: <span class="required">*</span></label>
+        <select id="render" v-model="form.render" required>
+          <option :value="false">男</option>
+          <option :value="true">女</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="uid">学号: <span class="required">*</span></label>
+        <input 
+          type="text" 
+          id="uid" 
+          v-model="form.uid" 
+          @blur="validateUid(form.uid)"
+          @input="debouncedValidateUid(form.uid)"
+          required
+          :class="{ 'error-input': validationErrors.uid && fieldTouched.uid }"
+        >
+        <span v-if="validationErrors.uid && fieldTouched.uid" class="error-message">{{ validationErrors.uid }}</span>
+      </div>
+      
+      <div class="form-group">
+        <label for="degree">在读学位:<span class="required">*</span></label>
+        <select id="degree" v-model="form.degree" required>
+          <option disabled value="">请选择学位</option>
+          <option value="学士">学士</option>
+          <option value="硕士">硕士</option>
+          <option value="博士">博士</option>
+          <option value="博士后">博士后</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="grade">年级:<span class="required">*</span></label>
+        <select id="grade" v-model.number="form.grade" required>
+          <option disabled value="">请选择年级</option>
+          <option value="25">25级</option>
+          <option value="24">24级</option>
+          <option value="23">23级</option>
+          <option value="22">22级</option>
+          <option value="21">21级</option>
+        </select>
+      </div>
+      <!-- 学士学位 -->
+      <div class="form-group" v-if="form.degree == '学士' && form.grade !== null">
+        <label for="major_name">专业:<span class="required">*</span></label>
+        <input type="text" id="major_name" v-model="form.major_name" @input="searchMajor" @blur="confirmMajor" required>
+        <ul v-if="majorSearchResults.length > 0" class="major-search-results">
+          <li v-for="major in majorSearchResults" :key="major.major_id" @click="selectMajor(major)">
+            {{ major.major_name }}
+          </li>
+        </ul>
+      </div>
+      <!-- 硕士及以上学位不查找教学计划号 -->
+      <div class="form-group" v-if="form.degree !== '学士' && form.grade !== null">
+        <label for="major_name">专业:<span class="required">*</span></label>
+        <input type="text" id="major_name" v-model="form.major_name" required>
+      </div>
+      <!-- 学士学位 -->
+      <div class="form-group" v-if="form.degree == '学士' && form.grade !== null">
+        <label for="college_name">学院:<span class="required">*</span></label>
+        <input type="text" id="college_name" v-model="form.college_name" disabled>
+      </div>
+      <!-- 硕士及以上学位 -->
+      <div class="form-group" v-if="form.degree !== null && form.degree !== '学士' && form.grade !== null">
+        <label for="college_name">学院:<span class="required">*</span></label>
+        <input type="text" id="college_name" v-model="form.college_name" required>
+      </div>
+
+      <div class="form-group" v-if="form.degree == '学士' && form.grade !== null">
+        <label for="major_id">教学计划号:<span class="required">*</span></label>
+        <input type="text" id="major_id" v-model="form.major_id" disabled>
+      </div>
+
+
+      <div class="form-group">
+        <label for="phone">手机号: <span class="required">*</span></label>
+        <input 
+          type="text" 
+          id="phone" 
+          v-model="form.phone" 
+          @blur="validatePhone(form.phone)"
+          @input="debouncedValidatePhone(form.phone)"
+          required
+          :class="{ 'error-input': validationErrors.phone && fieldTouched.phone }"
+        >
+        <span v-if="validationErrors.phone && fieldTouched.phone" class="error-message">{{ validationErrors.phone }}</span>
+      </div>
+
+      <div class="form-group">
+        <label>部门意愿排序 (拖拽调整顺序，1为最高优先级):<span class="required">*</span></label>
+        <div class="department-list-wrapper">
+          <draggable v-model="departmentList" item-key="id" @change="updateDepartmentOrder">
+            <template #item="{ element, index }">
+              <div class="drag-item">
+                <span class="rank-number">{{ index + 1 }}.</span>
+                <span class="department-name">{{ element.name }}</span>
+                <span class="drag-handle">☰</span>
+              </div>
+            </template>
+          </draggable>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="introduction">请您简单介绍一下自己（兴趣爱好，性格，对网安协会的了解，以及为什么想加入网安协会，不超过250字）:<span class="required">*</span></label>
+        <textarea id="introduction" v-model="form.introduction" maxlength="250" required></textarea>
+      </div>
+
+
+      <div class="form-group">
+        <label for="skill">请您介绍一下自己的特长与技能（比如剪辑，摄影，活动策划，活动组织，竞赛经历，科研经历等，不超过250字）:<span class="required">*</span></label>
+        <textarea id="skill" v-model="form.skill" maxlength="250" required></textarea>
+      </div>
+      
+      <div class="form-group checkbox-group">
+        <input type="checkbox" id="reassign_agreement" v-model="form.if_agree_to_be_reassigned">
+        <label for="reassign_agreement">同意调剂</label>
+      </div>
+
+      <div class="form-group checkbox-group">
+        <input type="checkbox" id="member_agreement" v-model="form.if_be_member">
+        <label for="member_agreement">同意成为浙江大学学生网络空间安全协会会员</label>
+      </div>
+
+      <!-- Form validation summary -->
+      <div v-if="(validationErrors.name && fieldTouched.name) || (validationErrors.uid && fieldTouched.uid) || (validationErrors.phone && fieldTouched.phone)" class="validation-summary">
+        <h4>请修正以下错误：</h4>
+        <ul>
+          <li v-if="validationErrors.name && fieldTouched.name">姓名: {{ validationErrors.name }}</li>
+          <li v-if="validationErrors.uid && fieldTouched.uid">学号: {{ validationErrors.uid }}</li>
+          <li v-if="validationErrors.phone && fieldTouched.phone">手机号: {{ validationErrors.phone }}</li>
+        </ul>
+      </div>
+
+            <div class="form-group">
+        <label for="resume">简历上传 (可选):</label>
+        <div class="resume-upload-container">
+          <input 
+            type="file" 
+            id="resume" 
+            accept=".pdf"
+            @change="handleResumeFileChange"
+            class="file-input"
+          >
+          <!-- <button 
+            type="button" 
+            @click="uploadResume" 
+            :disabled="!resumeFile || resumeUploadLoading"
+            class="upload-button"
+          > -->
+            <!-- {{ resumeUploadLoading ? '上传中...' : '上传简历' }}
+          </button> -->
+        </div>
+        <div v-if="resumeUploadStatus" class="upload-status" :class="{ 'success': resumeUploadStatus.includes('成功'), 'error': resumeUploadStatus.includes('失败'), 'uploading': resumeUploadStatus.includes('正在上传') }">
+          {{ resumeUploadStatus }}
+        </div>
+        <div class="upload-hint">
+          <small>支持PDF格式，文件大小不超过10MB</small>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-button">提交</button>
+      
+
+    </form>
+    <br>
+    <span style="font-size: 1.2rem; font-weight: bold;">加入纳新咨询群，获取更多信息！</span>
+    <div class="picture-container">
+        <img src="@/assets/recruitment.jpg" alt="纳新咨询群">
+      </div>
+  </div>
+</template>
+
+<style scoped>
+.form-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.form-title {
+  text-align: center;
+  color: #333;
+  margin-bottom: 2rem;
+}
+
+.description {
+  background-color: #e6f7ff;
+  border-left: 5px solid #1890ff;
+  padding: 15px;
+  margin-bottom: 2rem;
+  border-radius: 4px;
+  line-height: 1.6;
+}
+
+.input-format-guide {
+  background-color: #f0f9eb; /* Light green background */
+  border-left: 5px solid #67c23a; /* Green border */
+  padding: 15px;
+  margin-bottom: 2rem;
+  border-radius: 4px;
+  line-height: 1.6;
+}
+
+.input-format-guide h4 {
+  color: #67c23a; /* Green color for heading */
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.input-format-guide ul {
+  padding-left: 1.5rem;
+}
+
+.input-format-guide li {
+  margin-bottom: 0.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: #555;
+}
+
+input[type="text"],
+textarea,
+select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+}
+
+input[type="text"]:focus,
+textarea:focus,
+select:focus {
+  border-color: #4CAF50;
+  outline: none;
+}
+
+.major-search-results {
+  list-style-type: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  background-color: #fafafa;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.major-search-results li {
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.major-search-results li:hover {
+  background-color: #f0f0f0;
+}
+
+.department-list-wrapper {
+  margin-top: 1rem;
+}
+
+.drag-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  border: 1px solid #e0e0e0;
+  background-color: #fafafa;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  cursor: grab;
+  transition: box-shadow 0.2s, background-color 0.2s;
+}
+
+.drag-item:hover {
+  background-color: #f5f5f5;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.sortable-chosen {
+  background-color: #e0f2e0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.rank-number {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #4CAF50;
+  margin-right: 15px;
+}
+
+.department-name {
+  flex-grow: 1;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.drag-handle {
+  font-size: 1.5rem;
+  color: #aaa;
+  cursor: grab;
+  line-height: 1;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+}
+
+.checkbox-group label {
+  margin-left: 0.5rem;
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+.submit-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+  background-color: #45a049;
+}
+
+.error-message {
+  color: #f44336; /* Red color for errors */
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.required {
+  color: #f44336; /* Red color for required fields */
+  margin-left: 0.2rem;
+}
+
+.error-input {
+  border-color: #f44336; /* Red border for error inputs */
+}
+
+.validation-summary {
+  background-color: #ffebee;
+  border: 1px solid #f44336;
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.validation-summary h4 {
+  color: #d32f2f;
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+}
+
+.validation-summary ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.validation-summary li {
+  color: #d32f2f;
+  margin-bottom: 0.25rem;
+}
+
+.resume-upload-container {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.file-input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fafafa;
+}
+
+.upload-button {
+  padding: 8px 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.upload-button:hover:not(:disabled) {
+  background-color: #45a049;
+}
+
+.upload-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.upload-status {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.upload-status.success {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+  border: 1px solid #4caf50;
+}
+
+.upload-status.error {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #f44336;
+}
+
+.upload-status.uploading {
+  background-color: #e3f2fd;
+  color: #1565c0;
+  border: 1px solid #2196f3;
+}
+
+.upload-hint {
+  margin-top: 0.5rem;
+  color: #666;
+  font-style: italic;
+}
+</style>
