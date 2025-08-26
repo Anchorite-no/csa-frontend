@@ -4,7 +4,7 @@ import router from './router/index'
 
 const instance = ax.create({
     baseURL: '/api',
-    timeout: 10000,
+    timeout: 10000000,
 })
 
 instance.interceptors.request.use(

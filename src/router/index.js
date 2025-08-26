@@ -176,4 +176,8 @@ router.beforeEach(to => {
         return { name: 'home' }
 })
 
+if (sessionStorage.getItem("access_token")){
+    userStore.set_token(sessionStorage.getItem("access_token"))
+}
+
 export default router
