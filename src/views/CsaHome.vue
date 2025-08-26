@@ -42,7 +42,7 @@
 <style scoped>
 .home-container {
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
 }
 
 .banner-area {
@@ -52,7 +52,7 @@
 }
 
 .main-content {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(var(--bg-surface-rgb, 255, 255, 255), 0.95);
     backdrop-filter: blur(10px);
     border-radius: 30px 30px 0 0;
     margin-top: -50px;
@@ -83,21 +83,21 @@
 .header-icon {
     width: 60px;
     height: 60px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
     border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     font-size: 1.8rem;
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 8px 25px var(--shadow-color);
     margin-bottom: 10px;
 }
 
 .section-title {
     font-size: 2.5rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -113,13 +113,13 @@
     transform: translateX(-50%);
     width: 60px;
     height: 3px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
     border-radius: 2px;
 }
 
 .section-subtitle {
     font-size: 1.1rem;
-    color: #666;
+    color: var(--text-secondary);
     font-weight: 400;
 }
 
@@ -132,12 +132,13 @@
 
 .news-card,
 .event-card {
-    background: white;
+    background: var(--bg-surface);
     border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 30px var(--shadow-color);
     overflow: hidden;
     transition: all 0.3s ease;
     position: relative;
+    border: 1px solid var(--border-color);
 }
 
 .news-card::before,
@@ -148,13 +149,13 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
 }
 
 .news-card:hover,
 .event-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 20px 40px var(--shadow-color);
 }
 
 .info-grid {

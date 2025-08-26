@@ -24,6 +24,7 @@ const form = reactive({
   if_be_member: false,
   introduction: '',
   skill: '',
+  interview_time_slots: [], // 面试时间段选择
 });
 
 // Validation errors
@@ -44,6 +45,10 @@ const fieldTouched = reactive({
 const resumeFile = ref(null);
 const resumeUploadStatus = ref('');
 const resumeUploadLoading = ref(false);
+
+// 提交成功状态
+const submitSuccess = ref(false);
+const countdown = ref(5);
 
 // Validation functions
 const validateName = (name) => {
@@ -89,7 +94,6 @@ const validatePhone = (phone) => {
   return true;
 };
 
-// Debounced validation functions for real-time feedback
 let nameValidationTimeout = null;
 let uidValidationTimeout = null;
 let phoneValidationTimeout = null;
@@ -118,13 +122,27 @@ const debouncedValidatePhone = (phone) => {
   }, 300);
 };
 
+// 验证面试时间段选择
+const validateTimeSlots = () => {
+  if (form.interview_time_slots.length === 0) {
+    window.notyf.error('请至少选择一个面试时间段');
+    return false;
+  }
+  if (form.interview_time_slots.length < 4) {
+    window.notyf.error('请至少选择四个面试时间段');
+    return false;
+  }
+  return true;
+};
+
 // Real-time validation
 const validateForm = () => {
   const nameValid = validateName(form.name);
   const uidValid = validateUid(form.uid);
   const phoneValid = validatePhone(form.phone);
+  const timeSlotsValid = validateTimeSlots();
   
-  return nameValid && uidValid && phoneValid;
+  return nameValid && uidValid && phoneValid && timeSlotsValid;
 };
 
 // Use a ref for the draggable list, which will be our source of truth for department order
@@ -136,6 +154,65 @@ const departmentList = ref([
 ]);
 
 const majorSearchResults = ref([]);
+
+// 面试时间段相关
+const interviewTimeSlots = ref([]);
+
+// 生成面试时间段选项
+const generateTimeSlots = () => {
+  const slots = [];
+  
+  // 工作日时间段（周一到周五分别显示）
+  const weekdays = ['周一', '周二', '周三', '周四', '周五'];
+  const weekdayTimes = ['19:00-20:00', '20:00-21:00', '21:00-22:00'];
+  
+  weekdays.forEach(day => {
+    weekdayTimes.forEach(time => {
+      const hour = time.split('-')[0].split(':')[0];
+      slots.push({
+        id: `${day}_${hour}`,
+        time: time,
+        label: `${day} ${time}`,
+        isWeekday: true,
+        day: day
+      });
+    });
+  });
+  
+  // 非工作日时间段（周六、周日分别显示）
+  const weekendDays = ['周六', '周日'];
+  const weekendTimes = ['10:00-11:00', '11:00-12:00', '14:00-15:00', '15:00-16:00', '16:00-17:00', '17:00-18:00', '19:00-20:00', '20:00-21:00', '21:00-22:00'];
+  
+  weekendDays.forEach(day => {
+    weekendTimes.forEach(time => {
+      const hour = time.split('-')[0].split(':')[0];
+      slots.push({
+        id: `${day}_${hour}`,
+        time: time,
+        label: `${day} ${time}`,
+        isWeekday: false,
+        day: day
+      });
+    });
+  });
+  
+  interviewTimeSlots.value = slots;
+};
+
+// 切换时间段选择
+const toggleTimeSlot = (slotId) => {
+  const index = form.interview_time_slots.indexOf(slotId);
+  if (index > -1) {
+    form.interview_time_slots.splice(index, 1);
+  } else {
+    form.interview_time_slots.push(slotId);
+  }
+};
+
+// 检查时间段是否被选中
+const isTimeSlotSelected = (slotId) => {
+  return form.interview_time_slots.includes(slotId);
+};
 
 // Function to handle major name search
 const searchMajor = async () => {
@@ -189,20 +266,23 @@ const selectMajor = (major) => {
   majorSearchResults.value = []; // Clear results after selection
 };
 
+// 初始化时间段
+generateTimeSlots();
+
 // Function to handle resume file selection
 const handleResumeFileChange = (event) => {
   const file = event.target.files[0];
   if (file) {
     // 验证文件类型
     if (file.type !== 'application/pdf') {
-      alert('请选择PDF格式的文件');
+      window.notyf.error('请选择PDF格式的文件');
       event.target.value = '';
       return;
     }
     
     // 验证文件大小 (10MB)
     if (file.size > 10 * 1024 * 1024) {
-      alert('文件大小不能超过10MB');
+      window.notyf.error('文件大小不能超过10MB');
       event.target.value = '';
       return;
     }
@@ -215,12 +295,12 @@ const handleResumeFileChange = (event) => {
 // Function to upload resume
 const uploadResume = async () => {
   if (!resumeFile.value) {
-    alert('请先选择PDF文件');
+    window.notyf.error('请先选择PDF文件');
     return false;
   }
   
   if (!form.uid) {
-    alert('请先填写学号');
+    window.notyf.error('请先填写学号');
     return false;
   }
   
@@ -239,15 +319,15 @@ const uploadResume = async () => {
     });
     
     resumeUploadStatus.value = '上传成功: ' + response.data.message;
-    alert('简历上传成功！');
+    window.notyf.success('简历上传成功！');
   } catch (error) {
     console.error('Resume upload failed:', error);
     if (error.response && error.response.data && error.response.data.detail) {
       resumeUploadStatus.value = '上传失败: ' + error.response.data.detail;
-      alert(`上传失败: ${error.response.data.detail}`);
+      window.notyf.error(`上传失败: ${error.response.data.detail}`);
     } else {
       resumeUploadStatus.value = '上传失败，请重试';
-      alert('上传失败，请重试');
+      window.notyf.error('上传失败，请重试');
     }
   } finally {
     resumeUploadLoading.value = false;
@@ -264,7 +344,7 @@ const submitForm = async () => {
   
   // Validate form before submission
   if (!validateForm()) {
-    alert('请检查表单中的错误信息');
+    window.notyf.error('请检查表单中的错误信息');
     return;
   }
 
@@ -295,17 +375,33 @@ const submitForm = async () => {
 
   try {
     const response = await axios.post('/recruit/recruit_confirm', payload);
-    alert(response.data.message);
+    
+    // 处理简历上传
     if (resumeFile.value && !await uploadResume()) {
-      alert('简历上传失败');
+      window.notyf.error('简历上传失败');
       return;
     }
+    
+    // 提交成功，显示成功页面
+    submitSuccess.value = true;
+    countdown.value = 5;
+    
+    // 开始倒计时
+    const timer = setInterval(() => {
+      countdown.value--;
+      if (countdown.value <= 0) {
+        clearInterval(timer);
+        // 跳转到首页
+        window.location.href = '/';
+      }
+    }, 1000);
+    
   } catch (error) {
     console.error('Full error response:', error.response);
     if (error.response && error.response.data && error.response.data.detail) {
-      alert(`提交失败: ${error.response.data.detail}`);
+      window.notyf.error(`提交失败: ${error.response.data.detail}`);
     } else {
-      alert('提交失败，请重试。');
+      window.notyf.error('提交失败，请重试。');
     }
     console.error('Form submission failed:', error);
   }
@@ -313,7 +409,34 @@ const submitForm = async () => {
 </script>
 
 <template>
-  <div class="form-container">
+  <!-- 提交成功页面 -->
+  <div v-if="submitSuccess" class="success-container">
+    <div class="success-content">
+      <div class="success-icon">
+        <i class="pi pi-check-circle"></i>
+      </div>
+      <h1 class="success-title">报名提交成功！</h1>
+      <div class="success-message">
+        <p>感谢您报名浙江大学学生网络空间安全协会！</p>
+        <p>请及时查看钉钉OA，确认您的报名信息。</p>
+        <p>我们将在钉钉OA中通知您面试安排，请保持手机畅通。</p>
+      </div>
+      <div class="countdown-info">
+        <p>{{ countdown }} 秒后自动跳转到官网首页</p>
+        <div class="countdown-bar">
+          <div class="countdown-progress" :style="{ width: (countdown / 5) * 100 + '%' }"></div>
+        </div>
+      </div>
+      <div class="success-actions">
+        <button @click="window.location.href='/'" class="btn-primary">
+          立即跳转到首页
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 报名表单页面 -->
+  <div v-else class="form-container">
     <form @submit.prevent="submitForm">
       <h2 class="form-title" style="font-size: 24px;">2025浙江大学学生网络空间安全协会纳新报名表</h2>
       <div class="description">
@@ -458,6 +581,78 @@ const submitForm = async () => {
         <label for="skill">请您介绍一下自己的特长与技能（比如剪辑，摄影，活动策划，活动组织，竞赛经历，科研经历等，不超过250字）:<span class="required">*</span></label>
         <textarea id="skill" v-model="form.skill" maxlength="250" required></textarea>
       </div>
+
+      <div class="form-group">
+        <label>请选择您可参加面试的时间段（可多选）:<span class="required">*</span></label>
+        <div class="time-slots-hint">
+          <i class="pi pi-info-circle"></i>
+          <span>请至少选择四个时间段，以便我们更好地安排面试时间</span>
+        </div>
+        <div class="time-slots-container">
+          <div class="time-slots-header">
+            <!-- 工作日时间段 -->
+            <div class="weekday-slots">
+              <h4>工作日时间段（19:00-22:00）</h4>
+              <div class="weekday-groups">
+                <div v-for="day in ['周一', '周二', '周三', '周四', '周五']" :key="day" class="day-group">
+                  <h5>{{ day }}</h5>
+                  <div class="time-slots-grid">
+                    <div 
+                      v-for="slot in interviewTimeSlots.filter(s => s.isWeekday && s.day === day)" 
+                      :key="slot.id"
+                      class="time-slot"
+                      :class="{ 'selected': isTimeSlotSelected(slot.id) }"
+                      @click="toggleTimeSlot(slot.id)"
+                    >
+                      <div class="slot-label">{{ slot.time }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 非工作日时间段 -->
+            <div class="weekend-slots">
+              <h4>非工作日时间段（10:00-22:00）</h4>
+              <div class="weekend-groups">
+                <div v-for="day in ['周六', '周日']" :key="day" class="day-group">
+                  <h5>{{ day }}</h5>
+                  <div class="time-slots-grid">
+                    <div 
+                      v-for="slot in interviewTimeSlots.filter(s => !s.isWeekday && s.day === day)" 
+                      :key="slot.id"
+                      class="time-slot"
+                      :class="{ 'selected': isTimeSlotSelected(slot.id) }"
+                      @click="toggleTimeSlot(slot.id)"
+                    >
+                      <div class="slot-label">{{ slot.time }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div v-if="form.interview_time_slots.length > 0" class="selected-slots">
+            <h5>已选择的时间段：</h5>
+            <div class="selected-slots-list">
+              <span 
+                v-for="slotId in form.interview_time_slots" 
+                :key="slotId"
+                class="selected-slot-tag"
+              >
+                {{ interviewTimeSlots.find(s => s.id === slotId)?.label }}
+              </span>
+            </div>
+            <div class="time-slots-counter" :class="{ 'warning': form.interview_time_slots.length < 4 }">
+              <span>已选择 {{ form.interview_time_slots.length }} 个时间段</span>
+              <span v-if="form.interview_time_slots.length < 4" class="counter-warning">
+                （还需选择 {{ 4 - form.interview_time_slots.length }} 个时间段）
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
       
       <div class="form-group checkbox-group">
         <input type="checkbox" id="reassign_agreement" v-model="form.if_agree_to_be_reassigned">
@@ -594,6 +789,164 @@ textarea:focus,
 select:focus {
   border-color: #4CAF50;
   outline: none;
+}
+
+.major-search-results {
+  list-style-type: none;
+}
+
+/* 面试时间段样式 */
+.time-slots-container {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: #f9f9f9;
+}
+
+.time-slots-header h4 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.weekday-slots, .weekend-slots {
+  margin-bottom: 2rem;
+}
+
+.weekday-groups, .weekend-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.day-group {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: #fafafa;
+}
+
+.day-group h5 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.time-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.5rem;
+}
+
+.day-group .time-slots-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.weekend-groups .day-group .time-slots-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.time-slot {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 0.75rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.time-slot:hover {
+  border-color: #4CAF50;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.time-slot.selected {
+  background: #4CAF50;
+  border-color: #4CAF50;
+  color: white;
+}
+
+.time-slot.selected:hover {
+  background: #45a049;
+}
+
+.slot-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.selected-slots {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #ddd;
+}
+
+.selected-slots h5 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.selected-slots-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.selected-slot-tag {
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  border: 1px solid #bbdefb;
+}
+
+.time-slots-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  background: #e8f5e8;
+  border: 1px solid #c8e6c9;
+  border-radius: 4px;
+  color: #2e7d32;
+  font-size: 0.9rem;
+}
+
+.time-slots-hint i {
+  color: #4caf50;
+  font-size: 1rem;
+}
+
+.time-slots-counter {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: #f5f5f5;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.time-slots-counter.warning {
+  background: #fff3e0;
+  border: 1px solid #ffcc02;
+  color: #e65100;
+}
+
+.counter-warning {
+  color: #f57c00;
+  font-weight: 600;
 }
 
 .major-search-results {
@@ -792,5 +1145,130 @@ select:focus {
   margin-top: 0.5rem;
   color: #666;
   font-style: italic;
+}
+
+/* 成功页面样式 */
+.success-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem;
+}
+
+.success-content {
+  background: white;
+  border-radius: 16px;
+  padding: 3rem;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  width: 100%;
+}
+
+.success-icon {
+  margin-bottom: 2rem;
+}
+
+.success-icon i {
+  font-size: 4rem;
+  color: #4caf50;
+  animation: bounce 1s ease-in-out;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+.success-title {
+  color: #333;
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
+
+.success-message {
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.success-message p {
+  margin-bottom: 0.5rem;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.countdown-info {
+  margin-bottom: 2rem;
+}
+
+.countdown-info p {
+  color: #666;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.countdown-bar {
+  width: 100%;
+  height: 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.countdown-progress {
+  height: 100%;
+  background: linear-gradient(90deg, #4caf50, #45a049);
+  border-radius: 4px;
+  transition: width 1s linear;
+}
+
+.success-actions {
+  margin-top: 2rem;
+}
+
+.btn-primary {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-primary:hover {
+  background: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .success-content {
+    padding: 2rem;
+    margin: 1rem;
+  }
+  
+  .success-title {
+    font-size: 1.5rem;
+  }
+  
+  .success-message p {
+    font-size: 1rem;
+  }
 }
 </style>

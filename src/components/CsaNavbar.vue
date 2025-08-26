@@ -1,10 +1,12 @@
 <script setup>
 import { useRoute } from 'vue-router'
+import { useThemeStore } from '@/stores/theme'
 
 const route = useRoute()
 
 import { useNavbarStore } from '@/stores/navbar'
 const navbarStore = useNavbarStore()
+const themeStore = useThemeStore()
 
 const items = ref([
     {
@@ -111,7 +113,17 @@ watch(
                 </router-link>
             </template>
             <template #end>
-                <csa-user class="mx-2" />
+                <div class="flex items-center gap-2">
+                    <button 
+                        @click="themeStore.toggleTheme()" 
+                        class="theme-toggle-nav"
+                        :title="themeStore.isDark ? '切换到浅色模式' : '切换到深色模式'"
+                    >
+                        <i v-if="themeStore.isDark" class="pi pi-sun"></i>
+                        <i v-else class="pi pi-moon"></i>
+                    </button>
+                    <csa-user class="mx-2" />
+                </div>
             </template>
         </Menubar>
     </div>
@@ -129,6 +141,7 @@ watch(
     /*想设一个透明度但是失败了？可能下面的东西也设了这个覆盖了,试着穿透也穿透不下去，虽然丑了点但是应该不影响使用..*/
     backdrop-filter: blur(10px);
     /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 阴影*/
+    transition: background-color 0.3s ease;
 }
 
 .about-nav {
@@ -141,13 +154,16 @@ watch(
     background-color: rgba(255, 255, 255, 0.3);
     backdrop-filter: blur(6px);
     /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
+    transition: background-color 0.3s ease;
 }
 
-/* darkmode */
-@media (prefers-color-scheme: dark) {
-    .about-nav {
-        background-color: rgba(0, 0, 0, 0.8);
-    }
+/* 深色模式下的导航栏样式 */
+.dark .fixed-nav {
+    background-color: rgba(30, 30, 30, 0.9);
+}
+
+.dark .about-nav {
+    background-color: rgba(0, 0, 0, 0.8);
 }
 
 .about-nav .p-menubar {
@@ -174,5 +190,31 @@ watch(
 .nav-collapsed {
     transform: translateY(-100%);
     opacity: 0;
+}
+
+/* 导航栏主题切换按钮 */
+.theme-toggle-nav {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.theme-toggle-nav:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.theme-toggle-nav i {
+    font-size: 1rem;
 }
 </style>

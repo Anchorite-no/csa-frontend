@@ -40,6 +40,20 @@ const items = ref([
                 command: () => {
                     router.push({ name: 'admin-recruit' })
                 },
+            },
+            {
+                label: '面试管理',
+                icon: 'pi pi-comments',
+                command: () => {
+                    router.push({ name: 'admin-interview' })
+                },
+            },
+            {
+                label: '干事管理',
+                icon: 'pi pi-users',
+                command: () => {
+                    router.push({ name: 'admin-member' })
+                },
             }
         ],
     }

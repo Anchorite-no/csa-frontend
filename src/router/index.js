@@ -136,6 +136,22 @@ const router = createRouter({
                         title: '招新管理',
                     },
                 },
+                {
+                    path: 'interview',
+                    name: 'admin-interview',
+                    component: () => import('../views/CsaAdminInterview.vue'),
+                    meta: {
+                        title: '面试管理',
+                    },
+                },
+                {
+                    path: 'member',
+                    name: 'admin-member',
+                    component: () => import('../views/CsaAdminMember.vue'),
+                    meta: {
+                        title: '干事管理',
+                    },
+                },
             ],
         },
     ],

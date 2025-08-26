@@ -143,13 +143,13 @@ const getStatusText = (event) => {
     gap: 15px;
     margin-bottom: 30px;
     padding-bottom: 20px;
-    border-bottom: 2px solid #f0f0f0;
+    border-bottom: 2px solid var(--border-color);
 }
 
 .header-icon {
     width: 50px;
     height: 50px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -165,13 +165,13 @@ const getStatusText = (event) => {
 .section-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #333;
+    color: var(--text-primary);
     margin: 0 0 5px 0;
 }
 
 .section-subtitle {
     font-size: 0.9rem;
-    color: #666;
+    color: var(--text-secondary);
     margin: 0;
     font-weight: 400;
 }
@@ -205,7 +205,7 @@ const getStatusText = (event) => {
     align-items: center;
     justify-content: space-between;
     padding: 20px;
-    background: #f8f9fa;
+    background: var(--bg-secondary);
     border-radius: 12px;
     text-decoration: none;
     color: inherit;
@@ -222,7 +222,7 @@ const getStatusText = (event) => {
     left: 0;
     width: 4px;
     height: 100%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
     transform: scaleY(0);
     transition: transform 0.3s ease;
 }
@@ -232,10 +232,10 @@ const getStatusText = (event) => {
 }
 
 .event-link:hover {
-    background: white;
-    border-color: #667eea;
+    background: var(--bg-surface);
+    border-color: var(--accent-color);
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+    box-shadow: 0 8px 25px var(--shadow-color);
 }
 
 .event-info {
@@ -246,7 +246,7 @@ const getStatusText = (event) => {
 .event-title {
     font-size: 1rem;
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary);
     margin: 0 0 8px 0;
     line-height: 1.4;
     display: -webkit-box;
@@ -265,7 +265,7 @@ const getStatusText = (event) => {
 .event-date,
 .event-location {
     font-size: 0.85rem;
-    color: #666;
+    color: var(--text-secondary);
     display: flex;
     align-items: center;
     gap: 5px;
@@ -300,7 +300,7 @@ const getStatusText = (event) => {
 }
 
 .event-arrow {
-    color: #667eea;
+    color: var(--accent-color);
     font-size: 1.2rem;
     transition: transform 0.3s ease;
     flex-shrink: 0;
@@ -318,13 +318,13 @@ const getStatusText = (event) => {
 
 .skeleton-item {
     padding: 20px;
-    background: #f8f9fa;
+    background: var(--bg-secondary);
     border-radius: 12px;
 }
 
 .skeleton-title {
     height: 16px;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background: linear-gradient(90deg, var(--border-color) 25%, var(--text-secondary) 50%, var(--border-color) 75%);
     background-size: 200% 100%;
     animation: loading 1.5s infinite;
     border-radius: 4px;
@@ -340,7 +340,7 @@ const getStatusText = (event) => {
 .skeleton-location {
     height: 12px;
     width: 60px;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background: linear-gradient(90deg, var(--border-color) 25%, var(--text-secondary) 50%, var(--border-color) 75%);
     background-size: 200% 100%;
     animation: loading 1.5s infinite;
     border-radius: 4px;
@@ -362,12 +362,12 @@ const getStatusText = (event) => {
 
 .empty-icon {
     font-size: 3rem;
-    color: #ccc;
+    color: var(--text-secondary);
     margin-bottom: 15px;
 }
 
 .empty-text {
-    color: #666;
+    color: var(--text-secondary);
     font-size: 1rem;
     margin: 0;
 }
@@ -375,7 +375,7 @@ const getStatusText = (event) => {
 .event-footer {
     margin-top: 30px;
     padding-top: 20px;
-    border-top: 1px solid #f0f0f0;
+    border-top: 1px solid var(--border-color);
     text-align: center;
 }
 
@@ -384,19 +384,19 @@ const getStatusText = (event) => {
     align-items: center;
     gap: 8px;
     padding: 12px 24px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
     color: white;
     text-decoration: none;
     border-radius: 25px;
     font-weight: 600;
     font-size: 0.9rem;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 15px var(--shadow-color);
 }
 
 .view-more-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 8px 25px var(--shadow-color);
 }
 
 /* 响应式设计 */
