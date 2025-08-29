@@ -77,7 +77,7 @@
             <th>面试阶段</th>
             <th>面试状态</th>
             <th>面试时间</th>
-            <th>面试官</th>
+            <th>面试形式</th>
             <th>是否已通知</th>
             <th>操作</th>
           </tr>
@@ -147,7 +147,7 @@
       <div class="pagination-info">
         显示 {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, filteredRecruits.length) }} 条，共 {{ filteredRecruits.length }} 条记录
       </div>
-      <div class="pagination-controls">
+      <div class="pagination-controls" v-if="totalPages > 1">
         <button 
           @click="changePage(currentPage - 1)" 
           :disabled="currentPage <= 1"
@@ -163,6 +163,9 @@
         >
           下一页
         </button>
+      </div>
+      <div class="pagination-controls" v-else>
+        <span class="page-info">共 {{ filteredRecruits.length }} 条记录</span>
       </div>
     </div>
 
@@ -180,7 +183,7 @@
             <tr>
               <th>时间段</th>
               <th>排班人数</th>
-              <th>面试官</th>
+              <th>面试形式</th>
               <th>场地</th>
               <th>面试者列表</th>
               <th>操作</th>
@@ -522,7 +525,7 @@
                 <span>{{ formatDate(currentSchedule.interview_date) }}</span>
               </div>
               <div class="info-item">
-                <label>面试官：</label>
+                <label>面试形式：</label>
                                     <span>{{ getInterviewFormatLabel(currentSchedule.interview_format) }}</span>
               </div>
               <div class="info-item">
@@ -575,7 +578,7 @@ const schedules = ref([]);
 const showScheduleForm = ref(false);
 const editingSchedule = ref(null);
 const currentPage = ref(1);
-const pageSize = ref(20); // 修改为每页20个
+const pageSize = ref(10); // 修改为每页10个，更容易看到分页效果
 const total = ref(0);
 
 // 筛选条件
@@ -596,8 +599,8 @@ const scheduleForm = reactive({
   base_date: '', // 面试开始基准日期，将从全局基准时间获取
   selected_time_slot: '', // 选择的可面试时间段
   interview_date: '', // 计算后的具体面试日期时间
-  interview_format: 'one_to_one',
-  interview_duration: 30,
+  interview_format: 'many_to_many',
+  interview_duration: 45,
   location: '',
   notes: '',
   status: 'scheduled'
@@ -625,6 +628,13 @@ const allTimeSlotStats = ref([]);
 
 // 全局基准时间
 const globalBaseDate = ref(new Date().toISOString().slice(0, 10));
+
+// 初始化基准日期
+const initializeBaseDate = () => {
+  if (!scheduleForm.base_date) {
+    scheduleForm.base_date = globalBaseDate.value;
+  }
+};
 
 // 时间段信息抽屉
 const showTimeSlotInfo = ref(false);
@@ -681,7 +691,7 @@ const resetScheduleForm = () => {
   Object.assign(scheduleForm, {
     uid: '',
     stage: 'first_round',
-    base_date: globalBaseDate.value,
+    base_date: scheduleForm.base_date || globalBaseDate.value, // 保持当前基准日期，如果没有则使用全局基准日期
     selected_time_slot: '',
     interview_date: '',
     interview_format: 'one_to_one',
@@ -787,6 +797,11 @@ const showScheduleFormModal = async (recruit = null) => {
     
     scheduleForm.stage = recruit.interview_status;
     
+    // 保持当前的基准日期，不要重置
+    if (!scheduleForm.base_date) {
+      scheduleForm.base_date = globalBaseDate.value;
+    }
+    
     console.log('面试者信息:', recruit);
     console.log('面试者状态:', recruit.interview_status);
     console.log('设置的面试阶段:', scheduleForm.stage);
@@ -826,12 +841,17 @@ const showTimeSlotInfoDrawer = () => {
   // 查找对应时间段的排班信息
   const timeSlotInfo = allTimeSlotStats.value.find(stat => {
     // 从时间段显示中提取原始时间段
-    const originalSlot = scheduleForm.selected_time_slot;
+    const originalSlot = scheduleForm.selected_time_slot; // 格式: "周一 19:00-20:00"
     // 从统计数据的slot中提取时间段部分（去掉日期和周标签）
+    // 统计数据的slot格式: "周一 08/22 19:00-20:00 (本周)"
     const statParts = stat.slot.split(' ');
-    const statTimeSlot = statParts.slice(0, 2).join(' '); // 取前两部分：周几 + 时间
-    console.log('比较:', statTimeSlot, '===', originalSlot, '结果:', statTimeSlot === originalSlot);
-    return statTimeSlot === originalSlot;
+    if (statParts.length >= 3) {
+      // 提取周几和时间部分
+      const statTimeSlot = `${statParts[0]} ${statParts[2]}`; // "周一 19:00-20:00"
+      console.log('比较:', statTimeSlot, '===', originalSlot, '结果:', statTimeSlot === originalSlot);
+      return statTimeSlot === originalSlot;
+    }
+    return false;
   });
   
   console.log('找到的时间段信息:', timeSlotInfo);
@@ -874,10 +894,15 @@ const showEditTimeSlotInfoDrawer = () => {
   if (!scheduleForm.selected_time_slot) return;
   
   const timeSlotInfo = allTimeSlotStats.value.find(stat => {
-    const originalSlot = scheduleForm.selected_time_slot;
+    const originalSlot = scheduleForm.selected_time_slot; // 格式: "周一 19:00-20:00"
+    // 统计数据的slot格式: "周一 08/22 19:00-20:00 (本周)"
     const statParts = stat.slot.split(' ');
-    const statTimeSlot = statParts.slice(0, 2).join(' '); // 取前两部分：周几 + 时间
-    return statTimeSlot === originalSlot;
+    if (statParts.length >= 3) {
+      // 提取周几和时间部分
+      const statTimeSlot = `${statParts[0]} ${statParts[2]}`; // "周一 19:00-20:00"
+      return statTimeSlot === originalSlot;
+    }
+    return false;
   });
   
   if (timeSlotInfo) {
@@ -903,6 +928,8 @@ const calculateTimeSlotFromDate = (date) => {
 
 const showEditScheduleForm = async (schedule) => {
   editingSchedule.value = schedule;
+
+  // initializeBaseDate();
   
   // 将面试时间转换为北京时间
   const interviewDate = new Date(schedule.interview_date);
@@ -1064,10 +1091,17 @@ const fetchRecruits = async () => {
   recruitsLoading.value = true;
   try {
     console.log('开始获取面试者数据...');
-    const response = await axios.get('/recruit/recruits');
+    // 面试管理页面需要获取全部数据，使用 all=true 参数
+    const response = await axios.get('/recruit/recruits?all=true');
     console.log('面试者数据响应:', response.data);
     recruits.value = response.data.recruits || [];
     console.log(`成功获取 ${recruits.value.length} 个面试者数据`);
+    console.log('分页信息:', {
+      totalRecruits: recruits.value.length,
+      pageSize: pageSize.value,
+      totalPages: Math.ceil(recruits.value.length / pageSize.value),
+      currentPage: currentPage.value
+    });
     
     // 获取每个面试者的时间段信息
     for (const recruit of recruits.value) {
@@ -1250,11 +1284,12 @@ const calculateTimeSlotStats = () => {
         interviewer: schedule.interviewer,
         stage: schedule.stage,
         interview_date: schedule.interview_date,
-        location: schedule.location
+        location: schedule.location,
+        interview_format: schedule.interview_format
       };
     });
 
-    // 提取面试官和场地信息
+    // 提取面试形式和场地信息
             const interview_formats = [...new Set(scheduled.map(s => s.interview_format).filter(f => f))];
     const venues = [...new Set(scheduled.map(s => s.location).filter(v => v))];
 
@@ -1521,8 +1556,10 @@ const formatDate = (dateString) => {
 
 // 生命周期
 onMounted(() => {
-  // 初始化表单的基准日期
-  scheduleForm.base_date = globalBaseDate.value;
+  // 初始化表单的基准日期（只在第一次加载时设置）
+  if (!scheduleForm.base_date) {
+    scheduleForm.base_date = globalBaseDate.value;
+  }
   
   fetchRecruits();
   fetchSchedules();

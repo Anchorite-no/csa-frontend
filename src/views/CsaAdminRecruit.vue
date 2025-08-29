@@ -103,6 +103,9 @@ const filters = reactive({
 // 已排班面试时间段选项
 const interviewTimeSlots = ref([]);
 
+// 面试基准日期
+const interviewBaseDate = ref(new Date().toISOString().slice(0, 10));
+
 // 面试状态选项
 const interviewStatusOptions = [
   { value: 'all', label: '全部状态' },
@@ -152,11 +155,20 @@ const gradeOptions = [
 // 获取已排班面试时间段列表
 const fetchInterviewTimeSlots = async () => {
   try {
-    const response = await axios.get('/interview/time-slots');
+    const response = await axios.get('/interview/time-slots', {
+      params: {
+        base_date: interviewBaseDate.value
+      }
+    });
     interviewTimeSlots.value = response.data.time_slots || [];
   } catch (error) {
     console.error('Failed to fetch interview time slots:', error);
   }
+};
+
+// 处理基准日期变化
+const handleBaseDateChange = () => {
+  fetchInterviewTimeSlots();
 };
 
 // 获取纳新者列表
@@ -322,6 +334,7 @@ const getDepartmentOrder = (recruit) => {
     { id: 'activity', name: '活动部', score: recruit.activity_department_willing }
   ];
   
+  // 按照志愿度从高到低排序（1为最高志愿度，4为最低志愿度）
   return departments.sort((a, b) => a.score - b.score);
 };
 
@@ -1085,6 +1098,10 @@ onMounted(() => {
               {{ option.label }}
             </option>
           </select>
+        </div>
+        <div class="filter-item">
+          <label>面试基准日期:</label>
+          <input type="date" v-model="interviewBaseDate" @change="handleBaseDateChange">
         </div>
         <div class="filter-item">
           <label>已排班时间段:</label>
