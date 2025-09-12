@@ -1,5 +1,7 @@
 <script setup>
 import { eventCategory } from '@/const'
+import { processMarkdownImages, processImageUrl } from '@/utils/imageUtils'
+
 const axios = inject('axios')
 
 const props = defineProps(['show', 'eid'])
@@ -41,6 +43,10 @@ const data = reactive({
     image: '',
 })
 
+const uploadFile = ref(null)
+const isUploading = ref(false)
+const uploadMode = ref(false)
+
 const submit = () => {
     axios
         .post('/edit/event', {
@@ -60,6 +66,55 @@ const submit = () => {
             visible.value = false
             window.notyf.success('操作成功')
             emits('finish')
+        })
+}
+
+const handleFileUpload = (event) => {
+    const file = event.target.files[0]
+    if (!file) return
+    
+    if (!file.name.endsWith('.zip') && !file.name.endsWith('.rar')) {
+        window.notyf.error('请上传zip或rar格式的压缩包')
+        return
+    }
+    
+    uploadFile.value = file
+}
+
+const uploadAndParse = () => {
+    if (!uploadFile.value) {
+        window.notyf.error('请先选择文件')
+        return
+    }
+    
+    isUploading.value = true
+    const formData = new FormData()
+    formData.append('file', uploadFile.value)
+    formData.append('type', 'event')
+    
+    axios
+        .post('/upload/parse', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        })
+        .then(res => {
+            if (res.data.success) {
+                data.title = res.data.title || data.title
+                data.description = processMarkdownImages(res.data.content || data.description)
+                data.image = processImageUrl(res.data.image || data.image)
+                window.notyf.success('文件解析成功')
+                uploadMode.value = false
+                uploadFile.value = null
+            } else {
+                window.notyf.error(res.data.message || '文件解析失败')
+            }
+        })
+        .catch(error => {
+            window.notyf.error('上传失败: ' + (error.response?.data?.detail || error.message))
+        })
+        .finally(() => {
+            isUploading.value = false
         })
 }
 
@@ -83,7 +138,7 @@ watch(visible, value => {
                 })
                 .then(res => {
                     data.title = res.data.title
-                    data.description = res.data.description
+                    data.description = processMarkdownImages(res.data.description)
                     data.start_time = new Date(res.data.start_time * 1000)
                     data.end_time = new Date(res.data.end_time * 1000)
                     data.start_signup_time = new Date(
@@ -95,7 +150,7 @@ watch(visible, value => {
                     data.category = res.data.category
                     data.place = res.data.place
                     data.tag = res.data.tag
-                    data.image = res.data.image
+                    data.image = processImageUrl(res.data.image)
                     loading.value = false
                 })
         } else {
@@ -123,6 +178,49 @@ watch(visible, value => {
             :style="{ width: '50rem' }"
         >
             <div class="mx-8" v-if="!loading">
+                <!-- 上传模式切换 -->
+                <div class="flex items-center gap-4 mb-4">
+                    <Button
+                        :label="uploadMode ? '手动编辑' : '上传压缩包'"
+                        :icon="uploadMode ? 'pi pi-pencil' : 'pi pi-upload'"
+                        severity="info"
+                        size="small"
+                        @click="uploadMode = !uploadMode"
+                    />
+                    <span class="text-sm text-gray-600">
+                        {{ uploadMode ? '上传包含xx.md和img/文件夹的压缩包' : '手动输入内容' }}
+                    </span>
+                </div>
+
+                <!-- 上传区域 -->
+                <div v-if="uploadMode" class="mb-4 p-4 border-2 border-dashed border-gray-300 rounded-lg">
+                    <div class="text-center">
+                        <input
+                            type="file"
+                            ref="fileInput"
+                            @change="handleFileUpload"
+                            accept=".zip,.rar"
+                            class="hidden"
+                        />
+                        <Button
+                            label="选择压缩包"
+                            icon="pi pi-upload"
+                            @click="$refs.fileInput.click()"
+                            class="mb-2"
+                        />
+                        <div v-if="uploadFile" class="text-sm text-green-600 mb-2">
+                            已选择: {{ uploadFile.name }}
+                        </div>
+                        <Button
+                            label="解析上传"
+                            icon="pi pi-check"
+                            :loading="isUploading"
+                            :disabled="!uploadFile"
+                            @click="uploadAndParse"
+                        />
+                    </div>
+                </div>
+
                 <div class="flex items-center gap-4 mb-4">
                     <label>标题</label>
                     <InputText

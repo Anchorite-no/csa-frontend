@@ -236,48 +236,47 @@ watch([page, size, category], () => {
 <style scoped>
 .news-container {
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 40px 20px;
+    background: #f8f9fa;
+    padding: 0;
 }
 
 .page-header {
     text-align: center;
     margin-bottom: 40px;
-    color: white;
+    color: #333;
+    padding: 40px 20px;
+    background: white;
+    border-bottom: 1px solid #e9ecef;
 }
 
 .page-title {
     font-size: 3rem;
     font-weight: 700;
     margin: 0 0 10px 0;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    color: #333;
 }
 
 .page-subtitle {
     font-size: 1.2rem;
-    opacity: 0.9;
+    color: #666;
     margin: 0;
 }
 
 .content-wrapper {
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
     display: grid;
     grid-template-columns: 300px 1fr;
-    gap: 30px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    gap: 0;
+    background: white;
+    min-height: calc(100vh - 200px);
 }
 
 .sidebar {
-    background: white;
-    border-radius: 15px;
-    padding: 25px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    height: fit-content;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 30px 25px;
+    height: 100%;
 }
 
 .sidebar-header {
@@ -369,9 +368,8 @@ watch([page, size, category], () => {
 
 .main-content {
     background: white;
-    border-radius: 15px;
     padding: 30px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
 }
 
 .content-header {
@@ -504,12 +502,10 @@ watch([page, size, category], () => {
 .news-card {
     display: flex;
     gap: 20px;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 12px;
+    padding: 25px 0;
     cursor: pointer;
     transition: all 0.3s ease;
-    border: 1px solid transparent;
+    border-bottom: 1px solid #e9ecef;
     animation: slideInUp 0.6s ease-out forwards;
     opacity: 0;
     transform: translateY(20px);
@@ -523,10 +519,8 @@ watch([page, size, category], () => {
 }
 
 .news-card:hover {
-    background: white;
-    border-color: #667eea;
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.15);
+    background: #f8f9fa;
+    transform: translateX(5px);
 }
 
 .news-image {
@@ -649,11 +643,13 @@ watch([page, size, category], () => {
 @media (max-width: 1024px) {
     .content-wrapper {
         grid-template-columns: 1fr;
-        gap: 20px;
+        gap: 0;
     }
     
     .sidebar {
         order: 2;
+        border-right: none;
+        border-bottom: 1px solid #e9ecef;
     }
     
     .main-content {
@@ -663,7 +659,11 @@ watch([page, size, category], () => {
 
 @media (max-width: 768px) {
     .news-container {
-        padding: 20px 15px;
+        padding: 0;
+    }
+    
+    .page-header {
+        padding: 30px 20px;
     }
     
     .page-title {
@@ -671,6 +671,15 @@ watch([page, size, category], () => {
     }
     
     .content-wrapper {
+        max-width: 100%;
+        padding: 0 20px;
+    }
+    
+    .sidebar {
+        padding: 20px;
+    }
+    
+    .main-content {
         padding: 20px;
     }
     

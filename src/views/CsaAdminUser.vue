@@ -196,63 +196,65 @@ watch([page, size], () => {
                 @click="fetchContent"
             ></Button>
         </div>
-        <DataTable :value="data" class="mb-4">
-            <Column field="uid" header="编号"></Column>
-            <Column field="nick" header="姓名">
-                <template #body="{ data }">
-                    <div class="min-w-32">{{ data.nick }}</div>
-                </template>
-            </Column>
-            <Column field="category" header="类型">
-                <template #body="{ data }">
-                    <div>{{ getRoleUser(data.rid) }}</div>
-                </template>
-            </Column>
-            <Column field="category" header="管理角色">
-                <template #body="{ data }">
-                    <div>{{ getRoleAdmin(data.admin_rid) }}</div>
-                </template>
-            </Column>
-            <Column field="last_login" header="上次登录">
-                <template #body="{ data }">
-                    <div>
-                        {{
-                            data.last_login
-                                ? new Date(
-                                      data.last_login * 1000
-                                  ).toLocaleString()
-                                : '未登录'
-                        }}
-                    </div>
-                </template>
-            </Column>
-            <Column field="edit" header="更改类型">
-                <template #body="{ data }">
-                    <div>
-                        <Button
-                            label="修改"
-                            severity="info"
-                            size="small"
-                            class="whitespace-nowrap"
-                            @click="$event => ConfirmChange($event, data)"
-                        ></Button>
-                    </div>
-                </template>
-            </Column>
-            <Column field="delete" header="删除">
-                <template #body="{ data }">
-                    <div>
-                        <Button
-                            label="删除"
-                            severity="danger"
-                            size="small"
-                            class="whitespace-nowrap"
-                            @click="$event => ConfirmDelete($event, data.uid)"
-                        ></Button>
-                    </div>
-                </template>
-            </Column>
-        </DataTable>
+        <div class="overflow-x-auto mb-4">
+            <DataTable :value="data" class="min-w-full">
+                <Column field="uid" header="编号"></Column>
+                <Column field="nick" header="姓名">
+                    <template #body="{ data }">
+                        <div class="min-w-32">{{ data.nick }}</div>
+                    </template>
+                </Column>
+                <Column field="category" header="类型">
+                    <template #body="{ data }">
+                        <div>{{ getRoleUser(data.rid) }}</div>
+                    </template>
+                </Column>
+                <Column field="category" header="管理角色">
+                    <template #body="{ data }">
+                        <div>{{ getRoleAdmin(data.admin_rid) }}</div>
+                    </template>
+                </Column>
+                <Column field="last_login" header="上次登录">
+                    <template #body="{ data }">
+                        <div>
+                            {{
+                                data.last_login
+                                    ? new Date(
+                                          data.last_login * 1000
+                                      ).toLocaleString()
+                                    : '未登录'
+                            }}
+                        </div>
+                    </template>
+                </Column>
+                <Column field="edit" header="更改类型">
+                    <template #body="{ data }">
+                        <div>
+                            <Button
+                                label="修改"
+                                severity="info"
+                                size="small"
+                                class="whitespace-nowrap"
+                                @click="$event => ConfirmChange($event, data)"
+                            ></Button>
+                        </div>
+                    </template>
+                </Column>
+                <Column field="delete" header="删除">
+                    <template #body="{ data }">
+                        <div>
+                            <Button
+                                label="删除"
+                                severity="danger"
+                                size="small"
+                                class="whitespace-nowrap"
+                                @click="$event => ConfirmDelete($event, data.uid)"
+                            ></Button>
+                        </div>
+                    </template>
+                </Column>
+            </DataTable>
+        </div>
         <div class="flex justify-end">
             <Paginator
                 v-model:page="page"

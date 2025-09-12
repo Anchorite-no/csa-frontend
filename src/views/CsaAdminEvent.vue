@@ -89,82 +89,84 @@ watch([page, size], () => {
                 }
             "
         ></Button>
-        <DataTable :value="data" class="mb-4">
-            <Column field="eid" header="编号"></Column>
-            <Column field="title" header="标题">
-                <template #body="{ data }">
-                    <div class="min-w-48">{{ data.title }}</div>
-                </template>
-            </Column>
-            <Column field="tag" header="活动时间">
-                <template #body="{ data }">
-                    <div class="flex flex-col gap-y-1">
-                        <div>
-                            {{
-                                new Date(
-                                    data.start_time * 1000
-                                ).toLocaleString()
-                            }}
+        <div class="overflow-x-auto mb-4">
+            <DataTable :value="data" class="min-w-full">
+                <Column field="eid" header="编号"></Column>
+                <Column field="title" header="标题">
+                    <template #body="{ data }">
+                        <div class="min-w-48">{{ data.title }}</div>
+                    </template>
+                </Column>
+                <Column field="tag" header="活动时间">
+                    <template #body="{ data }">
+                        <div class="flex flex-col gap-y-1">
+                            <div>
+                                {{
+                                    new Date(
+                                        data.start_time * 1000
+                                    ).toLocaleString()
+                                }}
+                            </div>
                         </div>
-                    </div>
-                </template>
-            </Column>
-            <Column field="last_update" header="上次更新">
-                <template #body="{ data }">
-                    <div>
-                        {{ new Date(data.last_update * 1000).toLocaleString() }}
-                    </div>
-                </template>
-            </Column>
-            <Column field="edit" header="编辑">
-                <template #body="{ data }">
-                    <div>
-                        <Button
-                            label="编辑"
-                            size="small"
-                            class="whitespace-nowrap"
-                            @click="
-                                () => {
-                                    operator = data.eid
-                                    show = true
-                                }
-                            "
-                        ></Button>
-                    </div>
-                </template>
-            </Column>
-            <Column field="edit" header="签到管理">
-                <template #body="{ data }">
-                    <div>
-                        <Button
-                            label="签到"
-                            size="small"
-                            severity="info"
-                            class="whitespace-nowrap"
-                            @click="
-                                () => {
-                                    operator = data.eid
-                                    show1 = true
-                                }
-                            "
-                        ></Button>
-                    </div>
-                </template>
-            </Column>
-            <Column field="delete" header="删除">
-                <template #body="{ data }">
-                    <div>
-                        <Button
-                            label="删除"
-                            severity="danger"
-                            size="small"
-                            class="whitespace-nowrap"
-                            @click="$event => ConfirmDelete($event, data.eid)"
-                        ></Button>
-                    </div>
-                </template>
-            </Column>
-        </DataTable>
+                    </template>
+                </Column>
+                <Column field="last_update" header="上次更新">
+                    <template #body="{ data }">
+                        <div>
+                            {{ new Date(data.last_update * 1000).toLocaleString() }}
+                        </div>
+                    </template>
+                </Column>
+                <Column field="edit" header="编辑">
+                    <template #body="{ data }">
+                        <div>
+                            <Button
+                                label="编辑"
+                                size="small"
+                                class="whitespace-nowrap"
+                                @click="
+                                    () => {
+                                        operator = data.eid
+                                        show = true
+                                    }
+                                "
+                            ></Button>
+                        </div>
+                    </template>
+                </Column>
+                <Column field="edit" header="签到管理">
+                    <template #body="{ data }">
+                        <div>
+                            <Button
+                                label="签到"
+                                size="small"
+                                severity="info"
+                                class="whitespace-nowrap"
+                                @click="
+                                    () => {
+                                        operator = data.eid
+                                        show1 = true
+                                    }
+                                "
+                            ></Button>
+                        </div>
+                    </template>
+                </Column>
+                <Column field="delete" header="删除">
+                    <template #body="{ data }">
+                        <div>
+                            <Button
+                                label="删除"
+                                severity="danger"
+                                size="small"
+                                class="whitespace-nowrap"
+                                @click="$event => ConfirmDelete($event, data.eid)"
+                            ></Button>
+                        </div>
+                    </template>
+                </Column>
+            </DataTable>
+        </div>
         <div class="flex justify-end">
             <Paginator
                 v-model:page="page"

@@ -217,29 +217,31 @@ watch(visible, value => {
             </div>
 
             <div class="mt-12">
-                <DataTable :value="SigninList" class="mb-4">
-                    <Column field="uid" header="学号">
-                        <template #body="{ data }">
-                            <div class="min-w-32">{{ data.uid }}</div>
-                        </template>
-                    </Column>
-                    <Column field="uid" header="姓名">
-                        <template #body="{ data }">
-                            <div class="min-w-32">{{ data.nick }}</div>
-                        </template>
-                    </Column>
-                    <Column field="uid" header="签到时间">
-                        <template #body="{ data }">
-                            <div class="min-w-32">
-                                {{
-                                    new Date(
-                                        data.participation_time * 1000
-                                    ).toLocaleString()
-                                }}
-                            </div>
-                        </template>
-                    </Column>
-                </DataTable>
+                <div class="overflow-x-auto mb-4">
+                    <DataTable :value="SigninList" class="min-w-full">
+                        <Column field="uid" header="学号">
+                            <template #body="{ data }">
+                                <div class="min-w-32">{{ data.uid }}</div>
+                            </template>
+                        </Column>
+                        <Column field="uid" header="姓名">
+                            <template #body="{ data }">
+                                <div class="min-w-32">{{ data.nick }}</div>
+                            </template>
+                        </Column>
+                        <Column field="uid" header="签到时间">
+                            <template #body="{ data }">
+                                <div class="min-w-32">
+                                    {{
+                                        new Date(
+                                            data.participation_time * 1000
+                                        ).toLocaleString()
+                                    }}
+                                </div>
+                            </template>
+                        </Column>
+                    </DataTable>
+                </div>
                 <div class="flex justify-end items-center gap-4">
                     <div>
                         <Button

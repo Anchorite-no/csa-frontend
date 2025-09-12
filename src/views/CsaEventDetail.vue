@@ -1,13 +1,13 @@
 <script setup>
 import { useRoute } from 'vue-router'
 import { ref, inject, onMounted } from 'vue'
-import Showdown from 'showdown'
+import { processMarkdownImages, processImageUrl } from '@/utils/imageUtils'
+import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
 
 const route = useRoute()
 const eid = route.params.id
 
 const axios = inject('axios')
-const converter = new Showdown.Converter()
 
 const data = ref(null)
 const loading = ref(true)
@@ -20,7 +20,13 @@ const fetchEventDetail = async () => {
                 eid: eid,
             },
         })
-        data.value = response.data
+        // 处理图片URL
+        const processedData = {
+            ...response.data,
+            description: processMarkdownImages(response.data.description),
+            image: processImageUrl(response.data.image)
+        }
+        data.value = processedData
     } catch (error) {
         console.error('获取事件详情失败:', error)
     } finally {
@@ -119,10 +125,9 @@ onMounted(() => {
                         <i class="pi pi-file-text"></i>
                         活动简介
                     </h2>
-                    <div 
-                        class="description-content"
-                        v-html="converter.makeHtml(data.description)"
-                    ></div>
+                    <div class="description-content">
+                        <MarkdownRenderer :content="data.description" />
+                    </div>
                 </div>
             </div>
 

@@ -1,13 +1,13 @@
 <script setup>
 import { useRoute } from 'vue-router'
 import { ref, inject, onMounted } from 'vue'
-import Showdown from 'showdown'
+import { processMarkdownImages, processImageUrl } from '@/utils/imageUtils'
+import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
 
 const route = useRoute()
 const nid = route.params.id
 
 const axios = inject('axios')
-const converter = new Showdown.Converter()
 
 const data = ref(null)
 const loading = ref(true)
@@ -20,7 +20,13 @@ const fetchNewsDetail = async () => {
                 nid: nid,
             },
         })
-        data.value = response.data
+        // 处理图片URL
+        const processedData = {
+            ...response.data,
+            content: processMarkdownImages(response.data.content),
+            image: processImageUrl(response.data.image)
+        }
+        data.value = processedData
     } catch (error) {
         console.error('获取新闻详情失败:', error)
     } finally {
@@ -101,10 +107,7 @@ onMounted(() => {
 
             <!-- 新闻内容 -->
             <div class="news-content">
-                <div 
-                    class="content-body"
-                    v-html="converter.makeHtml(data.content)"
-                ></div>
+                <MarkdownRenderer :content="data.content" />
             </div>
 
             <!-- 新闻底部 -->
@@ -153,18 +156,16 @@ onMounted(() => {
 <style scoped>
 .news-detail-container {
     min-height: 100vh;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    padding: 40px 20px;
+    background: #f8f9fa;
+    padding: 0;
 }
 
 /* 加载状态 */
 .loading-state {
-    max-width: 900px;
+    max-width: 1000px;
     margin: 0 auto;
     background: white;
-    border-radius: 16px;
     padding: 40px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .skeleton-header {
@@ -239,11 +240,9 @@ onMounted(() => {
 
 /* 新闻详情 */
 .news-detail {
-    max-width: 900px;
+    max-width: 1000px;
     margin: 0 auto;
     background: white;
-    border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }
 
@@ -315,121 +314,7 @@ onMounted(() => {
     padding: 40px;
 }
 
-.content-body {
-    line-height: 1.8;
-    color: #333;
-    font-size: 1.05rem;
-}
-
-.content-body h1,
-.content-body h2,
-.content-body h3,
-.content-body h4,
-.content-body h5,
-.content-body h6 {
-    color: #333;
-    margin: 2rem 0 1rem 0;
-    font-weight: 600;
-    line-height: 1.4;
-}
-
-.content-body h1 {
-    font-size: 1.8rem;
-    border-bottom: 2px solid #667eea;
-    padding-bottom: 10px;
-}
-
-.content-body h2 {
-    font-size: 1.5rem;
-    color: #667eea;
-}
-
-.content-body h3 {
-    font-size: 1.3rem;
-}
-
-.content-body p {
-    margin: 1.2rem 0;
-    text-align: justify;
-}
-
-.content-body ul,
-.content-body ol {
-    margin: 1.2rem 0;
-    padding-left: 2rem;
-}
-
-.content-body li {
-    margin: 0.5rem 0;
-}
-
-.content-body img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    margin: 2rem auto;
-    display: block;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.content-body blockquote {
-    border-left: 4px solid #667eea;
-    padding: 1rem 1.5rem;
-    margin: 2rem 0;
-    background: rgba(102, 126, 234, 0.05);
-    border-radius: 0 8px 8px 0;
-    font-style: italic;
-}
-
-.content-body code {
-    background: #f8f9fa;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    font-size: 0.9rem;
-    color: #e83e8c;
-}
-
-.content-body pre {
-    background: #f8f9fa;
-    padding: 1.5rem;
-    border-radius: 8px;
-    overflow-x: auto;
-    border: 1px solid #e9ecef;
-    margin: 1.5rem 0;
-}
-
-.content-body pre code {
-    background: none;
-    padding: 0;
-    color: #333;
-}
-
-.content-body table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1.5rem 0;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.content-body th,
-.content-body td {
-    padding: 12px 16px;
-    text-align: left;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.content-body th {
-    background: #667eea;
-    color: white;
-    font-weight: 600;
-}
-
-.content-body tr:nth-child(even) {
-    background: #f8f9fa;
-}
+/* Markdown渲染器样式已移至MarkdownRenderer组件 */
 
 .news-footer {
     background: #f8f9fa;
@@ -557,7 +442,11 @@ onMounted(() => {
 /* 响应式设计 */
 @media (max-width: 768px) {
     .news-detail-container {
-        padding: 20px 15px;
+        padding: 0 20px;
+    }
+    
+    .news-detail {
+        max-width: 100%;
     }
     
     .news-header {
@@ -579,6 +468,20 @@ onMounted(() => {
     
     .content-body {
         font-size: 1rem;
+    }
+    
+    .content-body pre {
+        padding: 1rem;
+        font-size: 0.8rem;
+    }
+    
+    .content-body table {
+        font-size: 0.8rem;
+    }
+    
+    .content-body th,
+    .content-body td {
+        padding: 8px 12px;
     }
     
     .news-footer {
