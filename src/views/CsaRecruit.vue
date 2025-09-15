@@ -370,6 +370,19 @@ const submitForm = async () => {
   };
   payload.degree = degreeMap[payload.degree] !== undefined ? degreeMap[payload.degree] : 4;
 
+  // 为硕士和博士设置默认的教学计划号和学院信息
+  if (payload.degree !== 0) {
+    if (!payload.major_id) {
+      payload.major_id = 'DEFAULT_MASTER_PHD'; // 默认教学计划号
+    }
+    if (!payload.college_id) {
+      payload.college_id = 'DEFAULT_COLLEGE'; // 默认学院ID
+    }
+    if (!payload.college_name) {
+      payload.college_name = '默认学院'; // 默认学院名称
+    }
+  }
+
   // Debug: Log the payload being sent
   console.log('Sending payload to backend:', payload);
 
