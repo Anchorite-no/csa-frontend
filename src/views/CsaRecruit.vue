@@ -1,8 +1,14 @@
 <script setup>
-import { ref, reactive, inject } from 'vue';
+import { ref, reactive, inject,onMounted } from 'vue';
 import draggable from 'vuedraggable';
+import { getRecruitDeadline } from '../utils/recruitService';
 
 const axios = inject('axios')
+
+// 
+const isCheckingStatus = ref(true);
+const isRecruiting = ref(false); // 
+const recruitDeadline = ref(''); //
 
 // Reactive state for your form data
 const form = reactive({
@@ -335,8 +341,48 @@ const uploadResume = async () => {
   return true;
 };
 
+// 
+const checkRecruitmentStatus = async () => {
+    isCheckingStatus.value = true;
+    try {
+        const response = await getRecruitDeadline();
+        const deadlineString = response.data.deadline; 
+        
+        if (!deadlineString) {
+            isRecruiting.value = false; 
+            recruitDeadline.value = '未设定，请联系管理员'; 
+            window.notyf.error('纳新截止日期未设定，暂时无法报名。');
+        } else {
+            const deadlineDate = new Date(deadlineString);
+            const currentDate = new Date();
+            
+            recruitDeadline.value = deadlineString;
+            
+            if (currentDate < deadlineDate) {
+                isRecruiting.value = true;
+            } else {
+                isRecruiting.value = false;
+            }
+        }
+    } catch (error) {
+        console.error("获取纳新截止日期失败:", error);
+        isRecruiting.value = false;
+        recruitDeadline.value = '获取失败，请稍后重试';
+        window.notyf.error('无法获取纳新状态，请稍后再试。');
+    } finally {
+        isCheckingStatus.value = false;
+    }
+};
+
 // Function to submit the form
 const submitForm = async () => {
+
+// 
+  if (!isRecruiting.value) {
+    window.notyf.error(`纳新已于 ${recruitDeadline.value} 截止，无法提交表单。`);
+    return;
+  }
+
   // Mark all fields as touched for validation display
   fieldTouched.name = true;
   fieldTouched.uid = true;
@@ -412,7 +458,11 @@ const submitForm = async () => {
   } catch (error) {
     console.error('Full error response:', error.response);
     if (error.response && error.response.data && error.response.data.detail) {
-      window.notyf.error(`提交失败: ${error.response.data.detail}`);
+      if (error.response.status === 403 || error.response.data.detail.includes('截止')) { 
+         window.notyf.error(`报名已截止，无法提交。`);
+      } else {
+         window.notyf.error(`提交失败: ${error.response.data.detail}`);
+      }
     } else {
       window.notyf.error('提交失败，请重试。');
     }
@@ -422,7 +472,6 @@ const submitForm = async () => {
 </script>
 
 <template>
-  <!-- 提交成功页面 -->
   <div v-if="submitSuccess" class="success-container">
     <div class="success-content">
       <div class="success-icon">
@@ -447,8 +496,28 @@ const submitForm = async () => {
       </div>
     </div>
   </div>
+  
+  <div v-else-if="isCheckingStatus" class="form-container">
+      <div class="status-box loading-box">
+          <h2 class="form-title">正在检查纳新状态...</h2>
+          <p>请稍候...</p>
+      </div>
+  </div>
 
-  <!-- 报名表单页面 -->
+  <div v-else-if="!isRecruiting" class="form-container">
+      <div class="status-box closed-box">
+          <h2 class="form-title" style="color: #f44336;">🔔 纳新已截止</h2>
+          <p>感谢您关注浙江大学学生网络空间安全协会！</p>
+          <p>本期纳新截止日期为：<span style="font-weight: bold; color: #f44336;">{{ recruitDeadline }}</span></p>
+          <p>请关注我们公众号“ZJU网小安”，获取最新纳新信息。</p>
+          <div class="success-actions" style="margin-top: 2rem;">
+            <button @click="window.location.href='/'" class="btn-primary">
+              返回首页
+            </button>
+          </div>
+      </div>
+  </div>
+
   <div v-else class="form-container">
     <form @submit.prevent="submitForm">
       <h2 class="form-title" style="font-size: 24px;">2025浙江大学学生网络空间安全协会纳新报名表</h2>
@@ -523,7 +592,6 @@ const submitForm = async () => {
           <option value="21">21级</option>
         </select>
       </div>
-      <!-- 学士学位 -->
       <div class="form-group" v-if="form.degree == '学士' && form.grade !== null">
         <label for="major_name">专业:<span class="required">*</span></label>
         <input type="text" id="major_name" v-model="form.major_name" @input="searchMajor" @blur="confirmMajor" required>
@@ -533,17 +601,14 @@ const submitForm = async () => {
           </li>
         </ul>
       </div>
-      <!-- 硕士及以上学位不查找教学计划号 -->
       <div class="form-group" v-if="form.degree !== '学士' && form.grade !== null">
         <label for="major_name">专业:<span class="required">*</span></label>
         <input type="text" id="major_name" v-model="form.major_name" required>
       </div>
-      <!-- 学士学位 -->
       <div class="form-group" v-if="form.degree == '学士' && form.grade !== null">
         <label for="college_name">学院:<span class="required">*</span></label>
         <input type="text" id="college_name" v-model="form.college_name" disabled>
       </div>
-      <!-- 硕士及以上学位 -->
       <div class="form-group" v-if="form.degree !== null && form.degree !== '学士' && form.grade !== null">
         <label for="college_name">学院:<span class="required">*</span></label>
         <input type="text" id="college_name" v-model="form.college_name" required>
@@ -603,7 +668,6 @@ const submitForm = async () => {
         </div>
         <div class="time-slots-container">
           <div class="time-slots-header">
-            <!-- 工作日时间段 -->
             <div class="weekday-slots">
               <h4>工作日时间段（19:00-22:00）</h4>
               <div class="weekday-groups">
@@ -624,7 +688,6 @@ const submitForm = async () => {
               </div>
             </div>
             
-            <!-- 非工作日时间段 -->
             <div class="weekend-slots">
               <h4>非工作日时间段（10:00-22:00）</h4>
               <div class="weekend-groups">
@@ -677,7 +740,6 @@ const submitForm = async () => {
         <label for="member_agreement">同意成为浙江大学学生网络空间安全协会会员</label>
       </div>
 
-      <!-- Form validation summary -->
       <div v-if="(validationErrors.name && fieldTouched.name) || (validationErrors.uid && fieldTouched.uid) || (validationErrors.phone && fieldTouched.phone)" class="validation-summary">
         <h4>请修正以下错误：</h4>
         <ul>
@@ -697,15 +759,7 @@ const submitForm = async () => {
             @change="handleResumeFileChange"
             class="file-input"
           >
-          <!-- <button 
-            type="button" 
-            @click="uploadResume" 
-            :disabled="!resumeFile || resumeUploadLoading"
-            class="upload-button"
-          > -->
-            <!-- {{ resumeUploadLoading ? '上传中...' : '上传简历' }}
-          </button> -->
-        </div>
+          </div>
         <div v-if="resumeUploadStatus" class="upload-status" :class="{ 'success': resumeUploadStatus.includes('成功'), 'error': resumeUploadStatus.includes('失败'), 'uploading': resumeUploadStatus.includes('正在上传') }">
           {{ resumeUploadStatus }}
         </div>
