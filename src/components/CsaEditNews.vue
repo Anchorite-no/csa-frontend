@@ -163,15 +163,6 @@ watch(visible, value => {
                 })
         }
     } else {
-        // If closed without saving, and we have a draftNid, we should delete it?
-        // But user might just have clicked outside.
-        // If we want "Cancel" to delete, we need to handle "Cancel" button or close event.
-        // But the Dialog just has a close button.
-        
-        // If we have a draftNid and we are closing NOT because of success submit...
-        // But 'visible' changes to false on submit success too.
-        
-        // Let's add a `saved` flag.
         if (draftNid.value && !saved.value) {
              axios.post('/delete/news', { nid: draftNid.value })
              draftNid.value = null
