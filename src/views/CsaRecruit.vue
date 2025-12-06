@@ -1,12 +1,12 @@
 <script setup>
 import { ref, reactive, inject,onMounted } from 'vue';
 import draggable from 'vuedraggable';
-import { getRecruitDeadline } from '../utils/recruitService';
 
 const axios = inject('axios')
 
 // 
-const isCheckingStatus = ref(true);
+const RECRUIT_API = '/api/recruit';
+const isLoading = ref(true);
 const isRecruiting = ref(false); // 
 const recruitDeadline = ref(''); //
 
@@ -342,35 +342,24 @@ const uploadResume = async () => {
 };
 
 // 
-const checkRecruitmentStatus = async () => {
-    isCheckingStatus.value = true;
+const fetchDeadline = async () => {
+    isLoading.value = true;
     try {
-        const response = await getRecruitDeadline();
+        const response = await axios.get(`${RECRUIT_API}/getDeadline`);
         const deadlineString = response.data.deadline; 
         
-        if (!deadlineString) {
-            isRecruiting.value = false; 
-            recruitDeadline.value = '未设定，请联系管理员'; 
-            window.notyf.error('纳新截止日期未设定，暂时无法报名。');
-        } else {
-            const deadlineDate = new Date(deadlineString);
-            const currentDate = new Date();
-            
-            recruitDeadline.value = deadlineString;
-            
-            if (currentDate < deadlineDate) {
-                isRecruiting.value = true;
-            } else {
-                isRecruiting.value = false;
-            }
-        }
+        const deadlineDate = new Date(deadlineString);
+        const currentDate = new Date();
+        
+        recruitDeadline.value = deadlineString;
+        isRecruiting.value = currentDate < deadlineDate; 
+        
     } catch (error) {
         console.error("获取纳新截止日期失败:", error);
-        isRecruiting.value = false;
-        recruitDeadline.value = '获取失败，请稍后重试';
-        window.notyf.error('无法获取纳新状态，请稍后再试。');
+        isRecruiting.value = false; // 失败时，保守处理，假设已截止或无法判断。
+        recruitDeadline.value = '状态获取失败'; 
     } finally {
-        isCheckingStatus.value = false;
+        isLoading.value = false;
     }
 };
 
@@ -469,6 +458,11 @@ const submitForm = async () => {
     console.error('Form submission failed:', error);
   }
 };
+
+onMounted(() => {
+    fetchDeadline();
+});
+
 </script>
 
 <template>
@@ -759,7 +753,15 @@ const submitForm = async () => {
             @change="handleResumeFileChange"
             class="file-input"
           >
-          </div>
+          <!-- <button 
+            type="button" 
+            @click="uploadResume" 
+            :disabled="!resumeFile || resumeUploadLoading"
+            class="upload-button"
+          > -->
+            <!-- {{ resumeUploadLoading ? '上传中...' : '上传简历' }}
+          </button> -->
+        </div>
         <div v-if="resumeUploadStatus" class="upload-status" :class="{ 'success': resumeUploadStatus.includes('成功'), 'error': resumeUploadStatus.includes('失败'), 'uploading': resumeUploadStatus.includes('正在上传') }">
           {{ resumeUploadStatus }}
         </div>
