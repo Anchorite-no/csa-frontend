@@ -14,16 +14,13 @@ const total = ref(0);
 const currentPage = ref(1);
 const pageSize = ref(10);
 
-const RECRUIT_API = '/api/recruit'; 
-const ADMIN_API = '/api/admin'; 
-
 const newDeadline = ref('');
 const currentDeadline = ref('正在加载...');
 const isRecruiting = ref(false);
 const isSubmitting = ref(false); 
 const message = ref('');
 const messageType = ref('');
-
+const modifyDeadline = ref(false);
 // 模态框状态
 const showModal = ref(false);
 
@@ -33,40 +30,36 @@ const showInterviewModal = ref(false);
 const selectedRecruit = ref(null);
 const selectAllRecruits = ref(false);
 
-// 获取当前截止日期 (GET 请求)
 const fetchDeadline = async () => {
-    // 使用现有的 loading 状态
     loading.value = true;
     message.value = '';
     currentDeadline.value = '正在加载...';
     try {
-        const response = await axios.get(`${RECRUIT_API}/getDeadline`); 
+        const response = await axios.get(`/recruit/get_deadline`); 
         const deadlineString = response.data.deadline; 
-        
+        console.log(response);
         if (deadlineString) {
             currentDeadline.value = deadlineString;
-            // 判断是否开放
             const deadlineDate = new Date(deadlineString);
             const currentDate = new Date();
-            isRecruiting.value = currentDate > deadlineDate; // 纳新是否已截止？
+            isRecruiting.value = currentDate > deadlineDate; 
             
-            // 将当前截止日期设置到输入框
             newDeadline.value = deadlineString.split('T')[0] || deadlineString; 
         } else {
             currentDeadline.value = '未设置截止日期';
-            isRecruiting.value = true; // 默认开放
+            isRecruiting.value = true; 
         }
     } catch (error) {
         console.error("获取截止日期失败:", error);
         currentDeadline.value = '获取失败';
-        message.value = `❌ 获取失败：${error.response?.data?.message || '请检查网络或后端接口'}`;
+        message.value = `获取失败：${error.response?.data?.message || '请检查网络或后端接口'}`;
         messageType.value = 'error';
         isRecruiting.value = true;
     } finally {
         loading.value = false;
     }
 };
-// 设置新的截止日期 (POST 请求)
+
 const handleSetDeadline = async () => {
     if (!newDeadline.value) {
         message.value = '请选择一个截止日期！';
@@ -77,25 +70,22 @@ const handleSetDeadline = async () => {
     message.value = '';
     
     try {
-        await axios.post(`${ADMIN_API}/setRecruitDeadline`, {
+        await axios.post('/admin/set_recruit_deadline', {
             deadline: newDeadline.value
         });
         
-        message.value = `✅ 截止日期设置成功：${newDeadline.value}`;
         messageType.value = 'success';
-        
         await fetchDeadline(); 
+        window.notyf.success(`招新截止日期设置成功：${newDeadline.value}`);
+        modifyDeadline.value = false;
     } catch (error) {
-        console.error("设置截止日期失败:", error);
         const errorMessage = error.response?.data?.detail || error.response?.data?.message || '请检查您的管理员权限或后端';
-        message.value = `❌ 设置失败：${errorMessage}`;
-        messageType.value = 'error';
+        window.notyf.error(`设置失败：${errorMessage}`);
     } finally {
         isSubmitting.value = false;
     }
 };
 
-// 评价表单 - 与面试管理字段对齐
 const evaluationForm = reactive({
   comment: '',
   department: '',
@@ -112,7 +102,7 @@ const evaluationForm = reactive({
   // 推荐部门
   recommended_department: '',
   // 评价结果
-  result: 'pending' // 'pass', 'fail', 'pending', 'recommended'
+  result: 'pending' 
 });
 
 // 评价列表
@@ -299,7 +289,6 @@ const batchDeleteRecruits = async () => {
     acceptClass: 'p-button-danger',
     accept: async () => {
       try {
-        // 逐个删除选中的记录
         for (const recruit of selectedRecruits) {
           await axios.post('/recruit/delete_recruit', {
             uid: recruit.uid
@@ -319,8 +308,8 @@ const batchDeleteRecruits = async () => {
 // 全部删除
 const deleteAllRecruits = async () => {
   confirm.require({
-    message: `⚠️ 危险操作警告！\n\n确定要删除数据库中所有纳新记录吗？\n\n此操作将永久删除所有纳新数据，包括：\n• 所有纳新者的基本信息\n• 所有评价记录\n• 所有面试排班记录\n• 所有面试评价数据\n\n此操作不可恢复，请谨慎操作！`,
-    header: '⚠️ 危险操作：删除所有纳新记录',
+    message: `危险操作警告！\n\n确定要删除数据库中所有纳新记录吗？\n\n此操作将永久删除所有纳新数据，包括：\n• 所有纳新者的基本信息\n• 所有评价记录\n• 所有面试排班记录\n• 所有面试评价数据\n\n此操作不可恢复，请谨慎操作！`,
+    header: '危险操作：删除所有纳新记录',
     icon: 'pi pi-exclamation-triangle',
     acceptClass: 'p-button-danger',
     acceptLabel: '确认删除全部',
@@ -485,7 +474,6 @@ const isStatusLocked = computed(() => {
 const isRejectLocked = computed(() => {
   if (!selectedRecruit.value) return false;
   
-  // 如果已录取，拒绝按钮锁定
   if (selectedRecruit.value.is_admitted) {
     return true;
   }
@@ -503,7 +491,6 @@ const isRejectLocked = computed(() => {
   return false;
 });
 
-// 获取状态样式
 const getStatusStyle = (status) => {
   switch (status) {
     case '待面试':
@@ -667,7 +654,6 @@ const closeEvaluationModal = () => {
   evaluations.value = [];
 };
 
-// 清空评价表单
 const clearEvaluationForm = () => {
   evaluationForm.comment = '';
   evaluationForm.department = '';
@@ -685,8 +671,6 @@ const clearEvaluationForm = () => {
 };
 
 
-
-// 显示面试模态框
 const openInterviewModal = async (recruit) => {
   selectedRecruit.value = recruit;
   showInterviewModal.value = true;
@@ -1123,13 +1107,11 @@ onMounted(async () => {
     await fetchDeadline(); 
     
     await fetchRecruits(); 
-
+});
 </script>
 
 <template>
-  <div class="admin-recruit-container">
-    <h2>纳新管理</h2>
-    
+  <div class="admin-recruit-container">    
     <!-- 筛选条件 -->
     <div class="filter-section">
       <div class="filter-row">
@@ -1158,6 +1140,10 @@ onMounted(async () => {
               {{ option.label }}
             </option>
           </select>
+        </div>
+        <div class="filter-item">
+          <label>表单截止日期:</label>
+          <input type="date" v-model="newDeadline" @input="handleSetDeadline">
         </div>
       </div>
       <div class="filter-row">

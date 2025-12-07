@@ -146,17 +146,19 @@ onMounted(() => {
 <style scoped>
 .event-detail-container {
     min-height: 100vh;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    background: var(--bg-secondary);
     padding: 40px 20px;
+    transition: background 0.3s ease;
 }
 
 .content-wrapper {
     max-width: 900px;
     margin: 0 auto;
-    background: white;
+    background: var(--bg-surface);
     border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 30px var(--shadow-color);
     overflow: hidden;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* 加载状态 */
@@ -171,7 +173,7 @@ onMounted(() => {
 .skeleton-title {
     height: 32px;
     width: 80%;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background: var(--skeleton-gradient);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
     border-radius: 8px;
@@ -186,7 +188,7 @@ onMounted(() => {
 .skeleton-tag {
     height: 24px;
     width: 80px;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background: var(--skeleton-gradient);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
     border-radius: 12px;
@@ -201,7 +203,7 @@ onMounted(() => {
 .skeleton-meta-item {
     height: 16px;
     width: 150px;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background: var(--skeleton-gradient);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
     border-radius: 4px;
@@ -215,7 +217,7 @@ onMounted(() => {
 
 .skeleton-section {
     height: 120px;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background: var(--skeleton-gradient);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
     border-radius: 8px;
@@ -234,15 +236,17 @@ onMounted(() => {
 .event-header {
     margin-bottom: 40px;
     padding-bottom: 30px;
-    border-bottom: 2px solid #f0f0f0;
+    border-bottom: 2px solid var(--border-color);
+    transition: border-color 0.3s ease;
 }
 
 .event-title {
     font-size: 2.5rem;
     font-weight: 700;
-    color: #333;
+    color: var(--text-primary);
     margin: 0 0 20px 0;
     line-height: 1.2;
+    transition: color 0.3s ease;
 }
 
 .event-tags {
@@ -254,7 +258,7 @@ onMounted(() => {
 
 .event-tag {
     padding: 6px 16px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-primary);
     color: white;
     border-radius: 20px;
     font-size: 0.9rem;
@@ -271,23 +275,26 @@ onMounted(() => {
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #666;
+    color: var(--text-secondary);
     font-size: 0.95rem;
+    transition: color 0.3s ease;
 }
 
 .meta-item i {
-    color: #667eea;
+    color: var(--accent-color);
     font-size: 1rem;
+    transition: color 0.3s ease;
 }
 
 /* 信息卡片 */
 .info-card,
 .description-card {
-    background: #f8f9fa;
+    background: var(--bg-secondary);
     border-radius: 12px;
     padding: 30px;
     margin-bottom: 30px;
-    border: 1px solid #e9ecef;
+    border: 1px solid var(--border-color);
+    transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .card-title {
@@ -296,13 +303,15 @@ onMounted(() => {
     gap: 10px;
     font-size: 1.3rem;
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary);
     margin: 0 0 20px 0;
+    transition: color 0.3s ease;
 }
 
 .card-title i {
-    color: #667eea;
+    color: var(--accent-color);
     font-size: 1.2rem;
+    transition: color 0.3s ease;
 }
 
 .info-grid {
@@ -312,35 +321,40 @@ onMounted(() => {
 }
 
 .info-item {
-    background: white;
+    background: var(--bg-surface);
     padding: 20px;
     border-radius: 8px;
-    border: 1px solid #e9ecef;
+    border: 1px solid var(--border-color);
+    transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .info-label {
     font-size: 0.9rem;
-    color: #666;
+    color: var(--text-secondary);
     margin-bottom: 8px;
     font-weight: 500;
+    transition: color 0.3s ease;
 }
 
 .info-value {
     font-size: 1rem;
-    color: #333;
+    color: var(--text-primary);
     font-weight: 600;
     display: flex;
     align-items: center;
     gap: 6px;
+    transition: color 0.3s ease;
 }
 
 .info-value i {
-    color: #667eea;
+    color: var(--accent-color);
+    transition: color 0.3s ease;
 }
 
 .description-content {
     line-height: 1.7;
-    color: #333;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
 }
 
 .description-content h1,
@@ -349,9 +363,10 @@ onMounted(() => {
 .description-content h4,
 .description-content h5,
 .description-content h6 {
-    color: #333;
+    color: var(--text-primary);
     margin: 1.5rem 0 1rem 0;
     font-weight: 600;
+    transition: color 0.3s ease;
 }
 
 .description-content p {
@@ -373,32 +388,40 @@ onMounted(() => {
     height: auto;
     border-radius: 8px;
     margin: 1.5rem 0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px var(--shadow-color);
+    transition: box-shadow 0.3s ease;
 }
 
 .description-content blockquote {
-    border-left: 4px solid #667eea;
+    border-left: 4px solid var(--accent-color);
     padding-left: 1rem;
     margin: 1.5rem 0;
     background: rgba(102, 126, 234, 0.05);
     padding: 1rem;
     border-radius: 0 8px 8px 0;
+    transition: border-color 0.3s ease, background 0.3s ease;
+}
+
+.dark .description-content blockquote {
+    background: rgba(66, 165, 245, 0.05);
 }
 
 .description-content code {
-    background: #f1f3f4;
+    background: var(--bg-secondary);
     padding: 2px 6px;
     border-radius: 4px;
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
     font-size: 0.9rem;
+    transition: background 0.3s ease;
 }
 
 .description-content pre {
-    background: #f8f9fa;
+    background: var(--bg-secondary);
     padding: 1rem;
     border-radius: 8px;
     overflow-x: auto;
-    border: 1px solid #e9ecef;
+    border: 1px solid var(--border-color);
+    transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .description-content pre code {
@@ -410,7 +433,8 @@ onMounted(() => {
 .error-state {
     text-align: center;
     padding: 60px 40px;
-    color: #666;
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
 }
 
 .error-icon {
@@ -422,8 +446,9 @@ onMounted(() => {
 .error-title {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary);
     margin: 0 0 10px 0;
+    transition: color 0.3s ease;
 }
 
 .error-message {

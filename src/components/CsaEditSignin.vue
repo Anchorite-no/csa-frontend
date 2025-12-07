@@ -271,3 +271,45 @@ watch(visible, value => {
         </Dialog>
     </div>
 </template>
+
+<style scoped>
+/* Paginator组件样式 - 应用全局CSS变量 */
+:deep(.p-paginator) {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 10px;
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+:deep(.p-paginator-page),
+:deep(.p-paginator-first),
+:deep(.p-paginator-prev),
+:deep(.p-paginator-next),
+:deep(.p-paginator-last) {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+:deep(.p-paginator-page:hover),
+:deep(.p-paginator-first:hover),
+:deep(.p-paginator-prev:hover),
+:deep(.p-paginator-next:hover),
+:deep(.p-paginator-last:hover) {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+:deep(.p-paginator-page.p-highlight) {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
+:deep(.p-paginator-current) {
+    color: var(--text-primary);
+}
+</style>

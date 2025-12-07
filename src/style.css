@@ -27,14 +27,7 @@
     --skeleton-gradient: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
 }
 
-/* 防止浏览器自动应用深色模式 */
-@media (prefers-color-scheme: dark) {
-    :root:not(.dark) {
-        color-scheme: light;
-    }
-}
-
-/* 确保在iOS Safari中正确显示 */
+/* 强制使用手动控制的主题，不受系统主题影响 */
 html {
     color-scheme: light;
 }

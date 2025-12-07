@@ -154,34 +154,17 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* 基础变量（浅色模式） */
+/* 使用全局CSS变量，仅定义页面特定的变量 */
 :deep(:root) {
-    --accent-color: #667eea;
-    --accent-hover: #764ba2;
-    --bg-primary: #f8f9fa;
-    --bg-surface: #ffffff;
-    --bg-header: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --text-primary: #333333;
-    --text-secondary: #666666;
-    --border-color: #e9ecef;
-    --shadow-color: rgba(0, 0, 0, 0.1);
-    --skeleton-bg: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    --divider-bg: linear-gradient(90deg, transparent, #667eea, transparent);
+    --bg-header: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+    --skeleton-bg: var(--skeleton-gradient);
+    --divider-bg: linear-gradient(90deg, transparent, var(--accent-color), transparent);
 }
 
-/* 暗黑模式变量（纯黑/深灰基调） */
+/* 暗黑模式特定变量 */
 :deep(.dark) {
-    --accent-color: #42a5f5;
-    --accent-hover: #64b5f6;
-    --bg-primary: #000000; /* 纯黑背景 */
-    --bg-surface: #121212; /* 深灰模块背景 */
-    --bg-header: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%); /* 深灰渐变头部 */
-    --text-primary: #ffffff; /* 白色文字 */
-    --text-secondary: #b0b0b0; /* 浅灰文字 */
-    --border-color: #333333; /* 深灰边框 */
-    --shadow-color: rgba(0, 0, 0, 0.5); /* 深色阴影 */
-    --skeleton-bg: linear-gradient(90deg, #1e1e1e 25%, #282828 50%, #1e1e1e 75%); /* 暗黑骨架屏 */
-    --divider-bg: linear-gradient(90deg, transparent, #42a5f5, transparent); /* 暗黑分割线 */
+    --bg-header: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+    --divider-bg: linear-gradient(90deg, transparent, var(--accent-color), transparent);
 }
 
 /* 全局容器 */
@@ -360,10 +343,6 @@ onMounted(() => {
 .news-content {
     padding: 40px;
     color: var(--text-primary);
-    /* 适配Markdown渲染器的暗黑模式文字 */
-    :deep(.dark) & {
-        color: var(--text-primary);
-    }
 }
 
 /* 新闻底部 */

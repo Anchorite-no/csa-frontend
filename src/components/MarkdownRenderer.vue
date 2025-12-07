@@ -55,73 +55,80 @@ onMounted(() => {
 <style scoped>
 .markdown-renderer {
     line-height: 1.8;
-    color: #333;
+    color: var(--text-primary);
     font-size: 1.05rem;
+    transition: color 0.3s ease;
 }
 
 /* 标题样式 */
 .markdown-renderer :deep(h1) {
     font-size: 2.2rem;
     font-weight: 700;
-    color: #000000;
+    color: var(--text-primary);
     margin: 2.5rem 0 1.5rem 0;
     padding-bottom: 0.8rem;
-    border-bottom: 3px solid #3498db;
+    border-bottom: 3px solid var(--accent-color);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     line-height: 1.2;
+    transition: color 0.3s ease, border-color 0.3s ease;
 }
 
 .markdown-renderer :deep(h2) {
     font-size: 1.8rem;
     font-weight: 600;
-    color: #000000;
+    color: var(--text-primary);
     margin: 2rem 0 1rem 0;
     padding-bottom: 0.5rem;
-    border-bottom: 2px solid #e74c3c;
+    border-bottom: 2px solid var(--accent-color);
     text-transform: uppercase;
     letter-spacing: 0.3px;
     line-height: 1.3;
+    transition: color 0.3s ease, border-color 0.3s ease;
 }
 
 .markdown-renderer :deep(h3) {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #000000;
+    color: var(--text-primary);
     margin: 1.8rem 0 0.8rem 0;
     text-transform: uppercase;
     letter-spacing: 0.2px;
     line-height: 1.4;
+    transition: color 0.3s ease;
 }
 
 .markdown-renderer :deep(h4) {
     font-size: 1.3rem;
     font-weight: 600;
-    color: #000000;
+    color: var(--text-primary);
     margin: 1.5rem 0 0.6rem 0;
     text-transform: uppercase;
     letter-spacing: 0.1px;
     line-height: 1.4;
+    transition: color 0.3s ease;
 }
 
 .markdown-renderer :deep(h5) {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #000000;
+    color: var(--text-primary);
     margin: 1.2rem 0 0.5rem 0;
     text-transform: uppercase;
     letter-spacing: 0.1px;
     line-height: 1.4;
+    transition: color 0.3s ease;
 }
 
 .markdown-renderer :deep(h6) {
     font-size: 1rem;
     font-weight: 600;
-    color: #000000;
+    color: var(--text-primary);
     margin: 1rem 0 0.4rem 0;
     text-transform: uppercase;
     letter-spacing: 0.1px;
     line-height: 1.4;
+    transition: color 0.3s ease;
 }
 
 /* 段落样式 */
@@ -169,25 +176,32 @@ onMounted(() => {
 
 /* 引用样式 */
 .markdown-renderer :deep(blockquote) {
-    border-left: 5px solid #3498db;
+    border-left: 5px solid var(--accent-color);
     padding: 1.5rem 2rem;
     margin: 2rem 0;
-    background: linear-gradient(135deg, rgba(52, 152, 219, 0.05) 0%, rgba(41, 128, 185, 0.05) 100%);
+    background: rgba(102, 126, 234, 0.05);
     border-radius: 0 12px 12px 0;
     font-style: italic;
     position: relative;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 15px var(--shadow-color);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+.dark .markdown-renderer :deep(blockquote) {
+    background: rgba(66, 165, 245, 0.05);
 }
 
 .markdown-renderer :deep(blockquote::before) {
     content: '"';
     font-size: 4rem;
-    color: #3498db;
+    color: var(--accent-color);
     position: absolute;
     top: -10px;
     left: 10px;
     opacity: 0.3;
     font-family: serif;
+    transition: color 0.3s ease;
 }
 
 /* 代码样式 */
@@ -242,22 +256,25 @@ onMounted(() => {
     margin: 2rem 0;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    background: white;
+    box-shadow: 0 8px 25px var(--shadow-color);
+    background: var(--bg-surface);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .markdown-renderer :deep(th),
 .markdown-renderer :deep(td) {
     padding: 15px 20px;
     text-align: left;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid var(--border-color);
     word-wrap: break-word;
     word-break: break-word;
     overflow-wrap: break-word;
+    color: var(--text-primary);
+    transition: color 0.3s ease, border-color 0.3s ease;
 }
 
 .markdown-renderer :deep(th) {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-primary);
     color: white;
     font-weight: 600;
     text-transform: uppercase;
@@ -266,17 +283,22 @@ onMounted(() => {
 }
 
 .markdown-renderer :deep(tr:nth-child(even)) {
-    background: #f8f9fa;
+    background: var(--bg-secondary);
+    transition: background 0.3s ease;
 }
 
 .markdown-renderer :deep(tr:hover) {
-    background: #e3f2fd;
+    background: rgba(102, 126, 234, 0.1);
     transition: background-color 0.3s ease;
+}
+
+.dark .markdown-renderer :deep(tr:hover) {
+    background: rgba(66, 165, 245, 0.1);
 }
 
 /* 链接样式 */
 .markdown-renderer :deep(a) {
-    color: #3498db;
+    color: var(--accent-color);
     text-decoration: none;
     font-weight: 500;
     border-bottom: 2px solid transparent;
@@ -284,28 +306,31 @@ onMounted(() => {
 }
 
 .markdown-renderer :deep(a:hover) {
-    color: #2980b9;
-    border-bottom-color: #3498db;
+    color: var(--accent-hover);
+    border-bottom-color: var(--accent-color);
 }
 
 /* 强调样式 */
 .markdown-renderer :deep(strong) {
     font-weight: 700;
-    color: #2c3e50;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
 }
 
 .markdown-renderer :deep(em) {
     font-style: italic;
-    color: #7f8c8d;
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
 }
 
 /* 分割线样式 */
 .markdown-renderer :deep(hr) {
     border: none;
     height: 3px;
-    background: linear-gradient(90deg, transparent, #3498db, transparent);
+    background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
     margin: 3rem 0;
     border-radius: 2px;
+    transition: background 0.3s ease;
 }
 
 /* 响应式设计 */

@@ -5,7 +5,6 @@ import draggable from 'vuedraggable';
 const axios = inject('axios')
 
 // 
-const RECRUIT_API = '/api/recruit';
 const isLoading = ref(true);
 const isRecruiting = ref(false); // 
 const recruitDeadline = ref(''); //
@@ -345,7 +344,7 @@ const uploadResume = async () => {
 const fetchDeadline = async () => {
     isLoading.value = true;
     try {
-        const response = await axios.get(`${RECRUIT_API}/getDeadline`);
+        const response = await axios.get(`/recruit/get_deadline`);
         const deadlineString = response.data.deadline; 
         
         const deadlineDate = new Date(deadlineString);
@@ -504,11 +503,11 @@ onMounted(() => {
           <p>感谢您关注浙江大学学生网络空间安全协会！</p>
           <p>本期纳新截止日期为：<span style="font-weight: bold; color: #f44336;">{{ recruitDeadline }}</span></p>
           <p>请关注我们公众号“ZJU网小安”，获取最新纳新信息。</p>
-          <div class="success-actions" style="margin-top: 2rem;">
+          <!-- <div class="success-actions" style="margin-top: 2rem;">
             <button @click="window.location.href='/'" class="btn-primary">
               返回首页
             </button>
-          </div>
+          </div> -->
       </div>
   </div>
 

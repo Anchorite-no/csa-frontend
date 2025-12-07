@@ -146,12 +146,11 @@ watch([page, size], () => {
                 </template>
             </Column>
         </DataTable>
-        <div class="flex justify-end">
+        <div class="pagination-wrapper">
             <Paginator
                 v-model:page="page"
                 v-model:rows="size"
                 :totalRecords="total"
-                :rowsPerPageOptions="[10, 20, 30]"
             ></Paginator>
         </div>
     </div>
@@ -160,5 +159,111 @@ watch([page, size], () => {
 <style>
 .p-datatable-column-title {
     white-space: nowrap;
+}
+
+:deep(.p-datatable) {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+:deep(.p-datatable .p-datatable-header) {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem;
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+:deep(.p-datatable .p-datatable-thead > tr > th) {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem;
+    font-weight: 600;
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+:deep(.p-datatable .p-datatable-tbody > tr) {
+    background: var(--bg-surface) !important;
+    color: var(--text-primary) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+:deep(.p-datatable .p-datatable-tbody > tr:hover) {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+}
+
+:deep(.p-datatable .p-datatable-tbody > tr > td) {
+    padding: 1rem;
+    color: var(--text-primary) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    background: transparent !important;
+    transition: color 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+}
+
+/* 确保表格内的所有文字都使用正确的颜色 */
+:deep(.p-datatable .p-datatable-tbody > tr > td *) {
+    color: var(--text-primary) !important;
+}
+
+/* 确保按钮和标签等元素也使用正确的颜色 */
+:deep(.p-datatable .p-datatable-tbody > tr > td .p-button) {
+    color: inherit;
+}
+
+:deep(.p-datatable .p-datatable-tbody > tr > td .p-tag) {
+    color: inherit;
+}
+
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+/* Paginator组件样式 - 应用全局CSS变量 */
+.pagination-wrapper :deep(.p-paginator) {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 10px;
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.pagination-wrapper :deep(.p-paginator-page),
+.pagination-wrapper :deep(.p-paginator-first),
+.pagination-wrapper :deep(.p-paginator-prev),
+.pagination-wrapper :deep(.p-paginator-next),
+.pagination-wrapper :deep(.p-paginator-last) {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.pagination-wrapper :deep(.p-paginator-page:hover),
+.pagination-wrapper :deep(.p-paginator-first:hover),
+.pagination-wrapper :deep(.p-paginator-prev:hover),
+.pagination-wrapper :deep(.p-paginator-next:hover),
+.pagination-wrapper :deep(.p-paginator-last:hover) {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.pagination-wrapper :deep(.p-paginator-page.p-highlight) {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
+.pagination-wrapper :deep(.p-paginator-current) {
+    color: var(--text-primary);
 }
 </style>

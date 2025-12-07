@@ -167,7 +167,7 @@ watch([page, size], () => {
                 </Column>
             </DataTable>
         </div>
-        <div class="flex justify-end">
+        <div class="pagination-wrapper">
             <Paginator
                 v-model:page="page"
                 v-model:rows="size"
@@ -181,5 +181,108 @@ watch([page, size], () => {
 <style>
 .p-datatable-column-title {
     white-space: nowrap;
+}
+
+.overflow-x-auto :deep(.p-datatable) {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.overflow-x-auto :deep(.p-datatable .p-datatable-header) {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem;
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.overflow-x-auto :deep(.p-datatable .p-datatable-thead > tr > th) {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem;
+    font-weight: 600;
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.overflow-x-auto :deep(.p-datatable .p-datatable-tbody > tr) {
+    background: var(--bg-surface) !important;
+    color: var(--text-primary) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.overflow-x-auto :deep(.p-datatable .p-datatable-tbody > tr:hover) {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+}
+
+.overflow-x-auto :deep(.p-datatable .p-datatable-tbody > tr > td) {
+    padding: 1rem;
+    color: var(--text-primary) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    background: transparent !important;
+    transition: color 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+}
+
+.overflow-x-auto :deep(.p-datatable .p-datatable-tbody > tr > td *) {
+    color: var(--text-primary) !important;
+}
+
+.overflow-x-auto :deep(.p-datatable .p-datatable-tbody > tr > td .p-button) {
+    color: inherit;
+}
+
+.overflow-x-auto :deep(.p-datatable .p-datatable-tbody > tr > td .p-tag) {
+    color: inherit;
+}
+
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.pagination-wrapper :deep(.p-paginator) {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 10px;
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.pagination-wrapper :deep(.p-paginator-page),
+.pagination-wrapper :deep(.p-paginator-first),
+.pagination-wrapper :deep(.p-paginator-prev),
+.pagination-wrapper :deep(.p-paginator-next),
+.pagination-wrapper :deep(.p-paginator-last) {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.pagination-wrapper :deep(.p-paginator-page:hover),
+.pagination-wrapper :deep(.p-paginator-first:hover),
+.pagination-wrapper :deep(.p-paginator-prev:hover),
+.pagination-wrapper :deep(.p-paginator-next:hover),
+.pagination-wrapper :deep(.p-paginator-last:hover) {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.pagination-wrapper :deep(.p-paginator-page.p-highlight) {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
+.pagination-wrapper :deep(.p-paginator-current) {
+    color: var(--text-primary);
 }
 </style>

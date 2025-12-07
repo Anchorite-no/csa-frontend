@@ -206,7 +206,6 @@ watch([page, size, category], () => {
                         v-model:page="page"
                         v-model:rows="size"
                         :totalRecords="total"
-                        :rowsPerPageOptions="[10, 20, 30]"
                     />
                 </div>
             </div>
@@ -217,8 +216,9 @@ watch([page, size, category], () => {
 <style scoped>
 .events-container {
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-primary);
     padding: 40px 20px;
+    transition: background 0.3s ease;
 }
 
 .page-header {
@@ -246,39 +246,44 @@ watch([page, size, category], () => {
     display: grid;
     grid-template-columns: 300px 1fr;
     gap: 30px;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(var(--bg-surface-rgb), 0.95);
     backdrop-filter: blur(10px);
     border-radius: 20px;
     padding: 30px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 40px var(--shadow-color);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .sidebar {
-    background: white;
+    background: var(--bg-surface);
     border-radius: 15px;
     padding: 25px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 30px var(--shadow-color);
     height: fit-content;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .sidebar-header {
     text-align: center;
     margin-bottom: 25px;
     padding-bottom: 20px;
-    border-bottom: 2px solid #f0f0f0;
+    border-bottom: 2px solid var(--border-color);
+    transition: border-color 0.3s ease;
 }
 
 .sidebar-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #333;
+    color: var(--text-primary);
     margin: 0 0 5px 0;
+    transition: color 0.3s ease;
 }
 
 .sidebar-subtitle {
     font-size: 0.9rem;
-    color: #666;
+    color: var(--text-secondary);
     margin: 0;
+    transition: color 0.3s ease;
 }
 
 .category-list {
@@ -292,26 +297,27 @@ watch([page, size, category], () => {
     align-items: center;
     gap: 12px;
     padding: 15px;
-    background: #f8f9fa;
+    background: var(--bg-secondary);
     border: 2px solid transparent;
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
     text-align: left;
     width: 100%;
+    color: var(--text-primary);
 }
 
 .category-button:hover {
-    background: white;
-    border-color: #667eea;
+    background: var(--bg-surface);
+    border-color: var(--accent-color);
     transform: translateX(5px);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+    box-shadow: 0 5px 15px var(--shadow-color);
 }
 
 .category-button.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-primary);
     color: white;
-    border-color: #667eea;
+    border-color: var(--accent-color);
 }
 
 .category-icon {
@@ -322,9 +328,14 @@ watch([page, size, category], () => {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #667eea;
+    color: var(--accent-color);
     font-size: 1.2rem;
     flex-shrink: 0;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.dark .category-icon {
+    background: rgba(66, 165, 245, 0.1);
 }
 
 .category-button.active .category-icon {
@@ -349,10 +360,11 @@ watch([page, size, category], () => {
 }
 
 .main-content {
-    background: white;
+    background: var(--bg-surface);
     border-radius: 15px;
     padding: 30px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 30px var(--shadow-color);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .content-header {
@@ -361,29 +373,37 @@ watch([page, size, category], () => {
     align-items: center;
     margin-bottom: 30px;
     padding-bottom: 20px;
-    border-bottom: 2px solid #f0f0f0;
+    border-bottom: 2px solid var(--border-color);
+    transition: border-color 0.3s ease;
 }
 
 .content-title {
     font-size: 2rem;
     font-weight: 700;
-    color: #333;
+    color: var(--text-primary);
     margin: 0 0 5px 0;
+    transition: color 0.3s ease;
 }
 
 .content-subtitle {
     font-size: 1rem;
-    color: #666;
+    color: var(--text-secondary);
     margin: 0;
+    transition: color 0.3s ease;
 }
 
 .stats-text {
     font-size: 0.9rem;
-    color: #667eea;
+    color: var(--accent-color);
     font-weight: 600;
     padding: 8px 16px;
     background: rgba(102, 126, 234, 0.1);
     border-radius: 20px;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.dark .stats-text {
+    background: rgba(66, 165, 245, 0.1);
 }
 
 .events-list {
@@ -399,15 +419,16 @@ watch([page, size, category], () => {
     display: flex;
     gap: 20px;
     padding: 20px;
-    background: #f8f9fa;
+    background: var(--bg-secondary);
     border-radius: 12px;
     animation: pulse 1.5s infinite;
+    transition: background 0.3s ease;
 }
 
 .skeleton-image {
     width: 200px;
     height: 120px;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background: var(--skeleton-gradient);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
     border-radius: 8px;
@@ -424,7 +445,7 @@ watch([page, size, category], () => {
 .skeleton-title {
     height: 20px;
     width: 80%;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background: var(--skeleton-gradient);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
     border-radius: 4px;
@@ -438,7 +459,7 @@ watch([page, size, category], () => {
 .skeleton-tag {
     height: 16px;
     width: 60px;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background: var(--skeleton-gradient);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
     border-radius: 4px;
@@ -447,7 +468,7 @@ watch([page, size, category], () => {
 .skeleton-summary {
     height: 16px;
     width: 100%;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background: var(--skeleton-gradient);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
     border-radius: 4px;
@@ -456,7 +477,7 @@ watch([page, size, category], () => {
 .skeleton-meta {
     height: 14px;
     width: 60%;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background: var(--skeleton-gradient);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
     border-radius: 4px;
@@ -486,7 +507,7 @@ watch([page, size, category], () => {
     display: flex;
     gap: 20px;
     padding: 20px;
-    background: #f8f9fa;
+    background: var(--bg-secondary);
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -504,10 +525,10 @@ watch([page, size, category], () => {
 }
 
 .event-card:hover {
-    background: white;
-    border-color: #667eea;
+    background: var(--bg-surface);
+    border-color: var(--accent-color);
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.15);
+    box-shadow: 0 10px 25px var(--shadow-color);
 }
 
 .event-image {
@@ -538,7 +559,11 @@ watch([page, size, category], () => {
     color: white;
     font-size: 1.5rem;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease, background 0.3s ease;
+}
+
+.dark .event-overlay {
+    background: rgba(66, 165, 245, 0.8);
 }
 
 .event-card:hover .event-overlay {
@@ -562,9 +587,10 @@ watch([page, size, category], () => {
 .event-title {
     font-size: 1.2rem;
     font-weight: 700;
-    color: #333;
+    color: var(--text-primary);
     margin: 0;
     line-height: 1.3;
+    transition: color 0.3s ease;
 }
 
 .event-meta {
@@ -578,11 +604,12 @@ watch([page, size, category], () => {
 .event-date,
 .event-location {
     font-size: 0.85rem;
-    color: #666;
+    color: var(--text-secondary);
     display: flex;
     align-items: center;
     gap: 4px;
     white-space: nowrap;
+    transition: color 0.3s ease;
 }
 
 .event-tags {
@@ -594,20 +621,27 @@ watch([page, size, category], () => {
 .event-tag {
     padding: 4px 12px;
     background: rgba(102, 126, 234, 0.1);
-    color: #667eea;
+    color: var(--accent-color);
     border-radius: 20px;
     font-size: 0.8rem;
     font-weight: 600;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.dark .event-tag {
+    background: rgba(66, 165, 245, 0.1);
 }
 
 .event-summary {
-    color: #666;
+    color: var(--text-secondary);
     line-height: 1.5;
     margin: 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    transition: color 0.3s ease;
 }
 
 .event-footer {
@@ -615,13 +649,13 @@ watch([page, size, category], () => {
 }
 
 .view-more {
-    color: #667eea;
+    color: var(--accent-color);
     font-weight: 600;
     font-size: 0.9rem;
     display: flex;
     align-items: center;
     gap: 5px;
-    transition: gap 0.3s ease;
+    transition: gap 0.3s ease, color 0.3s ease;
 }
 
 .event-card:hover .view-more {
@@ -632,6 +666,46 @@ watch([page, size, category], () => {
     display: flex;
     justify-content: center;
     margin-top: 30px;
+}
+
+/* 使用:deep()穿透Paginator组件样式，应用全局CSS变量 */
+.pagination-wrapper :deep(.p-paginator) {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 10px;
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.pagination-wrapper :deep(.p-paginator-page),
+.pagination-wrapper :deep(.p-paginator-first),
+.pagination-wrapper :deep(.p-paginator-prev),
+.pagination-wrapper :deep(.p-paginator-next),
+.pagination-wrapper :deep(.p-paginator-last) {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.pagination-wrapper :deep(.p-paginator-page:hover),
+.pagination-wrapper :deep(.p-paginator-first:hover),
+.pagination-wrapper :deep(.p-paginator-prev:hover),
+.pagination-wrapper :deep(.p-paginator-next:hover),
+.pagination-wrapper :deep(.p-paginator-last:hover) {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.pagination-wrapper :deep(.p-paginator-page.p-highlight) {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
+.pagination-wrapper :deep(.p-paginator-current) {
+    color: var(--text-primary);
 }
 
 /* 响应式设计 */

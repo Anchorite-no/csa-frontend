@@ -77,7 +77,7 @@ onMounted(() => {
                     <span class="typing-cursor">|</span>
                 </div>
                 
-                <div class="banner-actions">
+                <!-- <div class="banner-actions">
                     <router-link to="/about" class="action-btn primary">
                         <i class="pi pi-info-circle"></i>
                         了解更多
@@ -86,7 +86,7 @@ onMounted(() => {
                         <i class="pi pi-calendar"></i>
                         查看活动
                     </router-link>
-                </div>
+                </div> -->
             </div>
         </div>
 
@@ -177,6 +177,7 @@ onMounted(() => {
     font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 10px;
+    color: white;
     opacity: 0.9;
 }
 

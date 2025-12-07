@@ -225,10 +225,10 @@ watch([page, size, category], () => {
                 <!-- 分页 -->
                 <div class="pagination-wrapper">
                     <Paginator
+                        class="pagination-wrapeer"
                         v-model:page="page"
                         v-model:rows="size"
                         :totalRecords="total"
-                        :rowsPerPageOptions="[10, 20, 30]"
                     />
                 </div>
             </div>
@@ -238,7 +238,6 @@ watch([page, size, category], () => {
 
 <style scoped>
 :root {
-    /* 浅色模式变量（默认） */
     --color-accent: #667eea;
     --color-accent-hover: #5a6fd8;
     --bg-main: #ffffff;
@@ -254,7 +253,6 @@ watch([page, size, category], () => {
 }
 
 .dark {
-    /* 暗黑模式变量 */
     --color-accent: #42a5f5;
     --color-accent-hover: #64b5f6;
     --bg-main: #000000;
@@ -685,6 +683,46 @@ watch([page, size, category], () => {
     display: flex;
     justify-content: center;
     margin-top: 30px;
+}
+
+/* 使用:deep()穿透Paginator组件样式，应用全局CSS变量 */
+.pagination-wrapper :deep(.p-paginator) {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 10px;
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.pagination-wrapper :deep(.p-paginator-page),
+.pagination-wrapper :deep(.p-paginator-first),
+.pagination-wrapper :deep(.p-paginator-prev),
+.pagination-wrapper :deep(.p-paginator-next),
+.pagination-wrapper :deep(.p-paginator-last) {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.pagination-wrapper :deep(.p-paginator-page:hover),
+.pagination-wrapper :deep(.p-paginator-first:hover),
+.pagination-wrapper :deep(.p-paginator-prev:hover),
+.pagination-wrapper :deep(.p-paginator-next:hover),
+.pagination-wrapper :deep(.p-paginator-last:hover) {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.pagination-wrapper :deep(.p-paginator-page.p-highlight) {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
+.pagination-wrapper :deep(.p-paginator-current) {
+    color: var(--text-primary);
 }
 
 /* 通用渐变类 */
