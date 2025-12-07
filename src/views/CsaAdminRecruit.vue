@@ -14,6 +14,16 @@ const total = ref(0);
 const currentPage = ref(1);
 const pageSize = ref(10);
 
+const RECRUIT_API = '/api/recruit'; 
+const ADMIN_API = '/api/admin'; 
+
+const newDeadline = ref('');
+const currentDeadline = ref('正在加载...');
+const isRecruiting = ref(false);
+const isSubmitting = ref(false); 
+const message = ref('');
+const messageType = ref('');
+
 // 模态框状态
 const showModal = ref(false);
 
@@ -22,6 +32,68 @@ const showExportModal = ref(false);
 const showInterviewModal = ref(false);
 const selectedRecruit = ref(null);
 const selectAllRecruits = ref(false);
+
+// 获取当前截止日期 (GET 请求)
+const fetchDeadline = async () => {
+    // 使用现有的 loading 状态
+    loading.value = true;
+    message.value = '';
+    currentDeadline.value = '正在加载...';
+    try {
+        const response = await axios.get(`${RECRUIT_API}/getDeadline`); 
+        const deadlineString = response.data.deadline; 
+        
+        if (deadlineString) {
+            currentDeadline.value = deadlineString;
+            // 判断是否开放
+            const deadlineDate = new Date(deadlineString);
+            const currentDate = new Date();
+            isRecruiting.value = currentDate > deadlineDate; // 纳新是否已截止？
+            
+            // 将当前截止日期设置到输入框
+            newDeadline.value = deadlineString.split('T')[0] || deadlineString; 
+        } else {
+            currentDeadline.value = '未设置截止日期';
+            isRecruiting.value = true; // 默认开放
+        }
+    } catch (error) {
+        console.error("获取截止日期失败:", error);
+        currentDeadline.value = '获取失败';
+        message.value = `❌ 获取失败：${error.response?.data?.message || '请检查网络或后端接口'}`;
+        messageType.value = 'error';
+        isRecruiting.value = true;
+    } finally {
+        loading.value = false;
+    }
+};
+// 设置新的截止日期 (POST 请求)
+const handleSetDeadline = async () => {
+    if (!newDeadline.value) {
+        message.value = '请选择一个截止日期！';
+        messageType.value = 'error';
+        return;
+    }
+    isSubmitting.value = true;
+    message.value = '';
+    
+    try {
+        await axios.post(`${ADMIN_API}/setRecruitDeadline`, {
+            deadline: newDeadline.value
+        });
+        
+        message.value = `✅ 截止日期设置成功：${newDeadline.value}`;
+        messageType.value = 'success';
+        
+        await fetchDeadline(); 
+    } catch (error) {
+        console.error("设置截止日期失败:", error);
+        const errorMessage = error.response?.data?.detail || error.response?.data?.message || '请检查您的管理员权限或后端';
+        message.value = `❌ 设置失败：${errorMessage}`;
+        messageType.value = 'error';
+    } finally {
+        isSubmitting.value = false;
+    }
+};
 
 // 评价表单 - 与面试管理字段对齐
 const evaluationForm = reactive({
@@ -1042,6 +1114,16 @@ onMounted(() => {
   fetchRecruits();
   fetchInterviewTimeSlots();
 });
+
+// CsaAdminRecruit.vue - <script setup> 块的底部
+
+// ... (所有函数定义，包括 fetchDeadline, handleSetDeadline, fetchRecruits)
+
+onMounted(async () => {
+    await fetchDeadline(); 
+    
+    await fetchRecruits(); 
+
 </script>
 
 <template>
