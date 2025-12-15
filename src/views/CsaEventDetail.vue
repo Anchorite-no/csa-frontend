@@ -79,10 +79,10 @@ onMounted(() => {
                     </div>
 
                     <div class="event-meta">
-                        <div class="meta-item">
+                        <!-- <div class="meta-item">
                             <i class="pi pi-user"></i>
                             <span>发布者：{{ data.publisher }}</span>
-                        </div>
+                        </div> -->
                         <div class="meta-item">
                             <i class="pi pi-calendar"></i>
                             <span>发布时间：{{ new Date(data.first_publish * 1000).toLocaleDateString('zh-CN') }}</span>

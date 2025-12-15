@@ -1158,7 +1158,7 @@ onMounted(async () => {
     <!-- 批量操作 -->
     <div class="batch-actions">
       <button @click="batchDeleteRecruits()" class="batch-button delete">批量删除</button>
-      <button @click="deleteAllRecruits()" class="batch-button delete-all">全部删除</button>
+      <!-- <button @click="deleteAllRecruits()" class="batch-button delete-all">全部删除</button> -->
     </div>
 
     <!-- 数据表格 -->

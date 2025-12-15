@@ -27,11 +27,18 @@ const submitLogin = () => {
                 let token = response.data.access_token
                 let payload = JSON.parse(atob(token.split('.')[1]))
                 
-                // 根据 token 中是否有 aid 字段判断是否为管理员
                 const isAdmin = payload.aid !== undefined
                 const userType = isAdmin ? 'admin' : 'user'
                 
-                // 如果是管理员，需要从后端获取角色ID
+                userStore.login(
+                    token,
+                    payload.uid,
+                    payload.nick,
+                    payload.exp * 1000,
+                    userType,
+                    null
+                )
+
                 let adminRoleId = null
                 if (isAdmin) {
                     try {
@@ -41,7 +48,6 @@ const submitLogin = () => {
                         console.error('获取管理员角色失败', err)
                     }
                 }
-                
                 userStore.login(
                     token,
                     payload.uid,
@@ -51,7 +57,6 @@ const submitLogin = () => {
                     adminRoleId
                 )
                 loading.value = false
-                // 所有用户都跳转到用户后台
                 router.push({ name: 'user' })
             }
         })
