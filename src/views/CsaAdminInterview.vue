@@ -138,6 +138,11 @@
               </div>
             </td>
           </tr>
+
+          <!-- 用空行补齐每页固定行数，避免最后一页行数少导致布局上下跳动 -->
+          <tr v-for="n in recruitTableFillerRows" :key="`filler-${n}`" class="recruit-table-filler-row">
+            <td colspan="10">&nbsp;</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -680,6 +685,12 @@ const paginatedRecruits = computed(() => {
   const startIndex = (currentPage.value - 1) * pageSize.value;
   const endIndex = startIndex + pageSize.value;
   return filteredRecruits.value.slice(startIndex, endIndex);
+});
+
+// 表格补齐空行：保证每页显示区域高度一致，避免分页时“上下缩放/跳动”
+const recruitTableFillerRows = computed(() => {
+  const missing = pageSize.value - paginatedRecruits.value.length;
+  return missing > 0 ? missing : 0;
 });
 
 const resetPagination = () => {
@@ -2453,6 +2464,13 @@ onMounted(() => {
   padding: 1rem 0.75rem;
   border-bottom: 1px solid #e9ecef;
   vertical-align: middle;
+}
+
+/* 分页补齐空行：固定每页表格视觉高度，避免最后一页变短导致下方卡片上移 */
+.recruits-table .recruit-table-filler-row td {
+  height: 56px;
+  padding: 0 0.75rem;
+  border-bottom: 1px solid #e9ecef;
 }
 
 .recruits-table tr:hover {

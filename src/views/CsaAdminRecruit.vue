@@ -305,38 +305,7 @@ const batchDeleteRecruits = async () => {
   });
 };
 
-// 全部删除
-const deleteAllRecruits = async () => {
-  confirm.require({
-    message: `危险操作警告！\n\n确定要删除数据库中所有纳新记录吗？\n\n此操作将永久删除所有纳新数据，包括：\n• 所有纳新者的基本信息\n• 所有评价记录\n• 所有面试排班记录\n• 所有面试评价数据\n\n此操作不可恢复，请谨慎操作！`,
-    header: '危险操作：删除所有纳新记录',
-    icon: 'pi pi-exclamation-triangle',
-    acceptClass: 'p-button-danger',
-    acceptLabel: '确认删除全部',
-    rejectLabel: '取消',
-    accept: async () => {
-      try {
-        // 显示进度提示
-        window.notyf.success('正在删除所有纳新记录，请稍候...');
-        
-        // 调用后端API删除所有记录
-        const response = await axios.post('/recruit/delete_all_recruits');
-        
-        // 刷新列表
-        await fetchRecruits();
-        
-        // 显示成功消息
-        const deletedCount = response.data.deleted_count;
-        const evaluationsDeleted = response.data.evaluations_deleted;
-        const interviewsDeleted = response.data.interviews_deleted;
-        window.notyf.success(`成功删除所有纳新记录及相关数据！\n删除纳新记录：${deletedCount} 条\n删除评价记录：${evaluationsDeleted} 条\n删除面试记录：${interviewsDeleted} 条`);
-      } catch (error) {
-        console.error('Delete all failed:', error);
-        window.notyf.error('全部删除失败：' + (error.response?.data?.detail || error.message));
-      }
-    }
-  });
-};
+
 
 // 导出数据
 const exportData = async () => {
