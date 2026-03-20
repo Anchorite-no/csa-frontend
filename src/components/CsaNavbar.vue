@@ -194,40 +194,48 @@ watch(
     transition: color 0.3s ease;
 }
 
-.p-menubar .p-menuitem-link {
+.p-menubar .p-menubar-item-link {
     color: var(--text-secondary) !important;
     transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
 
-.p-menubar .p-menuitem-link.nav-link {
+.p-menubar .p-menubar-item-link.nav-link {
     border-radius: 10px;
     padding: 0.75rem 1rem;
     font-weight: 500;
     border: 1px solid transparent;
 }
 
-.p-menubar .p-menuitem-link:hover {
+.p-menubar .p-menubar-item-link.nav-link:hover {
     color: var(--text-primary) !important;
     background-color: var(--bg-secondary) !important;
     border-color: rgba(102, 126, 234, 0.08) !important;
 }
 
-.p-menubar .p-menuitem-link.nav-link-active {
+.p-menubar .p-menubar-item-link.nav-link-active,
+.p-menubar .p-menubar-item-link[aria-current='page'] {
     color: var(--accent-color) !important;
     background-color: rgba(102, 126, 234, 0.14) !important;
     border-color: rgba(102, 126, 234, 0.2) !important;
     font-weight: 600;
 }
 
-.p-menubar .p-menuitem-link.nav-link-active:hover {
+.p-menubar .p-menubar-item-link.nav-link-active:hover,
+.p-menubar .p-menubar-item-link[aria-current='page']:hover {
     color: var(--accent-color) !important;
     background-color: rgba(102, 126, 234, 0.14) !important;
     border-color: rgba(102, 126, 234, 0.2) !important;
 }
 
-.p-menubar .p-menuitem.p-highlight .p-menuitem-link {
+.p-menubar .p-menubar-item[data-p-focused='true'] > .p-menubar-item-content > .p-menubar-item-link:not(.nav-link-active):not([aria-current='page']),
+.p-menubar .p-menubar-item[data-p-focused='true'] > .p-menubar-item-content > .p-menubar-item-link:not(.nav-link-active):not([aria-current='page']):hover,
+.p-menubar .p-menubar-item.p-focus > .p-menubar-item-content > .p-menubar-item-link:not(.nav-link-active):not([aria-current='page']),
+.p-menubar .p-menubar-item.p-focus > .p-menubar-item-content > .p-menubar-item-link:not(.nav-link-active):not([aria-current='page']):hover,
+.p-menubar .p-menubar-item.p-highlight > .p-menubar-item-content > .p-menubar-item-link:not(.nav-link-active):not([aria-current='page']) {
     color: inherit !important;
     background-color: transparent !important;
+    border-color: transparent !important;
+    font-weight: 500 !important;
 }
 
 /*折叠导航栏的按钮*/
