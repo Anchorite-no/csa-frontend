@@ -88,9 +88,11 @@ watch(
             </template>
             <template #end>
                 <div class="flex items-center gap-2">
-                    <button 
+                    <button
+                        type="button"
                         @click="themeStore.toggleTheme()" 
                         class="theme-toggle-nav"
+                        :aria-label="themeStore.isDark ? '切换到浅色模式' : '切换到深色模式'"
                         :title="themeStore.isDark ? '切换到浅色模式' : '切换到深色模式'"
                     >
                         <i v-if="themeStore.isDark" class="pi pi-sun"></i>
@@ -122,6 +124,14 @@ watch(
     margin: 0;
     padding: 0;
     border: none;
+    --nav-action-height: 2.5rem;
+    --nav-action-radius: 10px;
+    --nav-action-padding: 0 1rem;
+    --nav-action-border: 1px solid var(--border-color);
+    --nav-action-bg: transparent;
+    --nav-action-bg-hover: var(--bg-secondary);
+    --nav-action-color: var(--text-secondary);
+    --nav-action-color-hover: var(--text-primary);
 }
 
 /* about-nav样式已移除，统一使用fixed-nav */
@@ -130,6 +140,7 @@ watch(
 .dark .fixed-nav {
     background-color: rgba(30, 30, 30, 0.95);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    --nav-action-bg-hover: rgba(255, 255, 255, 0.06);
 }
 
 /* 导航栏文字颜色适配主题 */
@@ -210,24 +221,29 @@ watch(
 
 /* 导航栏主题切换按钮 */
 .theme-toggle-nav {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: none;
-    background: var(--bg-surface);
-    color: var(--text-primary);
+    width: var(--nav-action-height);
+    height: var(--nav-action-height);
+    border-radius: var(--nav-action-radius);
+    border: var(--nav-action-border);
+    background: var(--nav-action-bg);
+    color: var(--nav-action-color);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px var(--shadow-color);
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    box-shadow: none;
 }
 
 .theme-toggle-nav:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 12px var(--shadow-color);
+    background: var(--nav-action-bg-hover);
+    color: var(--nav-action-color-hover);
+}
+
+.theme-toggle-nav:focus-visible {
+    outline: 2px solid rgba(102, 126, 234, 0.18);
+    outline-offset: 2px;
 }
 
 .theme-toggle-nav i {

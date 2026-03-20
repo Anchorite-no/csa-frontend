@@ -115,14 +115,30 @@ const selectMember = member => {
 }
 
 :deep(.user-trigger.p-button) {
-    min-width: 10rem;
-    min-height: 2.75rem;
-    padding: 0 1.25rem;
-    border-radius: 999px;
+    min-width: 6.5rem;
+    min-height: var(--nav-action-height, 2.5rem);
+    padding: var(--nav-action-padding, 0 1rem);
+    border-radius: var(--nav-action-radius, 10px);
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    background: var(--nav-action-bg, transparent) !important;
+    color: var(--nav-action-color, var(--text-secondary)) !important;
+    border: var(--nav-action-border, 1px solid var(--border-color)) !important;
     box-shadow: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+:deep(.user-trigger.p-button:not(:disabled):hover) {
+    background: var(--nav-action-bg-hover, var(--bg-secondary)) !important;
+    color: var(--nav-action-color-hover, var(--text-primary)) !important;
+    border: var(--nav-action-border, 1px solid var(--border-color)) !important;
+}
+
+:deep(.user-trigger.p-button:focus-visible) {
+    box-shadow: none;
+    outline: 2px solid rgba(102, 126, 234, 0.18);
+    outline-offset: 2px;
 }
 
 :deep(.user-trigger .p-button-label) {
