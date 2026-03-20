@@ -118,33 +118,11 @@ const selectMember = member => {
     min-width: 10rem;
     min-height: 2.75rem;
     padding: 0 1.25rem;
-    border-radius: 16px;
-    border: 1px solid var(--nav-action-border) !important;
-    background: var(--nav-action-bg) !important;
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    color: var(--text-primary) !important;
+    border-radius: 999px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    box-shadow: var(--nav-action-shadow);
-    transition:
-        background-color 0.3s ease,
-        border-color 0.3s ease,
-        box-shadow 0.3s ease,
-        color 0.3s ease,
-        transform 0.3s ease;
-}
-
-:deep(.user-trigger.p-button:not(:disabled):hover) {
-    background: var(--nav-action-bg-hover) !important;
-    border-color: var(--nav-action-border-hover) !important;
-    box-shadow: var(--nav-action-shadow-hover);
-}
-
-:deep(.user-trigger.p-button:focus-visible) {
-    outline: 2px solid rgba(102, 126, 234, 0.35);
-    outline-offset: 2px;
+    box-shadow: none;
 }
 
 :deep(.user-trigger .p-button-label) {

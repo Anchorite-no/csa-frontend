@@ -1,11 +1,11 @@
 <script setup>
 import { useRoute } from 'vue-router'
-
-import { useNavbarStore } from '@/stores/navbar'
 import { useThemeStore } from '@/stores/theme'
 import { useUserStore } from '@/stores/user'
 
 const route = useRoute()
+
+import { useNavbarStore } from '@/stores/navbar'
 const navbarStore = useNavbarStore()
 const themeStore = useThemeStore()
 const userStore = useUserStore()
@@ -30,6 +30,7 @@ const items = ref([
         label: 'Contact',
         icon: 'pi pi-envelope',
         jump: 'recruit',
+        // jump: 'contact'
     },
     {
         label: 'About',
@@ -41,6 +42,7 @@ const items = ref([
 watch(
     () => route.name,
     () => {
+        // 确保导航栏始终展开
         navbarStore.setCollapsed(false)
     },
     { immediate: true }
@@ -70,9 +72,8 @@ watch(
                     <span
                         v-if="item.shortcut"
                         class="ml-auto border border-surface rounded bg-emphasis text-muted-color text-xs p-1"
+                        >{{ item.shortcut }}</span
                     >
-                        {{ item.shortcut }}
-                    </span>
                     <i
                         v-if="hasSubmenu"
                         :class="[
@@ -86,16 +87,21 @@ watch(
                 </router-link>
             </template>
             <template #end>
-                <div class="nav-actions">
-                    <button
-                        @click="themeStore.toggleTheme()"
+                <div class="flex items-center gap-2">
+                    <button 
+                        @click="themeStore.toggleTheme()" 
                         class="theme-toggle-nav"
                         :title="themeStore.isDark ? '切换到浅色模式' : '切换到深色模式'"
                     >
                         <i v-if="themeStore.isDark" class="pi pi-sun"></i>
                         <i v-else class="pi pi-moon"></i>
                     </button>
-                    <csa-user v-if="userStore.uid" />
+                    <!-- 未登录时显示登录按钮 -->
+                    <!-- <router-link v-if="!userStore.uid" :to="{ name: 'login' }">
+                        <Button label="登录" severity="secondary" class="mx-2 min-w-40" />
+                    </router-link> -->
+                    <!-- 已登录时显示用户组件 -->
+                    <csa-user v-if="userStore.uid" class="ml-auto" />
                 </div>
             </template>
         </Menubar>
@@ -104,12 +110,6 @@ watch(
 
 <style>
 .fixed-nav {
-    --nav-action-bg: rgba(var(--bg-surface-rgb), 0.72);
-    --nav-action-bg-hover: rgba(var(--bg-surface-rgb), 0.8);
-    --nav-action-border: rgba(255, 255, 255, 0.42);
-    --nav-action-border-hover: rgba(255, 255, 255, 0.52);
-    --nav-action-shadow: none;
-    --nav-action-shadow-hover: none;
     position: fixed;
     top: 0;
     left: 0;
@@ -124,22 +124,21 @@ watch(
     border: none;
 }
 
+/* about-nav样式已移除，统一使用fixed-nav */
+
+/* 深色模式下的导航栏样式 */
 .dark .fixed-nav {
-    --nav-action-bg: rgba(45, 45, 45, 0.72);
-    --nav-action-bg-hover: rgba(52, 52, 52, 0.82);
-    --nav-action-border: rgba(255, 255, 255, 0.08);
-    --nav-action-border-hover: rgba(255, 255, 255, 0.14);
-    --nav-action-shadow: none;
-    --nav-action-shadow-hover: none;
     background-color: rgba(30, 30, 30, 0.95);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
+/* 导航栏文字颜色适配主题 */
 .fixed-nav .p-menubar {
     color: var(--text-primary);
     transition: color 0.3s ease;
 }
 
+/* 导航栏链接颜色适配主题 */
 .fixed-nav .p-menubar a {
     color: var(--text-primary);
     transition: color 0.3s ease;
@@ -149,12 +148,14 @@ watch(
     color: var(--accent-color);
 }
 
+/* 导航栏品牌名称颜色 */
 .fixed-nav .my-3 {
     color: var(--text-primary);
     font-weight: bold;
     transition: color 0.3s ease;
 }
 
+/* 确保PrimeVue组件也适配主题 */
 .p-menubar {
     background: transparent !important;
     border: none !important;
@@ -177,6 +178,7 @@ watch(
     background-color: rgba(102, 126, 234, 0.1) !important;
 }
 
+/*折叠导航栏的按钮*/
 .nav-button-container {
     position: fixed;
     right: 1rem;
@@ -206,20 +208,13 @@ watch(
     opacity: 0;
 }
 
-.nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
+/* 导航栏主题切换按钮 */
 .theme-toggle-nav {
-    width: 44px;
-    height: 44px;
-    border-radius: 16px;
-    border: 1px solid var(--nav-action-border);
-    background: var(--nav-action-bg);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: var(--bg-surface);
     color: var(--text-primary);
     cursor: pointer;
     display: flex;
@@ -227,18 +222,12 @@ watch(
     justify-content: center;
     font-size: 1rem;
     transition: all 0.3s ease;
-    box-shadow: var(--nav-action-shadow);
+    box-shadow: 0 2px 8px var(--shadow-color);
 }
 
 .theme-toggle-nav:hover {
-    background: var(--nav-action-bg-hover);
-    border-color: var(--nav-action-border-hover);
-    box-shadow: var(--nav-action-shadow-hover);
-}
-
-.theme-toggle-nav:focus-visible {
-    outline: 2px solid rgba(102, 126, 234, 0.35);
-    outline-offset: 2px;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 .theme-toggle-nav i {
