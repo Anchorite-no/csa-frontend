@@ -124,15 +124,17 @@ const selectMember = member => {
     justify-content: center;
     background: var(--nav-action-bg, transparent) !important;
     color: var(--nav-action-color, var(--text-secondary)) !important;
-    border: var(--nav-action-border, 1px solid var(--border-color)) !important;
-    box-shadow: none;
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    border: 1px solid var(--nav-action-border, var(--border-color)) !important;
+    box-shadow: var(--nav-action-shadow, none) !important;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 :deep(.user-trigger.p-button:not(:disabled):hover) {
     background: var(--nav-action-bg-hover, var(--bg-secondary)) !important;
     color: var(--nav-action-color-hover, var(--text-primary)) !important;
-    border: var(--nav-action-border, 1px solid var(--border-color)) !important;
+    border-color: var(--nav-action-border-hover, var(--border-color)) !important;
+    box-shadow: var(--nav-action-shadow-hover, none) !important;
 }
 
 :deep(.user-trigger.p-button:focus-visible) {

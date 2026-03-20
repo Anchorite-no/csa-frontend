@@ -140,11 +140,14 @@ watch(
     --nav-action-height: 2.5rem;
     --nav-action-radius: 10px;
     --nav-action-padding: 0 1rem;
-    --nav-action-border: 1px solid var(--border-color);
-    --nav-action-bg: transparent;
-    --nav-action-bg-hover: var(--bg-secondary);
+    --nav-action-border: rgba(15, 23, 42, 0.08);
+    --nav-action-border-hover: rgba(102, 126, 234, 0.16);
+    --nav-action-bg: rgba(255, 255, 255, 0.72);
+    --nav-action-bg-hover: rgba(255, 255, 255, 0.92);
     --nav-action-color: var(--text-secondary);
     --nav-action-color-hover: var(--text-primary);
+    --nav-action-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    --nav-action-shadow-hover: 0 2px 6px rgba(15, 23, 42, 0.06);
 }
 
 /* about-nav样式已移除，统一使用fixed-nav */
@@ -153,7 +156,14 @@ watch(
 .dark .fixed-nav {
     background-color: rgba(30, 30, 30, 0.95);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    --nav-action-bg-hover: rgba(255, 255, 255, 0.06);
+    --nav-action-border: rgba(255, 255, 255, 0.12);
+    --nav-action-border-hover: rgba(255, 255, 255, 0.18);
+    --nav-action-bg: rgba(255, 255, 255, 0.06);
+    --nav-action-bg-hover: rgba(255, 255, 255, 0.1);
+    --nav-action-color: var(--text-primary);
+    --nav-action-color-hover: var(--text-primary);
+    --nav-action-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+    --nav-action-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.24);
 }
 
 /* 导航栏文字颜色适配主题 */
@@ -273,7 +283,7 @@ watch(
     width: var(--nav-action-height);
     height: var(--nav-action-height);
     border-radius: var(--nav-action-radius);
-    border: var(--nav-action-border);
+    border: 1px solid var(--nav-action-border);
     background: var(--nav-action-bg);
     color: var(--nav-action-color);
     cursor: pointer;
@@ -281,13 +291,16 @@ watch(
     align-items: center;
     justify-content: center;
     font-size: 1rem;
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-    box-shadow: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+        box-shadow 0.2s ease;
+    box-shadow: var(--nav-action-shadow);
 }
 
 .theme-toggle-nav:hover {
     background: var(--nav-action-bg-hover);
+    border-color: var(--nav-action-border-hover);
     color: var(--nav-action-color-hover);
+    box-shadow: var(--nav-action-shadow-hover);
 }
 
 .theme-toggle-nav:focus-visible {
