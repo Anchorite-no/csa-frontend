@@ -289,7 +289,7 @@ onMounted(() => {
 
 .scroll-hint {
     position: absolute;
-    bottom: -14px;
+    bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -298,8 +298,7 @@ onMounted(() => {
     color: white;
     font-size: 0.9rem;
     opacity: 0.8;
-    animation: bounceReveal 1.8s ease-in-out infinite;
-    pointer-events: none;
+    animation: bounce 2s infinite;
 }
 
 .scroll-arrow {
@@ -322,18 +321,15 @@ onMounted(() => {
     transform: rotate(45deg);
 }
 
-@keyframes bounceReveal {
-    0%, 100% {
-        transform: translateX(-50%) translateY(12px);
-        opacity: 0.72;
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateX(-50%) translateY(0);
     }
-    30% {
-        transform: translateX(-50%) translateY(-14px);
-        opacity: 1;
+    40% {
+        transform: translateX(-50%) translateY(-10px);
     }
-    55% {
-        transform: translateX(-50%) translateY(-4px);
-        opacity: 0.9;
+    60% {
+        transform: translateX(-50%) translateY(-5px);
     }
 }
 
