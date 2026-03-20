@@ -55,7 +55,8 @@
 }
 
 .main-content {
-    background: var(--home-main-surface);
+    background: rgba(var(--bg-surface-rgb, 255, 255, 255), 0.95);
+    backdrop-filter: blur(10px);
     border-radius: 30px 30px 0 0;
     margin-top: -50px;
     position: relative;
