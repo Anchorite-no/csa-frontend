@@ -164,12 +164,7 @@ watch(
 
 /* 导航栏链接颜色适配主题 */
 .fixed-nav .p-menubar a {
-    color: var(--text-primary);
-    transition: color 0.3s ease;
-}
-
-.fixed-nav .p-menubar a:hover {
-    color: var(--accent-color);
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
 
 /* 导航栏品牌名称颜色 */
@@ -200,28 +195,39 @@ watch(
 }
 
 .p-menubar .p-menuitem-link {
-    color: var(--text-primary) !important;
-    transition: color 0.3s ease;
+    color: var(--text-secondary) !important;
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.p-menubar .p-menuitem-link.nav-link {
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+    border: 1px solid transparent;
 }
 
 .p-menubar .p-menuitem-link:hover {
-    color: var(--accent-color) !important;
-    background-color: rgba(102, 126, 234, 0.1) !important;
+    color: var(--text-primary) !important;
+    background-color: var(--bg-secondary) !important;
+    border-color: rgba(102, 126, 234, 0.08) !important;
 }
 
 .p-menubar .p-menuitem-link.nav-link-active {
     color: var(--accent-color) !important;
-    background-color: rgba(102, 126, 234, 0.12) !important;
+    background-color: rgba(102, 126, 234, 0.14) !important;
+    border-color: rgba(102, 126, 234, 0.2) !important;
     font-weight: 600;
 }
 
 .p-menubar .p-menuitem-link.nav-link-active:hover {
-    background-color: rgba(102, 126, 234, 0.12) !important;
+    color: var(--accent-color) !important;
+    background-color: rgba(102, 126, 234, 0.14) !important;
+    border-color: rgba(102, 126, 234, 0.2) !important;
 }
 
 .p-menubar .p-menuitem.p-highlight .p-menuitem-link {
-    color: var(--accent-color) !important;
-    background-color: rgba(102, 126, 234, 0.1) !important;
+    color: inherit !important;
+    background-color: transparent !important;
 }
 
 /*折叠导航栏的按钮*/
