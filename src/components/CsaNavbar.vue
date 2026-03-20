@@ -15,29 +15,39 @@ const items = ref([
         label: 'Home',
         icon: 'pi pi-home',
         jump: 'home',
+        activeNames: ['home', 'index'],
     },
     {
         label: 'News',
         icon: 'pi pi-book',
         jump: 'news_list',
+        activeNames: ['news_list', 'news'],
     },
     {
         label: 'Events',
         icon: 'pi pi-star',
         jump: 'event_list',
+        activeNames: ['event_list', 'event'],
     },
     {
         label: 'Contact',
         icon: 'pi pi-envelope',
         jump: 'recruit',
         // jump: 'contact'
+        activeNames: ['recruit', 'contact'],
     },
     {
         label: 'About',
         icon: 'pi pi-user',
         jump: 'about',
+        activeNames: ['about'],
     },
 ])
+
+const isActiveItem = item => {
+    const activeNames = item.activeNames || [item.jump]
+    return activeNames.includes(route.name)
+}
 
 watch(
     () => route.name,
@@ -53,14 +63,17 @@ watch(
     <div class="fixed-nav">
         <Menubar :model="items" class="nav-content">
             <template #start>
-                <span class="my-3 mx-5 text-xl">ZJUCSA</span>
+                <router-link :to="{ name: 'home' }" class="nav-brand my-3 mx-5 text-xl">
+                    ZJUCSA
+                </router-link>
             </template>
             <template #item="{ item, props, hasSubmenu, root }">
                 <router-link
                     v-ripple
-                    class="flex items-center"
+                    :class="['flex items-center nav-link', { 'nav-link-active': isActiveItem(item) }]"
                     v-bind="props.action"
                     :to="{ name: item.jump }"
+                    :aria-current="isActiveItem(item) ? 'page' : undefined"
                 >
                     <span :class="item.icon" />
                     <span class="ml-2">{{ item.label }}</span>
@@ -166,6 +179,18 @@ watch(
     transition: color 0.3s ease;
 }
 
+.fixed-nav .nav-brand {
+    color: var(--text-primary);
+    font-weight: 700;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: color 0.2s ease;
+}
+
+.fixed-nav .nav-brand:hover {
+    color: var(--accent-color);
+}
+
 /* 确保PrimeVue组件也适配主题 */
 .p-menubar {
     background: transparent !important;
@@ -182,6 +207,16 @@ watch(
 .p-menubar .p-menuitem-link:hover {
     color: var(--accent-color) !important;
     background-color: rgba(102, 126, 234, 0.1) !important;
+}
+
+.p-menubar .p-menuitem-link.nav-link-active {
+    color: var(--accent-color) !important;
+    background-color: rgba(102, 126, 234, 0.12) !important;
+    font-weight: 600;
+}
+
+.p-menubar .p-menuitem-link.nav-link-active:hover {
+    background-color: rgba(102, 126, 234, 0.12) !important;
 }
 
 .p-menubar .p-menuitem.p-highlight .p-menuitem-link {
