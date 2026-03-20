@@ -1,5 +1,5 @@
 <script setup>
-import { ref, inject, onMounted } from 'vue'
+import { inject, onMounted, ref } from 'vue'
 
 const axios = inject('axios')
 
@@ -8,29 +8,35 @@ const data2 = ref([])
 const data3 = ref([])
 const loading = ref(true)
 
+const fetchCategory = async category => {
+    const response = await axios.get('/news/list', {
+        params: { page: 1, size: 6, category },
+    })
+    return response.data || []
+}
+
 const fetchData = async () => {
-    try {
-        const [res1, res2, res3] = await Promise.all([
-            axios.get('/news/list', { params: { page: 1, size: 6, category: 2 } }),
-            axios.get('/news/list', { params: { page: 1, size: 6, category: 3 } }),
-            axios.get('/news/list', { params: { page: 1, size: 6, category: 5 } })
-        ])
-        
-        data1.value = res1.data
-        data2.value = res2.data || []
-        data3.value = res3.data
-    } catch (error) {
-        console.error('获取信息失败:', error)
-        try {
-            const fallbackRes = await axios.get('/news/list', { params: { page: 1, size: 6, category: 3 } })
-            data2.value = fallbackRes.data
-        } catch (fallbackError) {
-            console.error('获取网安知识失败:', fallbackError)
-            data2.value = []
-        }
-    } finally {
-        loading.value = false
+    const [noticeResult, knowledgeResult, contestResult] = await Promise.allSettled([
+        fetchCategory(2),
+        fetchCategory(3),
+        fetchCategory(5),
+    ])
+
+    data1.value = noticeResult.status === 'fulfilled' ? noticeResult.value : []
+    data2.value = knowledgeResult.status === 'fulfilled' ? knowledgeResult.value : []
+    data3.value = contestResult.status === 'fulfilled' ? contestResult.value : []
+
+    if (noticeResult.status === 'rejected') {
+        console.error('获取通知公告失败:', noticeResult.reason)
     }
+    if (knowledgeResult.status === 'rejected') {
+        console.error('获取网安知识失败:', knowledgeResult.reason)
+    }
+    if (contestResult.status === 'rejected') {
+        console.error('获取赛事信息失败:', contestResult.reason)
+    }
+
+    loading.value = false
 }
 
 onMounted(() => {
@@ -46,9 +52,9 @@ onMounted(() => {
                 <p class="section-subtitle">Announcement & Notice</p>
             </div>
             <div class="info-list">
-                <div v-if="!loading && data1.length > 0">
-                    <div 
-                        v-for="(item, index) in data1" 
+                <div v-if="!loading && data1.length > 0" class="list-content">
+                    <div
+                        v-for="(item, index) in data1"
                         :key="item.nid"
                         class="list-item"
                         :style="{ animationDelay: `${index * 0.1}s` }"
@@ -59,10 +65,15 @@ onMounted(() => {
                         >
                             <span class="item-title">{{ item.title }}</span>
                             <span class="item-date">
-                                {{ new Date(item.first_publish * 1000).toLocaleDateString('zh-CN', {
-                                    month: '2-digit',
-                                    day: '2-digit',
-                                }) }}
+                                {{
+                                    new Date(item.first_publish * 1000).toLocaleDateString(
+                                        'zh-CN',
+                                        {
+                                            month: '2-digit',
+                                            day: '2-digit',
+                                        }
+                                    )
+                                }}
                             </span>
                         </router-link>
                     </div>
@@ -85,9 +96,9 @@ onMounted(() => {
                 <p class="section-subtitle">Cyber Security Knowledge</p>
             </div>
             <div class="info-list">
-                <div v-if="!loading && data2.length > 0">
-                    <div 
-                        v-for="(item, index) in data2" 
+                <div v-if="!loading && data2.length > 0" class="list-content">
+                    <div
+                        v-for="(item, index) in data2"
                         :key="item.kid || item.nid"
                         class="list-item"
                         :style="{ animationDelay: `${index * 0.1}s` }"
@@ -98,10 +109,14 @@ onMounted(() => {
                         >
                             <span class="item-title">{{ item.title }}</span>
                             <span class="item-date">
-                                {{ new Date((item.publish_date || item.first_publish) * 1000).toLocaleDateString('zh-CN', {
-                                    month: '2-digit',
-                                    day: '2-digit',
-                                }) }}
+                                {{
+                                    new Date(
+                                        (item.publish_date || item.first_publish) * 1000
+                                    ).toLocaleDateString('zh-CN', {
+                                        month: '2-digit',
+                                        day: '2-digit',
+                                    })
+                                }}
                             </span>
                         </router-link>
                     </div>
@@ -124,9 +139,9 @@ onMounted(() => {
                 <p class="section-subtitle">Contest Information</p>
             </div>
             <div class="info-list">
-                <div v-if="!loading && data3.length > 0">
-                    <div 
-                        v-for="(item, index) in data3" 
+                <div v-if="!loading && data3.length > 0" class="list-content">
+                    <div
+                        v-for="(item, index) in data3"
                         :key="item.nid"
                         class="list-item"
                         :style="{ animationDelay: `${index * 0.1}s` }"
@@ -137,10 +152,15 @@ onMounted(() => {
                         >
                             <span class="item-title">{{ item.title }}</span>
                             <span class="item-date">
-                                {{ new Date(item.first_publish * 1000).toLocaleDateString('zh-CN', {
-                                    month: '2-digit',
-                                    day: '2-digit',
-                                }) }}
+                                {{
+                                    new Date(item.first_publish * 1000).toLocaleDateString(
+                                        'zh-CN',
+                                        {
+                                            month: '2-digit',
+                                            day: '2-digit',
+                                        }
+                                    )
+                                }}
                             </span>
                         </router-link>
                     </div>
@@ -167,9 +187,12 @@ onMounted(() => {
 
 .info-section {
     flex: 1 1 0%;
+    min-height: 360px;
     padding: 20px;
     background-color: var(--bg-surface);
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .info-section:not(:last-child)::after {
@@ -189,22 +212,35 @@ onMounted(() => {
 }
 
 .section-title {
-    font-size: 1.5rem; /* 标题字体增大 */
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--text-primary);
     margin: 0 0 5px 0;
 }
 
 .section-subtitle {
-    font-size: 0.9rem; /* 英文副标题 */
+    font-size: 0.9rem;
     color: var(--text-secondary);
     margin: 0;
 }
 
 .info-list {
     display: flex;
+    flex: 1;
     flex-direction: column;
     gap: 10px;
+    min-height: 0;
+}
+
+.list-content,
+.loading-state,
+.empty-state {
+    flex: 1;
+}
+
+.list-content {
+    display: flex;
+    flex-direction: column;
 }
 
 .list-item {
@@ -252,11 +288,11 @@ onMounted(() => {
     margin-left: 15px;
 }
 
-/* loading状态 */
 .loading-state {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    justify-content: flex-start;
 }
 
 .skeleton-item {
@@ -283,30 +319,57 @@ onMounted(() => {
 }
 
 @keyframes pulse {
-    0% { opacity: 0.5; }
-    50% { opacity: 1; }
-    100% { opacity: 0.5; }
+    0% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.5;
+    }
 }
 
-/* empty状态 */
 .empty-state {
+    display: flex;
+    min-height: 220px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     text-align: center;
-    padding: 20px 0;
+    padding: 20px;
+    border: 1px dashed var(--border-color);
+    border-radius: 16px;
+    background: linear-gradient(
+        180deg,
+        rgba(var(--bg-surface-rgb), 0.55) 0%,
+        rgba(var(--bg-surface-rgb), 0.12) 100%
+    );
 }
 
 .empty-text {
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0;
 }
 
-/* 响应式设计 */
 @media (max-width: 992px) {
     .info-layout {
         flex-direction: column;
     }
-    .info-section:not(:last-child)::after {
-        content: none; /* 移除垂直分隔线 */
+
+    .info-section {
+        min-height: 320px;
     }
+
+    .info-section:not(:last-child)::after {
+        content: none;
+    }
+
     .info-section:not(:last-child) {
         border-bottom: 1px solid var(--border-color);
     }
