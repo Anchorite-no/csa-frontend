@@ -92,7 +92,10 @@ onMounted(() => {
                         v-for="(item, index) in section.items"
                         :key="item.nid"
                         class="list-item"
-                        :style="{ animationDelay: `${sectionIndex * 0.08 + index * 0.07}s` }"
+                        :style="{
+                            animationDelay: `${sectionIndex * 0.08 + index * 0.07}s`,
+                            '--item-enter-x': '-18px',
+                        }"
                     >
                         <router-link
                             class="item-link"
@@ -222,8 +225,9 @@ onMounted(() => {
 
 .list-item {
     list-style: none;
+    position: relative;
     opacity: 0;
-    transform: translateY(18px);
+    transform: translateX(var(--item-enter-x, -18px));
     animation: listItemReveal 0.56s cubic-bezier(0.22, 1, 0.36, 1) both;
     will-change: opacity, transform;
 }
@@ -248,12 +252,12 @@ onMounted(() => {
 @keyframes listItemReveal {
     from {
         opacity: 0;
-        transform: translateY(18px);
+        transform: translateX(var(--item-enter-x, -18px));
     }
 
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateX(0);
     }
 }
 
@@ -266,12 +270,16 @@ onMounted(() => {
     text-decoration: none;
     color: var(--text-primary);
     border-radius: 10px;
+    border: 1px solid transparent;
+    background: rgba(102, 126, 234, 0.035);
     box-shadow: inset 0 0 0 1px transparent;
     transition:
-        background-color 0.18s ease,
-        color 0.18s ease,
+        background-color 0.24s ease,
+        border-color 0.24s ease,
+        color 0.24s ease,
         padding-left 0.18s ease,
-        box-shadow 0.18s ease;
+        transform 0.24s ease,
+        box-shadow 0.24s ease;
 }
 
 .item-link::before {
@@ -279,14 +287,15 @@ onMounted(() => {
 }
 
 .item-link:hover {
-    background: linear-gradient(
-        90deg,
-        rgba(102, 126, 234, 0.08) 0%,
-        rgba(102, 126, 234, 0.04) 24%,
-        rgba(102, 126, 234, 0.015) 100%
-    );
+    position: relative;
+    z-index: 1;
+    background: var(--bg-surface);
+    border-color: rgba(102, 126, 234, 0.14);
     padding-left: 8px;
-    box-shadow: inset 2px 0 0 rgba(102, 126, 234, 0.24);
+    transform: translateY(-2px);
+    box-shadow:
+        0 8px 22px var(--shadow-color),
+        inset 2px 0 0 rgba(102, 126, 234, 0.24);
 }
 
 .item-link:hover .item-title {
