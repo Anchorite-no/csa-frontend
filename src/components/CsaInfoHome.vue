@@ -261,8 +261,8 @@ onMounted(() => {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 56px;
     align-items: center;
-    gap: 12px;
-    padding: 12px 10px;
+    gap: 10px;
+    padding: 12px 8px 12px 3px;
     text-decoration: none;
     color: var(--text-primary);
     border-radius: 10px;
@@ -285,7 +285,7 @@ onMounted(() => {
         rgba(102, 126, 234, 0.04) 24%,
         rgba(102, 126, 234, 0.015) 100%
     );
-    padding-left: 14px;
+    padding-left: 8px;
     box-shadow: inset 2px 0 0 rgba(102, 126, 234, 0.24);
 }
 
@@ -321,8 +321,8 @@ onMounted(() => {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 56px;
     align-items: center;
-    gap: 12px;
-    padding: 12px 10px;
+    gap: 10px;
+    padding: 12px 8px 12px 3px;
 }
 
 .skeleton-title {
@@ -412,7 +412,7 @@ onMounted(() => {
     .skeleton-item {
         grid-template-columns: minmax(0, 1fr) 48px;
         gap: 10px;
-        padding: 11px 8px;
+        padding: 11px 6px 11px 2px;
     }
 
     .item-title {
