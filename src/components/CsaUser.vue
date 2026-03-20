@@ -139,8 +139,6 @@ const selectMember = member => {
 :deep(.user-trigger.p-button:not(:disabled):hover) {
     background: var(--nav-action-bg-hover) !important;
     border-color: var(--nav-action-border-hover) !important;
-    color: var(--accent-color) !important;
-    transform: translateY(-1px);
     box-shadow: var(--nav-action-shadow-hover);
 }
 
