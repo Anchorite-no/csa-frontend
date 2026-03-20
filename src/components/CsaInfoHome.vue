@@ -3,63 +3,28 @@ import { computed, inject, onMounted, ref } from 'vue'
 
 const axios = inject('axios')
 
-const sectionData = ref({
-    notice: [],
-    knowledge: [],
-    contest: [],
-})
+const data1 = ref([])
+const data2 = ref([])
+const data3 = ref([])
 const loading = ref(true)
-
-const sectionMeta = {
-    notice: {
-        title: '通知公告',
-        subtitle: 'Announcement & Notice',
-        icon: 'pi pi-bell',
-        iconClass: 'icon-blue',
-        emptyText: '暂无通知公告',
-        emptyIcon: 'pi pi-inbox',
-        category: 2,
-    },
-    knowledge: {
-        title: '网安知识',
-        subtitle: 'Cyber Security Knowledge',
-        icon: 'pi pi-book',
-        iconClass: 'icon-purple',
-        emptyText: '暂无网安知识',
-        emptyIcon: 'pi pi-bookmark',
-        category: 3,
-    },
-    contest: {
-        title: '赛事信息',
-        subtitle: 'Contest Information',
-        icon: 'pi pi-trophy',
-        iconClass: 'icon-orange',
-        emptyText: '暂无赛事信息',
-        emptyIcon: 'pi pi-calendar-times',
-        category: 5,
-    },
-}
 
 const fetchCategory = async category => {
     const response = await axios.get('/news/list', {
-        params: { page: 1, size: 5, category },
+        params: { page: 1, size: 6, category },
     })
     return response.data || []
 }
 
 const fetchData = async () => {
     const [noticeResult, knowledgeResult, contestResult] = await Promise.allSettled([
-        fetchCategory(sectionMeta.notice.category),
-        fetchCategory(sectionMeta.knowledge.category),
-        fetchCategory(sectionMeta.contest.category),
+        fetchCategory(2),
+        fetchCategory(3),
+        fetchCategory(5),
     ])
 
-    sectionData.value.notice =
-        noticeResult.status === 'fulfilled' ? noticeResult.value : []
-    sectionData.value.knowledge =
-        knowledgeResult.status === 'fulfilled' ? knowledgeResult.value : []
-    sectionData.value.contest =
-        contestResult.status === 'fulfilled' ? contestResult.value : []
+    data1.value = noticeResult.status === 'fulfilled' ? noticeResult.value : []
+    data2.value = knowledgeResult.status === 'fulfilled' ? knowledgeResult.value : []
+    data3.value = contestResult.status === 'fulfilled' ? contestResult.value : []
 
     if (noticeResult.status === 'rejected') {
         console.error('获取通知公告失败:', noticeResult.reason)
@@ -77,18 +42,24 @@ const fetchData = async () => {
 const sections = computed(() => [
     {
         key: 'notice',
-        ...sectionMeta.notice,
-        items: sectionData.value.notice,
+        title: '通知公告',
+        subtitle: 'Announcement & Notice',
+        emptyText: '暂无通知公告',
+        items: data1.value,
     },
     {
         key: 'knowledge',
-        ...sectionMeta.knowledge,
-        items: sectionData.value.knowledge,
+        title: '网安知识',
+        subtitle: 'Cyber Security Knowledge',
+        emptyText: '暂无网安知识',
+        items: data2.value,
     },
     {
         key: 'contest',
-        ...sectionMeta.contest,
-        items: sectionData.value.contest,
+        title: '赛事信息',
+        subtitle: 'Contest Information',
+        emptyText: '暂无赛事信息',
+        items: data3.value,
     },
 ])
 
@@ -97,20 +68,6 @@ const formatDate = timestamp =>
         month: '2-digit',
         day: '2-digit',
     })
-
-const getSectionCount = items => {
-    if (loading.value) return '加载中'
-    if (!items.length) return '暂无'
-    return `${items.length} 条`
-}
-
-const getPrimaryTag = tagValue => {
-    if (!tagValue) return ''
-    return tagValue
-        .split(/[\s,，]+/)
-        .map(tag => tag.trim())
-        .find(Boolean) || ''
-}
 
 onMounted(() => {
     fetchData()
@@ -125,30 +82,12 @@ onMounted(() => {
             class="info-section"
         >
             <div class="section-header">
-                <div class="section-heading">
-                    <div class="section-icon" :class="section.iconClass">
-                        <i :class="section.icon"></i>
-                    </div>
-                    <div class="section-copy">
-                        <h3 class="section-title">{{ section.title }}</h3>
-                        <p class="section-subtitle">{{ section.subtitle }}</p>
-                    </div>
-                </div>
-                <span class="section-count">{{ getSectionCount(section.items) }}</span>
+                <h3 class="section-title">{{ section.title }}</h3>
+                <p class="section-subtitle">{{ section.subtitle }}</p>
             </div>
 
             <div class="info-list">
-                <div v-if="loading" class="loading-state">
-                    <div v-for="i in 5" :key="i" class="skeleton-item">
-                        <div class="skeleton-main">
-                            <div class="skeleton-title"></div>
-                            <div class="skeleton-meta"></div>
-                        </div>
-                        <div class="skeleton-date"></div>
-                    </div>
-                </div>
-
-                <div v-else-if="section.items.length" class="list-content">
+                <div v-if="!loading && section.items.length > 0" class="list-content">
                     <div
                         v-for="(item, index) in section.items"
                         :key="item.nid"
@@ -159,33 +98,23 @@ onMounted(() => {
                             class="item-link"
                             :to="{ name: 'news', params: { id: item.nid } }"
                         >
-                            <div class="item-main">
-                                <div class="item-top">
-                                    <span class="item-title">{{ item.title }}</span>
-                                    <span class="item-date">{{
-                                        formatDate(item.first_publish)
-                                    }}</span>
-                                </div>
-                                <div
-                                    v-if="getPrimaryTag(item.tag)"
-                                    class="item-meta"
-                                >
-                                    <span class="item-tag">
-                                        {{ getPrimaryTag(item.tag) }}
-                                    </span>
-                                </div>
-                            </div>
-                            <i class="pi pi-angle-right item-arrow"></i>
+                            <span class="item-title">{{ item.title }}</span>
+                            <span class="item-date">
+                                {{ formatDate(item.first_publish) }}
+                            </span>
                         </router-link>
                     </div>
                 </div>
 
-                <div v-else class="empty-state">
-                    <div class="empty-icon">
-                        <i :class="section.emptyIcon"></i>
+                <div v-else-if="loading" class="loading-state">
+                    <div v-for="i in 6" :key="i" class="skeleton-item">
+                        <div class="skeleton-title"></div>
+                        <div class="skeleton-date"></div>
                     </div>
+                </div>
+
+                <div v-else class="empty-state">
                     <p class="empty-text">{{ section.emptyText }}</p>
-                    <p class="empty-hint">新的内容发布后会在这里展示</p>
                 </div>
             </div>
         </div>
@@ -198,43 +127,39 @@ onMounted(() => {
     display: flex;
     width: 100%;
     overflow: hidden;
-    border-radius: 18px;
-    border: 1px solid rgba(99, 102, 241, 0.08);
-    background:
-        linear-gradient(
-            180deg,
-            rgba(var(--bg-surface-rgb, 255, 255, 255), 0.98) 0%,
-            rgba(var(--bg-surface-rgb, 255, 255, 255), 0.94) 100%
-        );
-    box-shadow:
-        0 16px 40px rgba(15, 23, 42, 0.08),
-        0 1px 0 rgba(255, 255, 255, 0.7) inset;
-    backdrop-filter: blur(14px);
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-surface);
+    box-shadow: 0 10px 30px var(--shadow-color);
 }
 
 .info-layout::before {
     content: '';
     position: absolute;
-    inset: 0 0 auto;
-    height: 1px;
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(99, 102, 241, 0.18) 20%,
-        rgba(139, 92, 246, 0.18) 50%,
-        rgba(245, 158, 11, 0.16) 80%,
-        transparent 100%
-    );
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+}
+
+.info-layout::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+    pointer-events: none;
 }
 
 .info-section {
     position: relative;
-    flex: 1 1 0;
-    min-height: 440px;
+    flex: 1 1 0%;
+    min-height: 360px;
     padding: 28px 24px 24px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    background: transparent;
 }
 
 .info-section:not(:last-child)::after {
@@ -246,106 +171,60 @@ onMounted(() => {
     width: 1px;
     background: linear-gradient(
         180deg,
-        rgba(99, 102, 241, 0) 0%,
-        rgba(99, 102, 241, 0.12) 15%,
-        rgba(99, 102, 241, 0.12) 85%,
-        rgba(99, 102, 241, 0) 100%
+        rgba(102, 126, 234, 0) 0%,
+        rgba(102, 126, 234, 0.12) 14%,
+        rgba(102, 126, 234, 0.12) 86%,
+        rgba(102, 126, 234, 0) 100%
     );
 }
 
 .section-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 14px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid rgba(99, 102, 241, 0.08);
-}
-
-.section-heading {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    min-width: 0;
-}
-
-.section-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-size: 1.15rem;
-}
-
-.icon-blue {
-    background: rgba(59, 130, 246, 0.1);
-    color: #3b82f6;
-}
-
-.icon-purple {
-    background: rgba(139, 92, 246, 0.1);
-    color: #8b5cf6;
-}
-
-.icon-orange {
-    background: rgba(245, 158, 11, 0.12);
-    color: #f59e0b;
-}
-
-.section-copy {
-    min-width: 0;
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(102, 126, 234, 0.08);
 }
 
 .section-title {
-    margin: 0 0 4px;
-    font-size: 1.15rem;
+    font-size: 1.3rem;
     font-weight: 700;
     color: var(--text-primary);
+    margin: 0 0 5px;
 }
 
 .section-subtitle {
-    margin: 0;
-    font-size: 0.82rem;
+    font-size: 0.86rem;
     color: var(--text-secondary);
+    margin: 0;
     letter-spacing: 0.01em;
 }
 
-.section-count {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.4rem 0.7rem;
-    border-radius: 999px;
-    background: rgba(99, 102, 241, 0.08);
-    color: var(--accent-color);
-    border: 1px solid rgba(99, 102, 241, 0.12);
-    font-size: 0.78rem;
-    font-weight: 600;
-    white-space: nowrap;
-    font-variant-numeric: tabular-nums;
+.info-list {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
 }
 
-.info-list,
 .list-content,
 .loading-state,
 .empty-state {
     flex: 1;
 }
 
-.list-content,
-.loading-state {
+.list-content {
     display: flex;
     flex-direction: column;
-    gap: 10px;
 }
 
 .list-item {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(12px);
     animation: fadeInUp 0.45s ease-out forwards;
+}
+
+.list-item:not(:last-child),
+.skeleton-item:not(:last-child) {
+    border-bottom: 1px solid rgba(102, 126, 234, 0.08);
 }
 
 @keyframes fadeInUp {
@@ -356,222 +235,107 @@ onMounted(() => {
 }
 
 .item-link {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 56px;
     align-items: center;
     gap: 12px;
-    min-height: 76px;
-    padding: 14px 16px;
+    padding: 12px 10px;
     text-decoration: none;
-    color: inherit;
-    border-radius: 14px;
-    border: 1px solid transparent;
-    background: rgba(99, 102, 241, 0.03);
+    color: var(--text-primary);
+    border-radius: 10px;
     transition:
-        background-color 0.2s ease,
-        border-color 0.2s ease,
-        color 0.2s ease;
+        background-color 0.18s ease,
+        color 0.18s ease,
+        padding-left 0.18s ease;
 }
 
 .item-link:hover {
-    background: rgba(99, 102, 241, 0.06);
-    border-color: rgba(99, 102, 241, 0.14);
+    background: rgba(102, 126, 234, 0.05);
+    padding-left: 14px;
 }
 
-.item-main {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.item-top {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
+.item-link:hover .item-title {
+    color: var(--accent-color);
 }
 
 .item-title {
-    flex: 1;
     min-width: 0;
+    font-size: 0.95rem;
     color: var(--text-primary);
-    font-size: 0.96rem;
-    font-weight: 600;
-    line-height: 1.45;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
     overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.5;
+    transition: color 0.18s ease;
 }
 
 .item-date {
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 52px;
-    padding: 0.28rem 0.55rem;
-    border-radius: 999px;
-    background: rgba(var(--bg-surface-rgb, 255, 255, 255), 0.9);
-    border: 1px solid rgba(99, 102, 241, 0.08);
+    font-size: 0.82rem;
     color: var(--text-secondary);
-    font-size: 0.78rem;
-    font-weight: 600;
+    text-align: right;
+    white-space: nowrap;
     font-variant-numeric: tabular-nums;
 }
 
-.item-meta {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 20px;
-}
-
-.item-tag {
-    display: inline-flex;
-    align-items: center;
-    max-width: 100%;
-    padding: 0.22rem 0.55rem;
-    border-radius: 999px;
-    background: rgba(99, 102, 241, 0.08);
-    color: var(--accent-color);
-    font-size: 0.74rem;
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.item-arrow {
-    flex-shrink: 0;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    transition: color 0.2s ease, transform 0.2s ease;
-}
-
-.item-link:hover .item-arrow {
-    color: var(--accent-color);
-    transform: translateX(2px);
-}
-
 .loading-state {
-    justify-content: flex-start;
+    display: flex;
+    flex-direction: column;
 }
 
 .skeleton-item {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 14px;
-    min-height: 76px;
-    padding: 14px 16px;
-    border-radius: 14px;
-    background: rgba(99, 102, 241, 0.03);
-    border: 1px solid rgba(99, 102, 241, 0.05);
-}
-
-.skeleton-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.skeleton-title,
-.skeleton-meta,
-.skeleton-date {
-    background: linear-gradient(
-        90deg,
-        rgba(148, 163, 184, 0.12) 0%,
-        rgba(148, 163, 184, 0.24) 50%,
-        rgba(148, 163, 184, 0.12) 100%
-    );
-    background-size: 200% 100%;
-    animation: shimmer 1.4s infinite linear;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 56px;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 10px;
 }
 
 .skeleton-title {
-    width: 82%;
-    height: 16px;
+    height: 14px;
+    width: 72%;
+    background-color: var(--bg-secondary);
     border-radius: 999px;
-}
-
-.skeleton-meta {
-    width: 28%;
-    height: 18px;
-    border-radius: 999px;
+    animation: pulse 1.5s infinite ease-in-out;
 }
 
 .skeleton-date {
-    width: 52px;
-    height: 28px;
+    justify-self: end;
+    height: 14px;
+    width: 42px;
+    background-color: var(--bg-secondary);
     border-radius: 999px;
-    flex-shrink: 0;
+    animation: pulse 1.5s infinite ease-in-out;
 }
 
-@keyframes shimmer {
+@keyframes pulse {
     0% {
-        background-position: 200% 0;
+        opacity: 0.45;
+    }
+
+    50% {
+        opacity: 1;
     }
 
     100% {
-        background-position: -200% 0;
+        opacity: 0.45;
     }
 }
 
 .empty-state {
-    min-height: 260px;
     display: flex;
+    min-height: 220px;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    padding: 28px 24px;
-    border-radius: 16px;
-    background: linear-gradient(
-        180deg,
-        rgba(99, 102, 241, 0.04) 0%,
-        rgba(99, 102, 241, 0.015) 100%
-    );
-    border: 1px solid rgba(99, 102, 241, 0.08);
     text-align: center;
-}
-
-.empty-icon {
-    width: 54px;
-    height: 54px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(99, 102, 241, 0.08);
-    color: var(--accent-color);
-    font-size: 1.2rem;
+    padding: 20px 10px;
 }
 
 .empty-text {
-    margin: 0;
-    color: var(--text-primary);
-    font-size: 0.98rem;
-    font-weight: 600;
-}
-
-.empty-hint {
-    margin: 0;
     color: var(--text-secondary);
-    font-size: 0.84rem;
-    line-height: 1.6;
-}
-
-@media (max-width: 1200px) {
-    .info-section {
-        padding: 24px 20px 20px;
-    }
-
-    .item-link,
-    .skeleton-item {
-        padding: 14px;
-    }
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0;
 }
 
 @media (max-width: 992px) {
@@ -580,7 +344,7 @@ onMounted(() => {
     }
 
     .info-section {
-        min-height: auto;
+        min-height: 320px;
     }
 
     .info-section:not(:last-child)::after {
@@ -588,51 +352,32 @@ onMounted(() => {
     }
 
     .info-section:not(:last-child) {
-        border-bottom: 1px solid rgba(99, 102, 241, 0.08);
+        border-bottom: 1px solid rgba(102, 126, 234, 0.08);
     }
 }
 
 @media (max-width: 768px) {
     .info-layout {
-        border-radius: 16px;
+        border-radius: 18px;
     }
 
     .info-section {
-        padding: 20px 16px 16px;
-    }
-
-    .section-header {
-        align-items: center;
-    }
-
-    .section-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 12px;
-        font-size: 1rem;
+        padding: 24px 18px 18px;
     }
 
     .section-title {
-        font-size: 1.02rem;
+        font-size: 1.18rem;
     }
 
     .section-subtitle {
-        font-size: 0.78rem;
-    }
-
-    .section-count {
-        padding: 0.32rem 0.58rem;
-        font-size: 0.74rem;
+        font-size: 0.82rem;
     }
 
     .item-link,
     .skeleton-item {
-        min-height: 72px;
-        padding: 12px;
-    }
-
-    .item-top {
+        grid-template-columns: minmax(0, 1fr) 48px;
         gap: 10px;
+        padding: 11px 8px;
     }
 
     .item-title {
@@ -640,13 +385,7 @@ onMounted(() => {
     }
 
     .item-date {
-        min-width: 48px;
-        padding: 0.24rem 0.48rem;
-        font-size: 0.74rem;
-    }
-
-    .empty-state {
-        min-height: 200px;
+        font-size: 0.78rem;
     }
 }
 </style>
