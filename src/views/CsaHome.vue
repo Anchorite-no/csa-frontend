@@ -55,8 +55,12 @@
 }
 
 .main-content {
-    background: rgba(var(--bg-surface-rgb, 255, 255, 255), 0.95);
-    backdrop-filter: blur(10px);
+    background: linear-gradient(
+        180deg,
+        rgba(var(--bg-surface-rgb, 255, 255, 255), 0.9) 0%,
+        rgba(var(--bg-surface-rgb, 255, 255, 255), 0.95) 140px,
+        rgba(var(--bg-surface-rgb, 255, 255, 255), 0.98) 100%
+    );
     border-radius: 30px 30px 0 0;
     margin-top: -50px;
     position: relative;
