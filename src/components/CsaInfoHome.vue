@@ -77,7 +77,7 @@ onMounted(() => {
 <template>
     <div class="info-layout">
         <div
-            v-for="section in sections"
+            v-for="(section, sectionIndex) in sections"
             :key="section.key"
             class="info-section"
         >
@@ -92,7 +92,7 @@ onMounted(() => {
                         v-for="(item, index) in section.items"
                         :key="item.nid"
                         class="list-item"
-                        :style="{ animationDelay: `${index * 0.06}s` }"
+                        :style="{ animationDelay: `${sectionIndex * 0.08 + index * 0.07}s` }"
                     >
                         <router-link
                             class="item-link"
@@ -131,6 +131,7 @@ onMounted(() => {
     border: 1px solid var(--border-color);
     background: var(--bg-surface);
     box-shadow: 0 10px 30px var(--shadow-color);
+    animation: panelFadeIn 0.7s ease-out both;
 }
 
 .info-layout::before {
@@ -214,12 +215,17 @@ onMounted(() => {
 .list-content {
     display: flex;
     flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
 .list-item {
+    list-style: none;
     opacity: 0;
-    transform: translateY(12px);
-    animation: fadeInUp 0.45s ease-out forwards;
+    transform: translateY(18px);
+    animation: listItemReveal 0.56s cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: opacity, transform;
 }
 
 .list-item:not(:last-child),
@@ -227,7 +233,24 @@ onMounted(() => {
     border-bottom: 1px solid rgba(102, 126, 234, 0.08);
 }
 
-@keyframes fadeInUp {
+@keyframes panelFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes listItemReveal {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -243,15 +266,27 @@ onMounted(() => {
     text-decoration: none;
     color: var(--text-primary);
     border-radius: 10px;
+    box-shadow: inset 0 0 0 1px transparent;
     transition:
         background-color 0.18s ease,
         color 0.18s ease,
-        padding-left 0.18s ease;
+        padding-left 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.item-link::before {
+    content: none;
 }
 
 .item-link:hover {
-    background: rgba(102, 126, 234, 0.05);
+    background: linear-gradient(
+        90deg,
+        rgba(102, 126, 234, 0.08) 0%,
+        rgba(102, 126, 234, 0.04) 24%,
+        rgba(102, 126, 234, 0.015) 100%
+    );
     padding-left: 14px;
+    box-shadow: inset 2px 0 0 rgba(102, 126, 234, 0.24);
 }
 
 .item-link:hover .item-title {
