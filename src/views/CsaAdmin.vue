@@ -1,13 +1,30 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useThemeStore } from '@/stores/theme'
+
+const SIDEBAR_COLLAPSED_KEY = 'csa-admin-sidebar-collapsed'
 
 const router = useRouter()
 const route = useRoute()
 const themeStore = useThemeStore()
 
+const sidebarCollapsed = ref(
+    typeof window !== 'undefined' &&
+        window.localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true'
+)
+
+watch(sidebarCollapsed, value => {
+    if (typeof window !== 'undefined') {
+        window.localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(value))
+    }
+})
+
 const isActiveRoute = routeName => route.name === routeName
+
+const toggleSidebar = () => {
+    sidebarCollapsed.value = !sidebarCollapsed.value
+}
 
 const createMenuItem = (label, icon, routeName) => ({
     label,
@@ -41,10 +58,13 @@ const items = computed(() => [
 </script>
 
 <template>
-    <div class="flex min-h-screen">
-        <div
-            class="w-64 min-h-screen border-r theme-transition"
-            :class="themeStore.isDark ? 'dark' : ''"
+    <div class="admin-layout flex min-h-screen">
+        <aside
+            class="admin-sidebar border-r theme-transition"
+            :class="[
+                themeStore.isDark ? 'dark' : '',
+                { 'is-collapsed': sidebarCollapsed },
+            ]"
             :style="{
                 backgroundColor: themeStore.isDark
                     ? 'var(--bg-primary)'
@@ -52,13 +72,33 @@ const items = computed(() => [
                 borderColor: 'var(--border-color)',
             }"
         >
-            <div class="py-8">
+            <div class="admin-sidebar__header">
+                <div class="admin-sidebar__title-wrap">
+                    <div class="admin-sidebar__eyebrow">CSA Admin</div>
+                    <div class="admin-sidebar__title">后台导航</div>
+                </div>
+
+                <Button
+                    class="admin-sidebar__collapse"
+                    text
+                    rounded
+                    :icon="
+                        sidebarCollapsed
+                            ? 'pi pi-angle-right'
+                            : 'pi pi-angle-left'
+                    "
+                    :aria-label="sidebarCollapsed ? '展开侧边栏' : '收起侧边栏'"
+                    @click="toggleSidebar"
+                />
+            </div>
+
+            <div class="admin-sidebar__menu py-6">
                 <Menu :model="items" />
             </div>
-        </div>
+        </aside>
 
         <div
-            class="grow min-w-0 p-8 theme-transition"
+            class="admin-content grow min-w-0 p-8 theme-transition"
             :class="themeStore.isDark ? 'dark' : ''"
             :style="{
                 backgroundColor: themeStore.isDark
@@ -72,6 +112,85 @@ const items = computed(() => [
 </template>
 
 <style scoped>
+.admin-layout {
+    width: 100%;
+}
+
+.admin-sidebar {
+    width: 16rem;
+    min-width: 16rem;
+    flex: 0 0 16rem;
+    display: flex;
+    flex-direction: column;
+    transition:
+        width 0.28s ease,
+        min-width 0.28s ease,
+        flex-basis 0.28s ease,
+        background-color 0.3s ease,
+        border-color 0.3s ease;
+}
+
+.admin-sidebar.is-collapsed {
+    width: 5.5rem;
+    min-width: 5.5rem;
+    flex-basis: 5.5rem;
+}
+
+.admin-sidebar__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 14px 12px;
+}
+
+.admin-sidebar__title-wrap {
+    min-width: 0;
+}
+
+.admin-sidebar__eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.admin-sidebar__title {
+    margin-top: 4px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+.admin-sidebar__collapse {
+    width: 2.25rem;
+    height: 2.25rem;
+    flex-shrink: 0;
+    color: var(--text-secondary) !important;
+}
+
+.admin-sidebar__collapse:hover {
+    background: rgba(102, 126, 234, 0.08) !important;
+    color: var(--accent-color) !important;
+}
+
+.admin-sidebar__menu {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.admin-sidebar.is-collapsed .admin-sidebar__header {
+    justify-content: center;
+    padding-top: 16px;
+}
+
+.admin-sidebar.is-collapsed .admin-sidebar__title-wrap {
+    display: none;
+}
+
 ::v-deep(.p-menu) {
     width: 100%;
     border: none;
@@ -121,6 +240,7 @@ const items = computed(() => [
     font-weight: 500 !important;
     line-height: 1.4 !important;
     color: inherit !important;
+    white-space: nowrap;
 }
 
 ::v-deep(.p-menu .p-menu-submenu-label) {
@@ -132,6 +252,7 @@ const items = computed(() => [
     letter-spacing: 0.08em !important;
     background: transparent !important;
     color: var(--text-secondary) !important;
+    white-space: nowrap;
 }
 
 ::v-deep(.p-menu .p-menu-submenu-label:first-child) {
@@ -166,5 +287,30 @@ const items = computed(() => [
 ::v-deep(.p-menu .p-menu-separator) {
     margin: 16px 16px 0 !important;
     border-color: var(--border-color) !important;
+}
+
+.admin-sidebar.is-collapsed ::v-deep(.p-menu .p-menu-list) {
+    padding: 0 10px;
+}
+
+.admin-sidebar.is-collapsed ::v-deep(.p-menu .p-menu-item-link) {
+    justify-content: center;
+    padding: 12px !important;
+    gap: 0 !important;
+}
+
+.admin-sidebar.is-collapsed ::v-deep(.p-menu .p-menu-submenu-label),
+.admin-sidebar.is-collapsed ::v-deep(.p-menu .p-menu-item-label) {
+    display: none !important;
+}
+
+.admin-sidebar.is-collapsed ::v-deep(.p-menu .p-menu-item-content) {
+    border-radius: 12px !important;
+}
+
+.admin-sidebar.is-collapsed ::v-deep(.p-menu .p-menu-item.route-active > .p-menu-item-content) {
+    box-shadow:
+        inset 4px 0 0 var(--accent-color),
+        0 0 0 1px rgba(102, 126, 234, 0.1);
 }
 </style>
