@@ -215,6 +215,7 @@ const menuItems = computed(() =>
 
 ::v-deep(.p-menu) {
     width: 100%;
+    min-width: 0 !important;
     border: none;
     box-shadow: none;
     background: transparent;
@@ -312,6 +313,7 @@ const menuItems = computed(() =>
 }
 
 .admin-sidebar.is-collapsed ::v-deep(.p-menu .p-menu-list) {
+    width: 100%;
     padding: 0 8px;
     gap: 8px;
 }
@@ -319,7 +321,7 @@ const menuItems = computed(() =>
 .admin-sidebar.is-collapsed ::v-deep(.p-menu .p-menu-item) {
     width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
 }
 
 .admin-sidebar.is-collapsed ::v-deep(.p-menu .p-menu-item-content) {
@@ -367,7 +369,7 @@ const menuItems = computed(() =>
 .admin-sidebar.is-collapsed ::v-deep(.p-menu .p-menu-separator) {
     display: block !important;
     width: 1.75rem;
-    margin: 8px auto !important;
+    margin: 8px 0 8px 8px !important;
 }
 
 .admin-sidebar.is-collapsed ::v-deep(.p-menu .p-menu-separator.collapsed-group-divider) {
