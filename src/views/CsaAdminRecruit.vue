@@ -215,10 +215,47 @@ const gradeOptions = [
   { value: 25, label: '25级' }
 ];
 
-const degreeFilterOptions = [{ value: '', label: '全部' }, ...degreeOptions];
-const gradeFilterOptions = [{ value: '', label: '全部' }, ...gradeOptions];
+const DEGREE_ALL_VALUE = '__all_degree__';
+const GRADE_ALL_VALUE = '__all_grade__';
+const TIME_SLOT_ALL_VALUE = '__all_interview_time_slot__';
+const RECOMMENDED_DEPARTMENT_NONE_VALUE = '__no_recommended_department__';
+const INTERVIEW_NOT_COMPLETED_VALUE = '__interview_not_completed__';
+
+const createMappedProxy = (source, key, rawValue, uiValue) => computed({
+  get() {
+    return Object.is(source[key], rawValue) ? uiValue : source[key];
+  },
+  set(value) {
+    source[key] = value === uiValue ? rawValue : value;
+  }
+});
+
+const degreeFilterValue = createMappedProxy(filters, 'degree', '', DEGREE_ALL_VALUE);
+const gradeFilterValue = createMappedProxy(filters, 'grade', '', GRADE_ALL_VALUE);
+const interviewTimeSlotFilterValue = createMappedProxy(filters, 'interview_time_slot', '', TIME_SLOT_ALL_VALUE);
+const evaluationRecommendedDepartmentValue = createMappedProxy(
+  evaluationForm,
+  'recommended_department',
+  '',
+  RECOMMENDED_DEPARTMENT_NONE_VALUE
+);
+const interviewRecommendedDepartmentValue = createMappedProxy(
+  interviewForm,
+  'recommended_department',
+  '',
+  RECOMMENDED_DEPARTMENT_NONE_VALUE
+);
+const interviewCompletedValue = createMappedProxy(
+  interviewForm,
+  'interview_completed',
+  false,
+  INTERVIEW_NOT_COMPLETED_VALUE
+);
+
+const degreeFilterOptions = [{ value: DEGREE_ALL_VALUE, label: '全部' }, ...degreeOptions];
+const gradeFilterOptions = [{ value: GRADE_ALL_VALUE, label: '全部' }, ...gradeOptions];
 const recommendedDepartmentOptions = [
-  { value: '', label: '未推荐' },
+  { value: RECOMMENDED_DEPARTMENT_NONE_VALUE, label: '未推荐' },
   { value: 'office', label: '办公室部' },
   { value: 'competition', label: '竞赛部' },
   { value: 'research', label: '科研部' },
@@ -235,7 +272,7 @@ const interviewStageOptions = [
   { value: 'second_round', label: '二面' }
 ];
 const interviewCompletedOptions = [
-  { value: false, label: '未完成' },
+  { value: INTERVIEW_NOT_COMPLETED_VALUE, label: '未完成' },
   { value: true, label: '已完成' }
 ];
 const interviewResultOptions = [
@@ -245,7 +282,7 @@ const interviewResultOptions = [
   { value: 'recommended', label: '推荐' }
 ];
 const interviewTimeSlotOptions = computed(() => [
-  { value: '', label: '全部时间段' },
+  { value: TIME_SLOT_ALL_VALUE, label: '全部时间段' },
   ...interviewTimeSlots.value.map(slot => ({
     value: slot.id,
     label: `${slot.name} (${slot.current_count}/${slot.max_capacity})`
@@ -1133,7 +1170,7 @@ onMounted(async () => {
         <div class="filter-item">
           <label>学位:</label>
           <AdminFilterSelect
-            v-model="filters.degree"
+            v-model="degreeFilterValue"
             :options="degreeFilterOptions"
             optionLabel="label"
             optionValue="value"
@@ -1143,7 +1180,7 @@ onMounted(async () => {
         <div class="filter-item">
           <label>年级:</label>
           <AdminFilterSelect
-            v-model="filters.grade"
+            v-model="gradeFilterValue"
             :options="gradeFilterOptions"
             optionLabel="label"
             optionValue="value"
@@ -1187,7 +1224,7 @@ onMounted(async () => {
         <div class="filter-item">
           <label>已排班时间段:</label>
           <AdminFilterSelect
-            v-model="filters.interview_time_slot"
+            v-model="interviewTimeSlotFilterValue"
             :options="interviewTimeSlotOptions"
             optionLabel="label"
             optionValue="value"
@@ -1639,7 +1676,7 @@ onMounted(async () => {
                 <div class="form-group">
                   <label>推荐部门:</label>
                   <AdminFilterSelect
-                    v-model="evaluationForm.recommended_department"
+                    v-model="evaluationRecommendedDepartmentValue"
                     :options="recommendedDepartmentOptions"
                     optionLabel="label"
                     optionValue="value"
@@ -1833,7 +1870,7 @@ onMounted(async () => {
               <div class="form-group">
                                   <label>面试完成状态 *</label>
                 <AdminFilterSelect
-                  v-model="interviewForm.interview_completed"
+                  v-model="interviewCompletedValue"
                   :options="interviewCompletedOptions"
                   optionLabel="label"
                   optionValue="value"
@@ -1892,7 +1929,7 @@ onMounted(async () => {
             <div class="form-group">
               <label>推荐部门</label>
               <AdminFilterSelect
-                v-model="interviewForm.recommended_department"
+                v-model="interviewRecommendedDepartmentValue"
                 :options="recommendedDepartmentOptions"
                 optionLabel="label"
                 optionValue="value"
@@ -2022,12 +2059,6 @@ onMounted(async () => {
 .filter-section {
   --recruit-filter-control-height: 2.75rem;
   --recruit-filter-button-height: 3.25rem;
-  --admin-filter-select-height: var(--recruit-filter-control-height);
-  --admin-filter-select-radius: 8px;
-  --admin-filter-select-border: var(--border-color);
-  --admin-filter-select-hover-border: var(--accent-color);
-  --admin-filter-select-focus: var(--accent-color);
-  --admin-filter-select-focus-ring: rgba(102, 126, 234, 0.12);
   background: var(--bg-surface);
   padding: 1rem;
   border-radius: 8px;
@@ -2071,8 +2102,46 @@ onMounted(async () => {
   box-sizing: border-box;
 }
 
-.filter-item :deep(.admin-filter-select) {
+.filter-item :deep(.p-select) {
   width: 100%;
+  min-height: var(--recruit-filter-control-height);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filter-item :deep(.p-select:not(.p-disabled):hover) {
+  border-color: var(--border-color);
+}
+
+.filter-item :deep(.p-select.p-focus) {
+  border-color: var(--border-color);
+  box-shadow: none;
+  outline: none;
+}
+
+.filter-item :deep(.p-select-label) {
+  display: flex;
+  align-items: center;
+  min-height: calc(var(--recruit-filter-control-height) - 2px);
+  padding: 0 0.875rem;
+  color: var(--text-primary);
+}
+
+.filter-item :deep(.p-select-label.p-placeholder) {
+  color: var(--text-secondary);
+}
+
+.filter-item :deep(.p-select-dropdown) {
+  width: 2.75rem;
+  color: var(--text-secondary);
+}
+
+.filter-item :deep(.p-select-dropdown-icon) {
+  font-size: 0.85rem;
 }
 
 .export-button,
@@ -2472,13 +2541,43 @@ onMounted(async () => {
   box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
 }
 
-.form-group :deep(.admin-filter-select) {
-  --admin-filter-select-height: 3rem;
-  --admin-filter-select-radius: 8px;
-  --admin-filter-select-border: #e9ecef;
-  --admin-filter-select-hover-border: #2196f3;
-  --admin-filter-select-focus: #2196f3;
-  --admin-filter-select-focus-ring: rgba(33, 150, 243, 0.1);
+.evaluation-form .form-group :deep(.p-select) {
+  width: 100%;
+  min-height: 3rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: none;
+  transition: all 0.2s ease;
+}
+
+.evaluation-form .form-group :deep(.p-select:not(.p-disabled):hover) {
+  border-color: #e9ecef;
+}
+
+.evaluation-form .form-group :deep(.p-select.p-focus) {
+  border-color: #2196f3;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+  outline: none;
+}
+
+.evaluation-form .form-group :deep(.p-select-label) {
+  display: flex;
+  align-items: center;
+  min-height: calc(3rem - 4px);
+  padding: 0 0.75rem;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.evaluation-form .form-group :deep(.p-select-label.p-placeholder) {
+  color: var(--text-secondary);
+}
+
+.evaluation-form .form-group :deep(.p-select-dropdown) {
+  width: 2.75rem;
+  color: var(--text-secondary);
 }
 
 .form-group textarea {
@@ -3327,13 +3426,43 @@ onMounted(async () => {
   box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.1);
 }
 
-.interview-form .form-group :deep(.admin-filter-select) {
-  --admin-filter-select-height: 2.875rem;
-  --admin-filter-select-radius: 6px;
-  --admin-filter-select-border: #ddd;
-  --admin-filter-select-hover-border: #ff9800;
-  --admin-filter-select-focus: #ff9800;
-  --admin-filter-select-focus-ring: rgba(255, 152, 0, 0.1);
+.interview-form .form-group :deep(.p-select) {
+  width: 100%;
+  min-height: 2.875rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.interview-form .form-group :deep(.p-select:not(.p-disabled):hover) {
+  border-color: #ddd;
+}
+
+.interview-form .form-group :deep(.p-select.p-focus) {
+  border-color: #ff9800;
+  box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.1);
+  outline: none;
+}
+
+.interview-form .form-group :deep(.p-select-label) {
+  display: flex;
+  align-items: center;
+  min-height: calc(2.875rem - 2px);
+  padding: 0 0.75rem;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.interview-form .form-group :deep(.p-select-label.p-placeholder) {
+  color: #666;
+}
+
+.interview-form .form-group :deep(.p-select-dropdown) {
+  width: 2.75rem;
+  color: #666;
 }
 
 .form-group textarea {
