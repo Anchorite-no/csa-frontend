@@ -108,33 +108,6 @@
           </button>
         </div>
         <div class="modal-body" v-if="selectedMember">
-          <div class="detail-summary">
-            <div class="detail-summary-main">
-              <h4 class="detail-summary-name">{{ selectedMember.name }}</h4>
-              <p class="detail-summary-uid">{{ selectedMember.uid }}</p>
-              <div class="detail-summary-badges">
-                <span :class="['status-badge', selectedMember.is_active ? 'active' : 'inactive']">
-                  {{ selectedMember.is_active ? '在职' : '离职' }}
-                </span>
-                <span class="department-badge">{{ getDepartmentLabel(selectedMember.department) }}</span>
-                <span class="position-badge">{{ selectedMember.position }}</span>
-              </div>
-            </div>
-            <div class="detail-summary-meta">
-              <div class="detail-summary-meta-item">
-                <span class="detail-summary-meta-label">学院</span>
-                <span class="detail-summary-meta-value">{{ selectedMember.college_name || '未填写' }}</span>
-              </div>
-              <div class="detail-summary-meta-item">
-                <span class="detail-summary-meta-label">专业</span>
-                <span class="detail-summary-meta-value">{{ selectedMember.major_name || '未填写' }}</span>
-              </div>
-              <div class="detail-summary-meta-item">
-                <span class="detail-summary-meta-label">年级</span>
-                <span class="detail-summary-meta-value">{{ selectedMember.grade ? selectedMember.grade + '级' : '未填写' }}</span>
-              </div>
-            </div>
-          </div>
           <div class="detail-section detail-section-basic">
             <h4>基本信息</h4>
             <div class="detail-grid">
@@ -1118,11 +1091,11 @@ h2 {
 
 .department-badge {
   padding: 0.25rem 0.5rem;
-  border-radius: 999px;
+  border-radius: 4px;
   font-size: 0.8rem;
-  background: var(--bg-hover);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
+  font-weight: 600;
+  background: #e3f2fd;
+  color: #1565c0;
 }
 
 .member-actions {
@@ -1392,70 +1365,6 @@ h2 {
   order: 4;
 }
 
-.detail-summary {
-  margin-bottom: 1.5rem;
-  padding: 1.25rem;
-  border-radius: 14px;
-  border: 1px solid var(--border-color);
-  background: linear-gradient(135deg, var(--bg-hover) 0%, var(--bg-surface) 100%);
-}
-
-.detail-summary-main {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.detail-summary-name {
-  margin: 0;
-  color: var(--text-primary);
-  font-size: 1.55rem;
-  font-weight: 700;
-}
-
-.detail-summary-uid {
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-}
-
-.detail-summary-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.detail-summary-meta {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.75rem;
-}
-
-.detail-summary-meta-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  padding: 0.85rem 0.9rem;
-  border-radius: 10px;
-  background: var(--bg-surface);
-  border: 1px solid rgba(148, 163, 184, 0.14);
-}
-
-.detail-summary-meta-label {
-  color: var(--text-secondary);
-  font-size: 0.78rem;
-  font-weight: 600;
-}
-
-.detail-summary-meta-value {
-  color: var(--text-primary);
-  font-size: 0.98rem;
-  font-weight: 600;
-  line-height: 1.4;
-  word-break: break-word;
-}
-
 /* 表单样式 */
 .member-form {
   display: flex;
@@ -1601,10 +1510,6 @@ h2 {
     align-self: flex-start;
   }
 
-  .detail-summary-meta {
-    grid-template-columns: 1fr;
-  }
-  
   .detail-grid,
   .form-grid {
     grid-template-columns: 1fr;
