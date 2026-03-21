@@ -31,21 +31,19 @@
       <div class="filter-row">
         <div class="filter-group">
           <label>面试阶段:</label>
-          <select v-model="filters.stage" @change="applyFilters">
-            <option value="">全部</option>
-            <option value="first_round">一面</option>
-            <option value="second_round">二面</option>
-          </select>
+          <AdminFilterSelect
+            v-model="stageFilterValue"
+            :options="stageFilterOptions"
+            @change="applyFilters"
+          />
         </div>
         <div class="filter-group">
           <label>排班状态:</label>
-          <select v-model="filters.status" @change="applyFilters">
-            <option value="">全部</option>
-            <option value="pending">待排班</option>
-            <option value="scheduled">已排班</option>
-            <option value="completed">已完成</option>
-            <option value="cancelled">已取消</option>
-          </select>
+          <AdminFilterSelect
+            v-model="statusFilterValue"
+            :options="scheduleStatusFilterOptions"
+            @change="applyFilters"
+          />
         </div>
         <div class="filter-group">
           <label>搜索学号/姓名:</label>
@@ -327,10 +325,11 @@
               </div>
               <div class="form-group">
                 <label>面试阶段 *</label>
-                                  <select v-model="scheduleForm.stage" required>
-                    <option value="first_round">一面</option>
-                    <option value="second_round">二面</option>
-                  </select>
+                <AdminFilterSelect
+                  v-model="scheduleForm.stage"
+                  :options="scheduleStageOptions"
+                  required
+                />
               </div>
             </div>
             
@@ -342,11 +341,11 @@
               </div>
               <div class="form-group">
                                   <label>面试形式 *</label>
-                <select v-model="scheduleForm.interview_format" required>
-                  <option value="one_to_one">一对一</option>
-                  <option value="one_to_many">一对多</option>
-                  <option value="many_to_many">多对多</option>
-                </select>
+                <AdminFilterSelect
+                  v-model="scheduleForm.interview_format"
+                  :options="interviewFormatOptions"
+                  required
+                />
               </div>
             </div>
             
@@ -354,12 +353,14 @@
             <div v-if="!editingSchedule" class="form-group">
               <label>可面试时间段 *</label>
               <div class="time-slot-selector">
-                <select v-model="scheduleForm.selected_time_slot" @change="onTimeSlotChange" required>
-                  <option value="">请选择可面试时间段</option>
-                  <option v-for="slot in availableTimeSlots" :key="slot" :value="slot">
-                    {{ slot }}
-                  </option>
-                </select>
+                <AdminFilterSelect
+                  v-model="scheduleForm.selected_time_slot"
+                  class="time-slot-select"
+                  :options="availableTimeSlotOptions"
+                  placeholder="请选择可面试时间段"
+                  @change="onTimeSlotChange"
+                  required
+                />
                 <button 
                   v-if="scheduleForm.selected_time_slot" 
                   type="button" 
@@ -384,12 +385,14 @@
             <div v-if="editingSchedule" class="form-group">
               <label>面试时间段 *</label>
               <div class="time-slot-selector">
-                <select v-model="scheduleForm.selected_time_slot" @change="onEditTimeSlotChange" required>
-                  <option value="">请选择面试时间段</option>
-                  <option v-for="slot in editTimeSlots" :key="slot" :value="slot">
-                    {{ slot }}
-                  </option>
-                </select>
+                <AdminFilterSelect
+                  v-model="scheduleForm.selected_time_slot"
+                  class="time-slot-select"
+                  :options="editTimeSlotOptions"
+                  placeholder="请选择面试时间段"
+                  @change="onEditTimeSlotChange"
+                  required
+                />
                 <button 
                   v-if="scheduleForm.selected_time_slot" 
                   type="button" 
@@ -417,11 +420,10 @@
               </div>
               <div class="form-group">
                 <label>排班状态</label>
-                <select v-model="scheduleForm.status">
-                  <option value="scheduled">已排班</option>
-                  <option value="completed">已完成</option>
-                  <option value="cancelled">已取消</option>
-                </select>
+                <AdminFilterSelect
+                  v-model="scheduleForm.status"
+                  :options="scheduleStatusOptions"
+                />
               </div>
             </div>
             
@@ -573,6 +575,7 @@
 <script setup>
 import { ref, reactive, onMounted, computed, inject } from 'vue';
 import { useConfirm } from 'primevue/useconfirm';
+import AdminFilterSelect from '@/components/admin/AdminFilterSelect.vue';
 
 const confirm = useConfirm();
 const axios = inject('axios');
@@ -593,6 +596,35 @@ const filters = reactive({
   status: ''
 });
 
+const INTERVIEW_STAGE_ALL_VALUE = '__all_interview_stage__';
+const INTERVIEW_STATUS_ALL_VALUE = '__all_interview_schedule_status__';
+
+const createMappedProxy = (source, key, rawValue, uiValue) => computed({
+  get() {
+    return Object.is(source[key], rawValue) ? uiValue : source[key];
+  },
+  set(value) {
+    source[key] = value === uiValue ? rawValue : value;
+  }
+});
+
+const stageFilterValue = createMappedProxy(filters, 'stage', '', INTERVIEW_STAGE_ALL_VALUE);
+const statusFilterValue = createMappedProxy(filters, 'status', '', INTERVIEW_STATUS_ALL_VALUE);
+
+const stageFilterOptions = [
+  { value: INTERVIEW_STAGE_ALL_VALUE, label: '全部' },
+  { value: 'first_round', label: '一面' },
+  { value: 'second_round', label: '二面' }
+];
+
+const scheduleStatusFilterOptions = [
+  { value: INTERVIEW_STATUS_ALL_VALUE, label: '全部' },
+  { value: 'pending', label: '待排班' },
+  { value: 'scheduled', label: '已排班' },
+  { value: 'completed', label: '已完成' },
+  { value: 'cancelled', label: '已取消' }
+];
+
 // 面试者数据
 const recruits = ref([]);
 const recruitsLoading = ref(false);
@@ -612,10 +644,35 @@ const scheduleForm = reactive({
 });
 
 // 可面试时间选项
+const scheduleStageOptions = [
+  { value: 'first_round', label: '一面' },
+  { value: 'second_round', label: '二面' }
+];
+
+const interviewFormatOptions = [
+  { value: 'one_to_one', label: '一对一' },
+  { value: 'one_to_many', label: '一对多' },
+  { value: 'many_to_many', label: '多对多' }
+];
+
+const scheduleStatusOptions = [
+  { value: 'scheduled', label: '已排班' },
+  { value: 'completed', label: '已完成' },
+  { value: 'cancelled', label: '已取消' }
+];
+
 const availableTimeSlots = ref([]);
+const availableTimeSlotOptions = computed(() => availableTimeSlots.value.map((slot) => ({
+  value: slot,
+  label: slot,
+})));
 
 // 编辑模式的时间段选项
 const editTimeSlots = ref([]);
+const editTimeSlotOptions = computed(() => editTimeSlots.value.map((slot) => ({
+  value: slot,
+  label: slot,
+})));
 
 // 纳新者信息缓存
 const recruitsCache = ref({});
@@ -1584,6 +1641,8 @@ onMounted(() => {
   padding: 2rem;
   max-width: 1400px;
   margin: 0 auto;
+  --interview-filter-control-height: 3rem;
+  --interview-form-control-height: 2.875rem;
 }
 
 .page-header {
@@ -1741,13 +1800,16 @@ onMounted(() => {
 .filter-row {
   display: flex;
   gap: 2rem;
-  align-items: center;
+  align-items: flex-end;
+  flex-wrap: wrap;
 }
 
 .filter-group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  flex: 1 1 220px;
+  min-width: 220px;
 }
 
 .filter-group label {
@@ -1759,14 +1821,54 @@ onMounted(() => {
 
 .filter-group select,
 .filter-group input {
-  padding: 0.5rem;
+  padding: 0 0.875rem;
   border: 1px solid var(--border-color);
   border-radius: 6px;
   font-size: 0.9rem;
   min-width: 150px;
+  min-height: var(--interview-filter-control-height);
   background: var(--bg-surface);
   color: var(--text-primary);
+  box-sizing: border-box;
   transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+.filter-group :deep(.p-select) {
+  width: 100%;
+  min-height: var(--interview-filter-control-height);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: none;
+  transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+.filter-group :deep(.p-select:not(.p-disabled):hover) {
+  border-color: var(--border-color);
+}
+
+.filter-group :deep(.p-select.p-focus) {
+  border-color: var(--border-color);
+  box-shadow: none;
+  outline: none;
+}
+
+.filter-group :deep(.p-select-label) {
+  display: flex;
+  align-items: center;
+  min-height: calc(var(--interview-filter-control-height) - 2px);
+  padding: 0 0.875rem;
+  color: var(--text-primary);
+}
+
+.filter-group :deep(.p-select-label.p-placeholder) {
+  color: var(--text-secondary);
+}
+
+.filter-group :deep(.p-select-dropdown) {
+  width: 2.75rem;
+  color: var(--text-secondary);
 }
 
 /* 表格样式 */
@@ -2181,12 +2283,56 @@ onMounted(() => {
   transition: border-color 0.2s ease, background-color 0.3s ease, color 0.3s ease;
 }
 
+.form-group input,
+.form-group select {
+  min-height: var(--interview-form-control-height);
+  box-sizing: border-box;
+}
+
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
   border-color: #ff9800;
   box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.1);
+}
+
+.form-group :deep(.p-select) {
+  width: 100%;
+  min-height: var(--interview-form-control-height);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: none;
+  transition: border-color 0.2s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+.form-group :deep(.p-select:not(.p-disabled):hover) {
+  border-color: var(--border-color);
+}
+
+.form-group :deep(.p-select.p-focus) {
+  border-color: #ff9800;
+  box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.1);
+  outline: none;
+}
+
+.form-group :deep(.p-select-label) {
+  display: flex;
+  align-items: center;
+  min-height: calc(var(--interview-form-control-height) - 2px);
+  padding: 0 0.75rem;
+  color: var(--text-primary);
+}
+
+.form-group :deep(.p-select-label.p-placeholder) {
+  color: var(--text-secondary);
+}
+
+.form-group :deep(.p-select-dropdown) {
+  width: 2.75rem;
+  color: var(--text-secondary);
 }
 
 .form-group textarea {
@@ -2428,6 +2574,10 @@ onMounted(() => {
 }
 
 .time-slot-selector select {
+  flex: 1;
+}
+
+.time-slot-selector :deep(.time-slot-select) {
   flex: 1;
 }
 

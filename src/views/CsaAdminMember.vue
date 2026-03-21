@@ -28,11 +28,11 @@
         </div>
         <div class="filter-item">
           <label>状态:</label>
-          <select v-model="filters.is_active" @change="handleFilterChange">
-            <option value="">全部状态</option>
-            <option value="true">在职</option>
-            <option value="false">离职</option>
-          </select>
+          <AdminFilterSelect
+            v-model="memberStatusFilterValue"
+            :options="memberStatusFilterOptions"
+            @change="handleFilterChange"
+          />
         </div>
         <div class="filter-item">
           <button @click="showAddMemberModal" class="add-btn">
@@ -256,10 +256,10 @@
                 </div>
                 <div class="form-group">
                   <label>性别</label>
-                  <select v-model="memberForm.render">
-                    <option :value="false">男</option>
-                    <option :value="true">女</option>
-                  </select>
+                  <AdminFilterSelect
+                    v-model="memberGenderValue"
+                    :options="memberGenderOptions"
+                  />
                 </div>
                 <div class="form-group">
                   <label>专业</label>
@@ -279,13 +279,11 @@
                 </div>
                 <div class="form-group">
                   <label>部门 *</label>
-                  <select v-model="memberForm.department" required>
-                    <option value="">请选择部门</option>
-                    <option value="office">办公室部</option>
-                    <option value="competition">竞赛部</option>
-                    <option value="research">科研部</option>
-                    <option value="activity">活动部</option>
-                  </select>
+                  <AdminFilterSelect
+                    v-model="memberDepartmentValue"
+                    :options="memberDepartmentOptions"
+                    required
+                  />
                 </div>
                 <div class="form-group">
                   <label>职位</label>
@@ -293,10 +291,10 @@
                 </div>
                 <div class="form-group">
                   <label>状态</label>
-                  <select v-model="memberForm.is_active">
-                    <option :value="true">在职</option>
-                    <option :value="false">离职</option>
-                  </select>
+                  <AdminFilterSelect
+                    v-model="memberActiveValue"
+                    :options="memberActiveOptions"
+                  />
                 </div>
               </div>
             </div>
@@ -397,10 +395,10 @@
                 </div>
                 <div class="form-group">
                   <label>性别</label>
-                  <select v-model="memberForm.render">
-                    <option :value="false">男</option>
-                    <option :value="true">女</option>
-                  </select>
+                  <AdminFilterSelect
+                    v-model="memberGenderValue"
+                    :options="memberGenderOptions"
+                  />
                 </div>
                 <div class="form-group">
                   <label>专业</label>
@@ -420,13 +418,11 @@
                 </div>
                 <div class="form-group">
                   <label>部门 *</label>
-                  <select v-model="memberForm.department" required>
-                    <option value="">请选择部门</option>
-                    <option value="office">办公室部</option>
-                    <option value="competition">竞赛部</option>
-                    <option value="research">科研部</option>
-                    <option value="activity">活动部</option>
-                  </select>
+                  <AdminFilterSelect
+                    v-model="memberDepartmentValue"
+                    :options="memberDepartmentOptions"
+                    required
+                  />
                 </div>
                 <div class="form-group">
                   <label>职位</label>
@@ -434,10 +430,10 @@
                 </div>
                 <div class="form-group">
                   <label>状态</label>
-                  <select v-model="memberForm.is_active">
-                    <option :value="true">在职</option>
-                    <option :value="false">离职</option>
-                  </select>
+                  <AdminFilterSelect
+                    v-model="memberActiveValue"
+                    :options="memberActiveOptions"
+                  />
                 </div>
               </div>
             </div>
@@ -519,6 +515,7 @@
 <script setup>
 import { ref, computed, onMounted, inject } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
+import AdminFilterSelect from '@/components/admin/AdminFilterSelect.vue'
 
 const axios = inject('axios');
 const confirm = useConfirm();
@@ -538,6 +535,20 @@ const filters = ref({
   position: ''
 })
 
+const MEMBER_STATUS_ALL_VALUE = '__all_member_status__'
+const MEMBER_GENDER_MALE_VALUE = '__member_gender_male__'
+const MEMBER_STATUS_INACTIVE_VALUE = '__member_status_inactive__'
+const MEMBER_DEPARTMENT_EMPTY_VALUE = '__member_department_empty__'
+
+const createMappedProxy = (sourceRef, key, rawValue, uiValue) => computed({
+  get() {
+    return Object.is(sourceRef.value[key], rawValue) ? uiValue : sourceRef.value[key]
+  },
+  set(value) {
+    sourceRef.value[key] = value === uiValue ? rawValue : value
+  }
+})
+
 // 部门选项
 const departments = [
   { value: 'all', label: '全部部门' },
@@ -548,6 +559,30 @@ const departments = [
 ]
 
 // 计算属性
+const memberStatusFilterOptions = [
+  { value: MEMBER_STATUS_ALL_VALUE, label: '全部状态' },
+  { value: 'true', label: '在职' },
+  { value: 'false', label: '离职' }
+]
+
+const memberGenderOptions = [
+  { value: MEMBER_GENDER_MALE_VALUE, label: '男' },
+  { value: true, label: '女' }
+]
+
+const memberDepartmentOptions = [
+  { value: MEMBER_DEPARTMENT_EMPTY_VALUE, label: '请选择部门' },
+  { value: 'office', label: '办公室部' },
+  { value: 'competition', label: '竞赛部' },
+  { value: 'research', label: '科研部' },
+  { value: 'activity', label: '活动部' }
+]
+
+const memberActiveOptions = [
+  { value: true, label: '在职' },
+  { value: MEMBER_STATUS_INACTIVE_VALUE, label: '离职' }
+]
+
 const filteredMembers = computed(() => {
   if (!members.value) return []
   
@@ -691,6 +726,11 @@ const memberForm = ref({
   skills: ''
 })
 
+const memberStatusFilterValue = createMappedProxy(filters, 'is_active', '', MEMBER_STATUS_ALL_VALUE)
+const memberGenderValue = createMappedProxy(memberForm, 'render', false, MEMBER_GENDER_MALE_VALUE)
+const memberDepartmentValue = createMappedProxy(memberForm, 'department', '', MEMBER_DEPARTMENT_EMPTY_VALUE)
+const memberActiveValue = createMappedProxy(memberForm, 'is_active', false, MEMBER_STATUS_INACTIVE_VALUE)
+
 const showAddMemberModal = () => {
   // 重置表单
   memberForm.value = {
@@ -817,6 +857,8 @@ onMounted(() => {
   padding: 2rem;
   max-width: 1400px;
   margin: 0 auto;
+  --member-filter-control-height: 3rem;
+  --member-form-control-height: 2.875rem;
 }
 
 h2 {
@@ -899,15 +941,56 @@ h2 {
 
 .filter-item input,
 .filter-item select {
-  padding: 0.5rem;
+  min-height: var(--member-filter-control-height);
+  padding: 0 0.875rem;
   border: 1px solid var(--border-color);
   border-radius: 6px;
   background: var(--bg-primary);
   color: var(--text-primary);
+  box-sizing: border-box;
+}
+
+.filter-item :deep(.p-select) {
+  width: 100%;
+  min-height: var(--member-filter-control-height);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  box-shadow: none;
+  transition: all 0.2s ease;
+}
+
+.filter-item :deep(.p-select:not(.p-disabled):hover) {
+  border-color: var(--border-color);
+}
+
+.filter-item :deep(.p-select.p-focus) {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+  outline: none;
+}
+
+.filter-item :deep(.p-select-label) {
+  display: flex;
+  align-items: center;
+  min-height: calc(var(--member-filter-control-height) - 2px);
+  padding: 0 0.875rem;
+  color: var(--text-primary);
+}
+
+.filter-item :deep(.p-select-label.p-placeholder) {
+  color: var(--text-secondary);
+}
+
+.filter-item :deep(.p-select-dropdown) {
+  width: 2.75rem;
+  color: var(--text-secondary);
 }
 
 .add-btn {
-  padding: 0.5rem 1rem;
+  min-height: var(--member-filter-control-height);
+  padding: 0 1rem;
   background: var(--primary-color);
   color: white;
   border: none;
@@ -1299,12 +1382,56 @@ h2 {
   transition: all 0.2s ease;
 }
 
+.form-group input,
+.form-group select {
+  min-height: var(--member-form-control-height);
+  box-sizing: border-box;
+}
+
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
   border-color: var(--primary-color);
   box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+}
+
+.member-form .form-group :deep(.p-select) {
+  width: 100%;
+  min-height: var(--member-form-control-height);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: none;
+  transition: all 0.2s ease;
+}
+
+.member-form .form-group :deep(.p-select:not(.p-disabled):hover) {
+  border-color: var(--border-color);
+}
+
+.member-form .form-group :deep(.p-select.p-focus) {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+  outline: none;
+}
+
+.member-form .form-group :deep(.p-select-label) {
+  display: flex;
+  align-items: center;
+  min-height: calc(var(--member-form-control-height) - 2px);
+  padding: 0 0.75rem;
+  color: var(--text-primary);
+}
+
+.member-form .form-group :deep(.p-select-label.p-placeholder) {
+  color: var(--text-secondary);
+}
+
+.member-form .form-group :deep(.p-select-dropdown) {
+  width: 2.75rem;
+  color: var(--text-secondary);
 }
 
 .form-group textarea {
