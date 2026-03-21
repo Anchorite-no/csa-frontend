@@ -1,64 +1,42 @@
 <script setup>
-import { useRouter } from 'vue-router'
-import { ref } from 'vue'
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useThemeStore } from '@/stores/theme'
 
 const router = useRouter()
+const route = useRoute()
 const themeStore = useThemeStore()
 
-const items = ref([
+const isActiveRoute = routeName => route.name === routeName
+
+const createMenuItem = (label, icon, routeName) => ({
+    label,
+    icon,
+    class: isActiveRoute(routeName) ? 'route-active' : '',
+    command: () => {
+        if (!isActiveRoute(routeName)) {
+            router.push({ name: routeName })
+        }
+    },
+})
+
+const items = computed(() => [
     {
         label: '数据管理',
         items: [
-            {
-                label: '新闻管理',
-                icon: 'pi pi-file-edit',
-                command: () => {
-                    router.push({ name: 'admin-news' })
-                },
-            },
-            {
-                label: '活动管理',
-                icon: 'pi pi-calendar',
-                command: () => {
-                    router.push({ name: 'admin-event' })
-                },
-            }
+            createMenuItem('信息管理', 'pi pi-file-edit', 'admin-news'),
+            createMenuItem('活动管理', 'pi pi-calendar', 'admin-event'),
         ],
     },
     {
         label: '用户管理',
         items: [
-            {
-                label: '用户管理',
-                icon: 'pi pi-user',
-                command: () => {
-                    router.push({ name: 'admin-users' })
-                },
-            },
-            {
-                label: '纳新管理',
-                icon: 'pi pi-user',
-                command: () => {
-                    router.push({ name: 'admin-recruit' })
-                },
-            },
-            {
-                label: '面试管理',
-                icon: 'pi pi-comments',
-                command: () => {
-                    router.push({ name: 'admin-interview' })
-                },
-            },
-            {
-                label: '干事管理',
-                icon: 'pi pi-users',
-                command: () => {
-                    router.push({ name: 'admin-member' })
-                },
-            }
+            createMenuItem('用户管理', 'pi pi-user', 'admin-users'),
+            createMenuItem('纳新管理', 'pi pi-user', 'admin-recruit'),
+            createMenuItem('面试管理', 'pi pi-comments', 'admin-interview'),
+            createMenuItem('干事管理', 'pi pi-users', 'admin-member'),
         ],
-    }
+    },
 ])
 </script>
 
@@ -186,6 +164,20 @@ const items = ref([
 
 :global(.p-menu *) {
     font-size: inherit !important;
+}
+
+::v-deep(.p-menu .p-menu-item.route-active > .p-menu-item-content) {
+    background-color: rgba(102, 126, 234, 0.16) !important;
+    box-shadow: inset 4px 0 0 var(--accent-color);
+}
+
+::v-deep(.p-menu .p-menu-item.route-active > .p-menu-item-content > .p-menu-item-link) {
+    color: var(--accent-color) !important;
+    font-weight: 600 !important;
+}
+
+::v-deep(.p-menu .p-menu-item.route-active > .p-menu-item-content .p-menu-item-icon) {
+    color: var(--accent-color) !important;
 }
 </style>
 
