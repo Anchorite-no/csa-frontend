@@ -1974,6 +1974,7 @@ onMounted(async () => {
 
 .filter-section {
   --recruit-filter-control-height: 2.75rem;
+  --recruit-filter-button-height: 3rem;
   background: var(--bg-surface);
   padding: 1rem;
   border-radius: 8px;
@@ -2020,7 +2021,7 @@ onMounted(async () => {
 
 .export-button,
 .batch-button {
-  min-height: var(--recruit-filter-control-height);
+  min-height: var(--recruit-filter-button-height);
   padding: 0 1rem;
   border: none;
   border-radius: 8px;
