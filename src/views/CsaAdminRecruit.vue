@@ -1974,7 +1974,7 @@ onMounted(async () => {
 
 .filter-section {
   --recruit-filter-control-height: 2.75rem;
-  --recruit-filter-button-height: 3rem;
+  --recruit-filter-button-height: 3.25rem;
   background: var(--bg-surface);
   padding: 1rem;
   border-radius: 8px;
