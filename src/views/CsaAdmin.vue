@@ -142,6 +142,10 @@ const menuItems = computed(() =>
     width: 16rem;
     min-width: 16rem;
     flex: 0 0 16rem;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     transition:
