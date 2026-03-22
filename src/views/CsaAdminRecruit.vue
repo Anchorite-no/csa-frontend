@@ -1142,7 +1142,7 @@ const getSortIconClass = (field) => {
     return 'pi-sort-alt';
   }
 
-  return sortOrder.value === 'asc' ? 'pi-arrow-up' : 'pi-arrow-down';
+  return sortOrder.value === 'asc' ? 'pi-angle-up' : 'pi-angle-down';
 };
 
 // 监听筛选条件变化
@@ -2355,13 +2355,13 @@ onMounted(async () => {
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 0.45rem;
+  gap: 0.32rem;
   cursor: pointer;
   transition: color 0.2s ease;
 }
 
 .sort-header:hover {
-  color: var(--accent-color);
+  color: inherit;
 }
 
 .sort-header:focus-visible {
@@ -2371,12 +2371,24 @@ onMounted(async () => {
 }
 
 .sort-header--active {
-  color: var(--accent-color);
+  color: inherit;
 }
 
 .sort-indicator {
-  font-size: 0.8rem;
-  opacity: 0.78;
+  font-size: 0.66rem;
+  color: var(--text-secondary);
+  opacity: 0.42;
+  transform: translateY(1px);
+  transition: opacity 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.sort-header:hover .sort-indicator {
+  opacity: 0.58;
+}
+
+.sort-header--active .sort-indicator {
+  color: var(--accent-color);
+  opacity: 0.74;
 }
 
 .recruit-table th.col-department-preference,
