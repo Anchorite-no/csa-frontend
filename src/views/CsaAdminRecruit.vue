@@ -12,6 +12,8 @@ const loading = ref(false);
 const total = ref(0);
 const currentPage = ref(1);
 const pageSize = ref(10);
+const sortField = ref('');
+const sortOrder = ref('asc');
 
 const newDeadline = ref('');
 const currentDeadline = ref('正在加载...');
@@ -316,6 +318,11 @@ const fetchRecruits = async () => {
       size: pageSize.value,
       ...filters
     };
+
+    if (sortField.value) {
+      params.sort_field = sortField.value;
+      params.sort_order = sortOrder.value;
+    }
     
     const response = await axios.get('/recruit/recruits', { params });
     recruits.value = response.data.recruits;
@@ -1118,6 +1125,26 @@ const handlePageChange = (newPage) => {
   fetchRecruits();
 };
 
+const toggleSort = (field) => {
+  if (sortField.value === field) {
+    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortField.value = field;
+    sortOrder.value = 'asc';
+  }
+
+  currentPage.value = 1;
+  fetchRecruits();
+};
+
+const getSortIconClass = (field) => {
+  if (sortField.value !== field) {
+    return 'pi-sort-alt';
+  }
+
+  return sortOrder.value === 'asc' ? 'pi-arrow-up' : 'pi-arrow-down';
+};
+
 // 监听筛选条件变化
 const handleFilterChange = () => {
   currentPage.value = 1;
@@ -1240,16 +1267,66 @@ onMounted(async () => {
         <thead>
           <tr>
             <th><input type="checkbox" @change="selectAll" v-model="selectAllRecruits"></th>
-            <th class="col-name">姓名</th>
-            <th>学号</th>
-            <th>性别</th>
-            <th>学位</th>
-            <th>年级</th>
-            <th>专业</th>
-            <th>学院</th>
-            <th class="col-department-preference">部门意愿</th>
-            <th class="col-assigned-department">分配部门</th>
-            <th class="col-status">状态</th>
+            <th class="col-name">
+              <button type="button" class="sort-header" :class="{ 'sort-header--active': sortField === 'name' }" @click="toggleSort('name')">
+                <span>姓名</span>
+                <i class="pi sort-indicator" :class="getSortIconClass('name')"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="sort-header" :class="{ 'sort-header--active': sortField === 'uid' }" @click="toggleSort('uid')">
+                <span>学号</span>
+                <i class="pi sort-indicator" :class="getSortIconClass('uid')"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="sort-header" :class="{ 'sort-header--active': sortField === 'render' }" @click="toggleSort('render')">
+                <span>性别</span>
+                <i class="pi sort-indicator" :class="getSortIconClass('render')"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="sort-header" :class="{ 'sort-header--active': sortField === 'degree' }" @click="toggleSort('degree')">
+                <span>学位</span>
+                <i class="pi sort-indicator" :class="getSortIconClass('degree')"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="sort-header" :class="{ 'sort-header--active': sortField === 'grade' }" @click="toggleSort('grade')">
+                <span>年级</span>
+                <i class="pi sort-indicator" :class="getSortIconClass('grade')"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="sort-header" :class="{ 'sort-header--active': sortField === 'major_name' }" @click="toggleSort('major_name')">
+                <span>专业</span>
+                <i class="pi sort-indicator" :class="getSortIconClass('major_name')"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="sort-header" :class="{ 'sort-header--active': sortField === 'college_name' }" @click="toggleSort('college_name')">
+                <span>学院</span>
+                <i class="pi sort-indicator" :class="getSortIconClass('college_name')"></i>
+              </button>
+            </th>
+            <th class="col-department-preference">
+              <button type="button" class="sort-header" :class="{ 'sort-header--active': sortField === 'department_preference' }" @click="toggleSort('department_preference')">
+                <span>部门意愿</span>
+                <i class="pi sort-indicator" :class="getSortIconClass('department_preference')"></i>
+              </button>
+            </th>
+            <th class="col-assigned-department">
+              <button type="button" class="sort-header" :class="{ 'sort-header--active': sortField === 'assigned_department' }" @click="toggleSort('assigned_department')">
+                <span>分配部门</span>
+                <i class="pi sort-indicator" :class="getSortIconClass('assigned_department')"></i>
+              </button>
+            </th>
+            <th class="col-status">
+              <button type="button" class="sort-header" :class="{ 'sort-header--active': sortField === 'status' }" @click="toggleSort('status')">
+                <span>状态</span>
+                <i class="pi sort-indicator" :class="getSortIconClass('status')"></i>
+              </button>
+            </th>
             <th>操作</th>
           </tr>
         </thead>
@@ -2265,6 +2342,41 @@ onMounted(async () => {
   color: var(--text-primary);
   border-bottom: 1px solid var(--border-color);
   white-space: nowrap;
+}
+
+.sort-header {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.45rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.sort-header:hover {
+  color: var(--accent-color);
+}
+
+.sort-header:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.sort-header--active {
+  color: var(--accent-color);
+}
+
+.sort-indicator {
+  font-size: 0.8rem;
+  opacity: 0.78;
 }
 
 .recruit-table th.col-department-preference,
