@@ -1840,10 +1840,10 @@ onMounted(() => {
   --interview-table-action-delete-border: rgba(248, 113, 113, 0.22);
   --interview-table-action-delete-text: #fecaca;
   --interview-table-action-shadow: 0 10px 24px -20px rgba(2, 6, 23, 0.85);
-  --interview-refresh-bg: rgba(34, 197, 94, 0.22);
-  --interview-refresh-bg-hover: rgba(34, 197, 94, 0.3);
-  --interview-refresh-border: rgba(74, 222, 128, 0.36);
-  --interview-refresh-text: #baf7cb;
+  --interview-refresh-bg: rgba(59, 130, 246, 0.22);
+  --interview-refresh-bg-hover: rgba(59, 130, 246, 0.3);
+  --interview-refresh-border: rgba(96, 165, 250, 0.36);
+  --interview-refresh-text: #bfdbfe;
 }
 
 .page-header {
