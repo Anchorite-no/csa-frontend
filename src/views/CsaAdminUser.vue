@@ -311,6 +311,12 @@ watch([page, size], () => {
 }
 
 .admin-user-page {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    min-height: 100vh;
     --user-toolbar-control-height: 2.5rem;
     --user-btn-search-bg: var(--accent-color);
     --user-btn-search-bg-hover: var(--accent-hover);

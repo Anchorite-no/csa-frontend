@@ -250,6 +250,12 @@ watch([page, size], () => {
 }
 
 .admin-news-page {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    min-height: 100vh;
     --news-tag-bg: #ecfdf3;
     --news-tag-border: #a7f3d0;
     --news-tag-text: #0f8a62;

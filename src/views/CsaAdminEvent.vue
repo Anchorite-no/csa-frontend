@@ -268,6 +268,12 @@ watch([page, size], () => {
 }
 
 .admin-event-page {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    min-height: 100vh;
     --event-btn-primary-bg: var(--accent-color);
     --event-btn-primary-hover: var(--accent-hover);
     --event-btn-primary-text: #ffffff;
