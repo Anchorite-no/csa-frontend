@@ -184,15 +184,6 @@
                   <i class="pi pi-pencil"></i>
                 </button>
                 <button
-                  v-if="getScheduleStatus(recruit.uid) === 'scheduled'"
-                  @click="showNotificationConfirm(getScheduleByUid(recruit.uid))"
-                  class="table-action-btn table-action-btn--notify"
-                  title="发送通知"
-                  aria-label="发送通知"
-                >
-                  <i class="pi pi-bell"></i>
-                </button>
-                <button
                   v-if="getScheduleStatus(recruit.uid) !== 'pending'"
                   @click="deleteSchedule(getScheduleByUid(recruit.uid))"
                   class="table-action-btn table-action-btn--delete"
@@ -200,6 +191,15 @@
                   aria-label="删除排班"
                 >
                   <i class="pi pi-trash"></i>
+                </button>
+                <button
+                  v-if="getScheduleStatus(recruit.uid) === 'scheduled'"
+                  @click="showNotificationConfirm(getScheduleByUid(recruit.uid))"
+                  class="table-action-btn table-action-btn--notify"
+                  title="发送通知"
+                  aria-label="发送通知"
+                >
+                  <i class="pi pi-bell"></i>
                 </button>
               </div>
             </td>
