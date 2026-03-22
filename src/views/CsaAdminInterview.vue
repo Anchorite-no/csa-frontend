@@ -3424,6 +3424,7 @@ onMounted(() => {
   color: var(--text-primary);
   border-bottom: 2px solid var(--border-color);
   font-size: 0.9rem;
+  white-space: nowrap;
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 

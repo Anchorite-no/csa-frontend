@@ -864,6 +864,9 @@ onMounted(() => {
   --member-action-delete-border: rgba(220, 38, 38, 0.22);
   --member-action-delete-text: #b91c1c;
   --member-action-shadow: 0 10px 24px -18px rgba(15, 23, 42, 0.45);
+  --member-position-badge-bg: #fef3c7;
+  --member-position-badge-border: #fcd34d;
+  --member-position-badge-text: #92400e;
 }
 
 .dark .admin-member-container {
@@ -877,6 +880,9 @@ onMounted(() => {
   --member-action-delete-border: rgba(248, 113, 113, 0.22);
   --member-action-delete-text: #fecaca;
   --member-action-shadow: 0 10px 24px -20px rgba(2, 6, 23, 0.85);
+  --member-position-badge-bg: rgba(245, 158, 11, 0.2);
+  --member-position-badge-border: rgba(251, 191, 36, 0.28);
+  --member-position-badge-text: #fde68a;
 }
 
 h2 {
@@ -1105,8 +1111,10 @@ h2 {
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.8rem;
-  background: var(--primary-color);
-  color: white;
+  font-weight: 600;
+  background: var(--member-position-badge-bg);
+  border: 1px solid var(--member-position-badge-border);
+  color: var(--member-position-badge-text);
 }
 
 .department-badge {
