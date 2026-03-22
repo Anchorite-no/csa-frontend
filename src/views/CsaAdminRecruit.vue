@@ -1261,9 +1261,9 @@ onMounted(async () => {
             <th>年级</th>
             <th>专业</th>
             <th>学院</th>
-            <th>部门意愿</th>
-            <th>分配部门</th>
-            <th>状态</th>
+            <th class="col-department-preference">部门意愿</th>
+            <th class="col-assigned-department">分配部门</th>
+            <th class="col-status">状态</th>
             <th>操作</th>
           </tr>
         </thead>
@@ -1279,19 +1279,19 @@ onMounted(async () => {
             <td>{{ recruit.grade }}级</td>
             <td>{{ recruit.major_name }}</td>
             <td>{{ recruit.college_name }}</td>
-            <td>
+            <td class="col-department-preference">
               <div class="department-order">
                 <span v-for="dept in getDepartmentOrder(recruit)" :key="dept.id" class="dept-tag">
                   {{ dept.name }}({{ dept.score }})
                 </span>
               </div>
             </td>
-            <td>
+            <td class="col-assigned-department">
               <span class="department-tag" :style="getDepartmentStyle(recruit.assigned_department)">
                 {{ getDepartmentLabel(recruit.assigned_department) }}
               </span>
             </td>
-            <td>
+            <td class="col-status">
               <span class="status-tag" :style="getStatusStyle(calculateInterviewStatus(recruit))">
                 {{ calculateInterviewStatus(recruit) }}
               </span>
@@ -2264,6 +2264,16 @@ onMounted(async () => {
   font-weight: bold;
   color: var(--text-primary);
   border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.recruit-table th.col-department-preference,
+.recruit-table th.col-assigned-department,
+.recruit-table th.col-status,
+.recruit-table td.col-department-preference,
+.recruit-table td.col-assigned-department,
+.recruit-table td.col-status {
+  white-space: nowrap;
 }
 
 .recruit-table tr {
@@ -2284,6 +2294,7 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  min-width: 7rem;
 }
 
 .dept-tag {
@@ -2292,6 +2303,10 @@ onMounted(async () => {
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.8rem;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
 }
 
 .status-tag {
@@ -2299,6 +2314,9 @@ onMounted(async () => {
   border-radius: 4px;
   font-size: 0.8rem;
   font-weight: bold;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
 }
 
 .department-tag {
@@ -2306,6 +2324,9 @@ onMounted(async () => {
   border-radius: 4px;
   font-size: 0.8rem;
   font-weight: bold;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
 }
 
 .action-buttons {
