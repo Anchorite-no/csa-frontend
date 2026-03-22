@@ -47,6 +47,7 @@ const handlePageChange = event => {
 
 const ConfirmDelete = (event, nid) => {
     confirm.require({
+        group: 'news-delete',
         target: event.currentTarget,
         message: '确认删除该信息？',
         icon: 'pi pi-exclamation-triangle',
@@ -72,19 +73,23 @@ const ConfirmDelete = (event, nid) => {
     })
 }
 
-const ConfirmCleanup = (event) => {
+const ConfirmCleanup = () => {
     confirm.require({
-        target: event.currentTarget,
+        group: 'news-cleanup',
+        modal: true,
+        header: '清理废弃草稿',
         message: '确认清理所有24小时前的废弃草稿？此操作将删除旧草稿及其关联图片，且不可恢复。',
         icon: 'pi pi-exclamation-triangle',
         rejectProps: {
             label: '取消',
             severity: 'secondary',
             outlined: true,
+            class: 'news-cleanup-cancel',
         },
         acceptProps: {
             label: '清理',
             severity: 'danger',
+            class: 'news-cleanup-confirm',
         },
         accept: () => {
             axios
@@ -127,7 +132,8 @@ watch([page, size], () => {
         @finish="refreshContent"
         :nid="operator"
     ></csa-edit-news>
-    <ConfirmPopup></ConfirmPopup>
+    <ConfirmPopup group="news-delete"></ConfirmPopup>
+    <ConfirmDialog group="news-cleanup" class="news-cleanup-dialog"></ConfirmDialog>
     <div class="main-part-lg mx-auto admin-news-page">
         <div class="text-3xl font-bold mb-6">信息管理</div>
         <Button
@@ -230,10 +236,10 @@ watch([page, size], () => {
     --news-btn-primary-bg: var(--accent-color);
     --news-btn-primary-hover: var(--accent-hover);
     --news-btn-primary-text: #ffffff;
-    --news-btn-warning-bg: #d97706;
-    --news-btn-warning-bg-hover: #c26d05;
-    --news-btn-warning-border: #d97706;
-    --news-btn-warning-text: #ffffff;
+    --news-btn-warning-bg: #475569;
+    --news-btn-warning-bg-hover: #334155;
+    --news-btn-warning-border: #475569;
+    --news-btn-warning-text: #f8fafc;
     --news-btn-edit-bg: #ecfdf3;
     --news-btn-edit-bg-hover: #ddfbe9;
     --news-btn-edit-border: #a7f3d0;
@@ -251,10 +257,10 @@ watch([page, size], () => {
     --news-btn-primary-bg: #3f8fdf;
     --news-btn-primary-hover: #58a6ee;
     --news-btn-primary-text: #f8fbff;
-    --news-btn-warning-bg: #b86a08;
-    --news-btn-warning-bg-hover: #cf7c10;
-    --news-btn-warning-border: #b86a08;
-    --news-btn-warning-text: #fff9f0;
+    --news-btn-warning-bg: #64748b;
+    --news-btn-warning-bg-hover: #556278;
+    --news-btn-warning-border: #64748b;
+    --news-btn-warning-text: #f8fafc;
     --news-btn-edit-bg: rgba(16, 185, 129, 0.18);
     --news-btn-edit-bg-hover: rgba(16, 185, 129, 0.26);
     --news-btn-edit-border: rgba(52, 211, 153, 0.34);
@@ -390,7 +396,7 @@ watch([page, size], () => {
     background: var(--news-btn-warning-bg) !important;
     color: var(--news-btn-warning-text) !important;
     border-color: var(--news-btn-warning-border) !important;
-    box-shadow: 0 10px 20px rgba(217, 119, 6, 0.2);
+    box-shadow: 0 10px 20px rgba(71, 85, 105, 0.2);
 }
 
 :deep(.news-toolbar-btn--warning.p-button:not(:disabled):hover) {
@@ -398,7 +404,7 @@ watch([page, size], () => {
     color: var(--news-btn-warning-text) !important;
     border-color: var(--news-btn-warning-border) !important;
     transform: translateY(-1px);
-    box-shadow: 0 12px 24px rgba(217, 119, 6, 0.26);
+    box-shadow: 0 12px 24px rgba(71, 85, 105, 0.28);
 }
 
 :deep(.news-table-action--edit.p-button) {
@@ -425,6 +431,103 @@ watch([page, size], () => {
     color: var(--news-btn-danger-text) !important;
     border-color: var(--news-btn-danger-border) !important;
     transform: translateY(-1px);
+}
+
+:deep(.news-cleanup-dialog.p-confirmdialog) {
+    width: min(28rem, calc(100vw - 2rem));
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 22px 60px rgba(15, 23, 42, 0.2);
+}
+
+:deep(.news-cleanup-dialog .p-dialog-header) {
+    padding: 1.25rem 1.35rem 0.5rem;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border-bottom: none;
+}
+
+:deep(.news-cleanup-dialog .p-dialog-title) {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+:deep(.news-cleanup-dialog .p-dialog-header-actions .p-dialog-header-icon) {
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 999px;
+    color: var(--text-secondary);
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+:deep(.news-cleanup-dialog .p-dialog-header-actions .p-dialog-header-icon:hover) {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+:deep(.news-cleanup-dialog .p-dialog-content) {
+    padding: 0.5rem 1.35rem 0;
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    line-height: 1.65;
+}
+
+:deep(.news-cleanup-dialog .p-confirmdialog-icon) {
+    margin-right: 0.9rem;
+    font-size: 1.3rem;
+    color: #f59e0b;
+}
+
+:deep(.news-cleanup-dialog .p-dialog-footer) {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1.2rem 1.35rem 1.35rem;
+    background: var(--bg-surface);
+    border-top: none;
+}
+
+:deep(.news-cleanup-dialog .p-dialog-footer .p-button) {
+    min-height: 2.7rem;
+    padding: 0 1.1rem;
+    border-radius: 12px;
+    font-weight: 600;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+:deep(.news-cleanup-dialog .news-cleanup-cancel.p-button) {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: none !important;
+}
+
+:deep(.news-cleanup-dialog .news-cleanup-cancel.p-button:not(:disabled):hover) {
+    background: color-mix(in srgb, var(--bg-secondary) 82%, var(--accent-color) 18%) !important;
+    color: var(--text-primary) !important;
+    border-color: color-mix(in srgb, var(--border-color) 72%, var(--accent-color) 28%) !important;
+}
+
+:deep(.news-cleanup-dialog .news-cleanup-confirm.p-button) {
+    background: #dc2626 !important;
+    color: #fff7f7 !important;
+    border: 1px solid #dc2626 !important;
+    box-shadow: 0 12px 24px rgba(220, 38, 38, 0.18) !important;
+}
+
+:deep(.news-cleanup-dialog .news-cleanup-confirm.p-button:not(:disabled):hover) {
+    background: #c81e1e !important;
+    color: #fff7f7 !important;
+    border-color: #c81e1e !important;
+    transform: translateY(-1px);
+    box-shadow: 0 14px 28px rgba(220, 38, 38, 0.24) !important;
 }
 
 .pagination-wrapper {
