@@ -1,14 +1,11 @@
 <script setup>
 import { computed, ref, reactive, inject, onMounted } from 'vue';
 import { useConfirm } from 'primevue/useconfirm';
-import { useRouter } from 'vue-router';
 import AdminDateField from '@/components/admin/AdminDateField.vue';
 import AdminFilterSelect from '@/components/admin/AdminFilterSelect.vue';
 
 const confirm = useConfirm();
 const axios = inject('axios');
-const router = useRouter();
-
 // 数据状态
 const recruits = ref([]);
 const loading = ref(false);
@@ -732,17 +729,6 @@ const closeInterviewModal = () => {
   interviews.value = [];
 };
 
-// 跳转到面试管理页面
-const goToInterviewManagement = () => {
-  console.log('跳转到面试管理页面');
-  try {
-    router.push({ name: 'admin-interview' });
-  } catch (error) {
-    console.error('跳转失败:', error);
-    window.notyf.error('跳转失败：' + error.message);
-  }
-};
-
 // 获取面试列表
 const fetchInterviews = async (uid) => {
   interviewLoading.value = true;
@@ -1297,11 +1283,25 @@ onMounted(async () => {
               </span>
             </td>
             <td>
-              <div class="action-buttons">
-                <!-- <button @click="showEvaluationModal(recruit)" class="action-btn evaluate">评价</button> -->
-                <button @click="viewDetails(recruit)" class="action-btn view">详情</button>
-                <button @click="goToInterviewManagement" class="action-btn interview">面试管理</button>
-                <button @click="deleteRecruit(recruit)" class="action-btn delete">删除</button>
+              <div class="recruit-row-actions">
+                <button
+                  type="button"
+                  @click="viewDetails(recruit)"
+                  class="recruit-row-action recruit-row-action--view"
+                  title="查看详情"
+                  aria-label="查看详情"
+                >
+                  <i class="pi pi-eye"></i>
+                </button>
+                <button
+                  type="button"
+                  @click="deleteRecruit(recruit)"
+                  class="recruit-row-action recruit-row-action--delete"
+                  title="删除"
+                  aria-label="删除"
+                >
+                  <i class="pi pi-trash"></i>
+                </button>
               </div>
             </td>
           </tr>
@@ -2331,34 +2331,76 @@ onMounted(async () => {
   align-items: center;
 }
 
-.action-buttons {
+.recruit-row-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.45rem;
 }
 
-.action-btn {
-  padding: 0.25rem 0.5rem;
-  border: none;
-  border-radius: 4px;
+.recruit-row-action {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 0.8rem;
-  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.action-btn.evaluate {
-  background: #2196f3;
+.recruit-row-action i {
+  font-size: 0.95rem;
 }
 
-.action-btn.view {
-  background: #9c27b0;
+.recruit-row-action--view {
+  background: #eaf2ff;
+  color: #2f73da;
+  border-color: #bfd8ff;
 }
 
-.action-btn.interview {
-  background: #ff9800;
+.recruit-row-action--view:hover {
+  background: #dceaff;
+  color: #275fc1;
+  border-color: #a9cbff;
+  transform: translateY(-1px);
 }
 
-.action-btn.delete {
-  background: #f44336;
+.recruit-row-action--delete {
+  background: #ffe8eb;
+  color: #cf415e;
+  border-color: #f6bcc7;
+}
+
+.recruit-row-action--delete:hover {
+  background: #ffdce1;
+  color: #b7304d;
+  border-color: #f0a9b6;
+  transform: translateY(-1px);
+}
+
+.dark .recruit-row-action--view {
+  background: rgba(59, 130, 246, 0.2);
+  color: #a9cbff;
+  border-color: rgba(96, 165, 250, 0.34);
+}
+
+.dark .recruit-row-action--view:hover {
+  background: rgba(59, 130, 246, 0.28);
+  color: #c3dcff;
+  border-color: rgba(96, 165, 250, 0.46);
+}
+
+.dark .recruit-row-action--delete {
+  background: rgba(239, 68, 68, 0.18);
+  color: #ff9aa5;
+  border-color: rgba(239, 68, 68, 0.34);
+}
+
+.dark .recruit-row-action--delete:hover {
+  background: rgba(239, 68, 68, 0.26);
+  color: #ffb0b8;
+  border-color: rgba(239, 68, 68, 0.46);
 }
 
 .pagination {
