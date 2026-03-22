@@ -166,9 +166,6 @@ const menuItems = computed(() =>
     height: calc(100vh - var(--admin-sticky-offset));
     display: flex;
     flex-direction: column;
-    box-shadow:
-        inset -1px 0 0 rgba(148, 163, 184, 0.08),
-        18px 0 40px -36px rgba(15, 23, 42, 0.48);
     transition:
         width 0.28s ease,
         min-width 0.28s ease,
