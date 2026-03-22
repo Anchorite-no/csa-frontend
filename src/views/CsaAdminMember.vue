@@ -854,6 +854,10 @@ onMounted(() => {
   margin: 0 auto;
   --member-filter-control-height: 3rem;
   --member-form-control-height: 2.875rem;
+  --member-add-btn-bg: var(--primary-color);
+  --member-add-btn-border: transparent;
+  --member-add-btn-text: #ffffff;
+  --member-add-btn-hover-bg: var(--primary-hover);
   --member-action-view-bg: rgba(59, 130, 246, 0.14);
   --member-action-view-border: rgba(37, 99, 235, 0.22);
   --member-action-view-text: #1d4ed8;
@@ -864,12 +868,25 @@ onMounted(() => {
   --member-action-delete-border: rgba(220, 38, 38, 0.22);
   --member-action-delete-text: #b91c1c;
   --member-action-shadow: 0 10px 24px -18px rgba(15, 23, 42, 0.45);
+  --member-status-active-bg: #e8f5e8;
+  --member-status-active-border: rgba(46, 125, 50, 0.16);
+  --member-status-active-text: #2e7d32;
+  --member-status-inactive-bg: #ffebee;
+  --member-status-inactive-border: rgba(198, 40, 40, 0.16);
+  --member-status-inactive-text: #c62828;
+  --member-department-badge-bg: #e3f2fd;
+  --member-department-badge-border: rgba(21, 101, 192, 0.14);
+  --member-department-badge-text: #1565c0;
   --member-position-badge-bg: #fef3c7;
   --member-position-badge-border: #fcd34d;
   --member-position-badge-text: #92400e;
 }
 
 .dark .admin-member-container {
+  --member-add-btn-bg: rgba(59, 130, 246, 0.18);
+  --member-add-btn-border: rgba(96, 165, 250, 0.24);
+  --member-add-btn-text: #bfdbfe;
+  --member-add-btn-hover-bg: rgba(59, 130, 246, 0.24);
   --member-action-view-bg: rgba(59, 130, 246, 0.18);
   --member-action-view-border: rgba(96, 165, 250, 0.22);
   --member-action-view-text: #bfdbfe;
@@ -880,6 +897,15 @@ onMounted(() => {
   --member-action-delete-border: rgba(248, 113, 113, 0.22);
   --member-action-delete-text: #fecaca;
   --member-action-shadow: 0 10px 24px -20px rgba(2, 6, 23, 0.85);
+  --member-status-active-bg: rgba(34, 197, 94, 0.18);
+  --member-status-active-border: rgba(74, 222, 128, 0.24);
+  --member-status-active-text: #bbf7d0;
+  --member-status-inactive-bg: rgba(239, 68, 68, 0.18);
+  --member-status-inactive-border: rgba(248, 113, 113, 0.24);
+  --member-status-inactive-text: #fecaca;
+  --member-department-badge-bg: rgba(59, 130, 246, 0.18);
+  --member-department-badge-border: rgba(96, 165, 250, 0.24);
+  --member-department-badge-text: #bfdbfe;
   --member-position-badge-bg: rgba(245, 158, 11, 0.2);
   --member-position-badge-border: rgba(251, 191, 36, 0.28);
   --member-position-badge-text: #fde68a;
@@ -1015,9 +1041,9 @@ h2 {
 .add-btn {
   min-height: var(--member-filter-control-height);
   padding: 0 1rem;
-  background: var(--primary-color);
-  color: white;
-  border: none;
+  background: var(--member-add-btn-bg);
+  color: var(--member-add-btn-text);
+  border: 1px solid var(--member-add-btn-border);
   border-radius: 6px;
   cursor: pointer;
   font-weight: 500;
@@ -1028,7 +1054,7 @@ h2 {
 }
 
 .add-btn:hover {
-  background: var(--primary-dark);
+  background: var(--member-add-btn-hover-bg);
   transform: translateY(-1px);
 }
 
@@ -1095,16 +1121,19 @@ h2 {
   border-radius: 4px;
   font-size: 0.8rem;
   font-weight: 500;
+  border: 1px solid transparent;
 }
 
 .status-badge.active {
-  background: #e8f5e8;
-  color: #2e7d32;
+  background: var(--member-status-active-bg);
+  border-color: var(--member-status-active-border);
+  color: var(--member-status-active-text);
 }
 
 .status-badge.inactive {
-  background: #ffebee;
-  color: #c62828;
+  background: var(--member-status-inactive-bg);
+  border-color: var(--member-status-inactive-border);
+  color: var(--member-status-inactive-text);
 }
 
 .position-badge {
@@ -1122,8 +1151,9 @@ h2 {
   border-radius: 4px;
   font-size: 0.8rem;
   font-weight: 600;
-  background: #e3f2fd;
-  color: #1565c0;
+  background: var(--member-department-badge-bg);
+  border: 1px solid var(--member-department-badge-border);
+  color: var(--member-department-badge-text);
 }
 
 .member-actions {
