@@ -1,10 +1,12 @@
 <script setup>
 import CsaEmpty from '@/components/CsaEmpty.vue'
+import { useThemeStore } from '@/stores/theme'
 import { useRouter } from 'vue-router'
 import { ref, inject, watch, onMounted } from 'vue'
 
 const router = useRouter()
 const axios = inject('axios')
+const themeStore = useThemeStore()
 
 const data = ref([])
 const loading = ref(true)
@@ -78,7 +80,7 @@ watch([page, size, category], () => {
 </script>
 
 <template>
-    <div class="events-container">
+    <div class="events-container" :class="{ 'is-dark': themeStore.isDark }">
         <!-- 页面标题 -->
         <div class="page-header">
             <h1 class="page-title">活动中心</h1>
@@ -222,7 +224,7 @@ watch([page, size, category], () => {
     transition: background 0.3s ease;
 }
 
-:global(.dark) .events-container {
+.events-container.is-dark {
     background: linear-gradient(155deg, #08111f 0%, #0d1830 28%, #16284b 64%, #233a63 100%);
 }
 
@@ -232,7 +234,7 @@ watch([page, size, category], () => {
     color: #17345f;
 }
 
-:global(.dark) .page-header {
+.events-container.is-dark .page-header {
     color: var(--text-primary);
 }
 
@@ -243,7 +245,7 @@ watch([page, size, category], () => {
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
-:global(.dark) .page-title {
+.events-container.is-dark .page-title {
     color: #e7eef9;
     text-shadow: 0 1px 0 rgba(9, 14, 24, 0.65);
 }
@@ -255,7 +257,7 @@ watch([page, size, category], () => {
     margin: 0;
 }
 
-:global(.dark) .page-subtitle {
+.events-container.is-dark .page-subtitle {
     color: #b7c6d9;
     opacity: 1;
 }
