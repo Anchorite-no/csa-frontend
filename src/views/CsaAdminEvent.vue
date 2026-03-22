@@ -253,10 +253,10 @@ watch([page, size], () => {
     --event-btn-primary-bg: var(--accent-color);
     --event-btn-primary-hover: var(--accent-hover);
     --event-btn-primary-text: #ffffff;
-    --event-btn-warning-bg: #5f9188;
-    --event-btn-warning-bg-hover: #547f77;
-    --event-btn-warning-border: #5f9188;
-    --event-btn-warning-text: #f6fbfa;
+    --event-btn-warning-bg: #7b88b8;
+    --event-btn-warning-bg-hover: #6d7aa8;
+    --event-btn-warning-border: #7b88b8;
+    --event-btn-warning-text: #f8fbff;
     --event-btn-edit-bg: #ecfdf3;
     --event-btn-edit-bg-hover: #ddfbe9;
     --event-btn-edit-border: #a7f3d0;
@@ -275,10 +275,10 @@ watch([page, size], () => {
     --event-btn-primary-bg: #3f8fdf;
     --event-btn-primary-hover: #58a6ee;
     --event-btn-primary-text: #f8fbff;
-    --event-btn-warning-bg: #5a8c84;
-    --event-btn-warning-bg-hover: #639990;
-    --event-btn-warning-border: #5a8c84;
-    --event-btn-warning-text: #f6fbfa;
+    --event-btn-warning-bg: #7389bd;
+    --event-btn-warning-bg-hover: #84a0d8;
+    --event-btn-warning-border: #7389bd;
+    --event-btn-warning-text: #f8fbff;
     --event-btn-edit-bg: rgba(16, 185, 129, 0.18);
     --event-btn-edit-bg-hover: rgba(16, 185, 129, 0.26);
     --event-btn-edit-border: rgba(52, 211, 153, 0.34);
@@ -397,7 +397,7 @@ watch([page, size], () => {
     background: var(--event-btn-warning-bg) !important;
     color: var(--event-btn-warning-text) !important;
     border-color: var(--event-btn-warning-border) !important;
-    box-shadow: 0 10px 20px rgba(95, 145, 136, 0.2);
+    box-shadow: 0 10px 20px rgba(123, 136, 184, 0.2);
 }
 
 :deep(.event-toolbar-btn--warning.p-button:not(:disabled):hover) {
@@ -405,7 +405,7 @@ watch([page, size], () => {
     color: var(--event-btn-warning-text) !important;
     border-color: var(--event-btn-warning-border) !important;
     transform: translateY(-1px);
-    box-shadow: 0 12px 24px rgba(95, 145, 136, 0.28);
+    box-shadow: 0 12px 24px rgba(123, 136, 184, 0.28);
 }
 
 :deep(.event-table-action--edit.p-button) {
