@@ -3514,19 +3514,27 @@ onMounted(() => {
 
 .candidate-item {
   padding: 0.5rem 0;
-  border-bottom: 1px solid var(--border-color);
-  transition: border-color 0.3s ease;
-}
-
-.candidate-item:last-child {
-  border-bottom: none;
 }
 
 .candidate-info {
-  display: flex;
+  position: relative;
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
+  max-width: 100%;
+  padding-bottom: 0.45rem;
+}
+
+.candidate-item:not(:last-child) .candidate-info::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: min(100%, 14rem);
+  height: 1px;
+  background: var(--border-color);
+  transition: background-color 0.3s ease;
 }
 
 .candidate-name {
