@@ -46,6 +46,23 @@ const handlePageChange = event => {
     size.value = event.rows
 }
 
+const handleHorizontalWheel = event => {
+    const container = event.currentTarget
+
+    if (!(container instanceof HTMLElement)) return
+    if (container.scrollWidth <= container.clientWidth + 1) return
+
+    const delta =
+        Math.abs(event.deltaX) > Math.abs(event.deltaY)
+            ? event.deltaX
+            : event.deltaY
+
+    if (!delta) return
+
+    event.preventDefault()
+    container.scrollLeft += delta
+}
+
 const ConfirmDelete = (event, eid) => {
     confirm.require({
         group: 'event-delete',
@@ -154,7 +171,7 @@ watch([page, size], () => {
             class="mb-4 ml-2 event-toolbar-btn event-toolbar-btn--warning"
             @click="ConfirmCleanup"
         ></Button>
-        <div class="overflow-x-auto mb-4">
+        <div class="overflow-x-auto mb-4 table-scroll-wrap" @wheel="handleHorizontalWheel">
             <DataTable :value="data" class="min-w-full">
                 <Column field="eid" header="编号"></Column>
                 <Column field="title" header="标题">
@@ -274,6 +291,10 @@ watch([page, size], () => {
     --event-btn-danger-bg-hover: #ffd9dd;
     --event-btn-danger-border: #f4bcc2;
     --event-btn-danger-text: #c2415b;
+}
+
+.table-scroll-wrap {
+    overflow-y: hidden;
 }
 
 .dark .admin-event-page {

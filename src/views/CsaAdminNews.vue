@@ -45,6 +45,23 @@ const handlePageChange = event => {
     size.value = event.rows
 }
 
+const handleHorizontalWheel = event => {
+    const container = event.currentTarget
+
+    if (!(container instanceof HTMLElement)) return
+    if (container.scrollWidth <= container.clientWidth + 1) return
+
+    const delta =
+        Math.abs(event.deltaX) > Math.abs(event.deltaY)
+            ? event.deltaX
+            : event.deltaY
+
+    if (!delta) return
+
+    event.preventDefault()
+    container.scrollLeft += delta
+}
+
 const ConfirmDelete = (event, nid) => {
     confirm.require({
         group: 'news-delete',
@@ -152,7 +169,8 @@ watch([page, size], () => {
             class="mb-4 ml-2 news-toolbar-btn news-toolbar-btn--warning"
             @click="ConfirmCleanup"
         ></Button>
-        <DataTable :value="data" class="mb-4">
+        <div class="overflow-x-auto mb-4 table-scroll-wrap" @wheel="handleHorizontalWheel">
+        <DataTable :value="data" class="mb-4 min-w-full">
             <Column field="nid" header="编号"></Column>
             <Column field="title" header="标题">
                 <template #body="{ data }">
@@ -210,6 +228,7 @@ watch([page, size], () => {
                 </template>
             </Column>
         </DataTable>
+        </div>
         <div class="pagination-wrapper">
             <Paginator
                 :first="first"
@@ -253,6 +272,10 @@ watch([page, size], () => {
     --news-btn-danger-bg-hover: #ffd9dd;
     --news-btn-danger-border: #f4bcc2;
     --news-btn-danger-text: #c2415b;
+}
+
+.table-scroll-wrap {
+    overflow-y: hidden;
 }
 
 .dark .admin-news-page {

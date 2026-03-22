@@ -45,6 +45,23 @@ const handlePageChange = event => {
     size.value = event.rows
 }
 
+const handleHorizontalWheel = event => {
+    const container = event.currentTarget
+
+    if (!(container instanceof HTMLElement)) return
+    if (container.scrollWidth <= container.clientWidth + 1) return
+
+    const delta =
+        Math.abs(event.deltaX) > Math.abs(event.deltaY)
+            ? event.deltaX
+            : event.deltaY
+
+    if (!delta) return
+
+    event.preventDefault()
+    container.scrollLeft += delta
+}
+
 const ConfirmDelete = (event, uid) => {
     confirm.require({
         target: event.currentTarget,
@@ -206,17 +223,17 @@ watch([page, size], () => {
     </ConfirmDialog>
     <div class="main-part-lg mx-auto admin-user-page">
         <div class="text-3xl font-bold mb-6">用户管理</div>
-        <div class="mb-6 items-center">
-            <InputText type="text" size="small" v-model="s" />
+        <div class="mb-6 user-toolbar">
+            <InputText type="text" size="small" v-model="s" class="user-search-input" />
             <Button
                 label="搜索"
                 icon="pi pi-search"
                 size="small"
-                class="ml-2 user-search-btn"
+                class="user-search-btn"
                 @click="fetchContent"
             ></Button>
         </div>
-        <div class="overflow-x-auto mb-4">
+        <div class="overflow-x-auto mb-4 table-scroll-wrap" @wheel="handleHorizontalWheel">
             <DataTable :value="data" class="min-w-full">
                 <Column field="uid" header="编号"></Column>
                 <Column field="nick" header="姓名">
@@ -294,6 +311,7 @@ watch([page, size], () => {
 }
 
 .admin-user-page {
+    --user-toolbar-control-height: 2.5rem;
     --user-btn-search-bg: var(--accent-color);
     --user-btn-search-bg-hover: var(--accent-hover);
     --user-btn-search-border: var(--accent-color);
@@ -324,6 +342,16 @@ watch([page, size], () => {
 }
 
 /* InputText 组件样式 */
+.user-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+:deep(.user-search-input.p-inputtext) {
+    min-height: var(--user-toolbar-control-height);
+}
+
 :deep(.p-inputtext) {
     background: var(--bg-surface);
     color: var(--text-primary);
@@ -337,7 +365,7 @@ watch([page, size], () => {
 }
 
 :deep(.user-search-btn.p-button) {
-    min-height: 2.5rem;
+    min-height: var(--user-toolbar-control-height);
     padding: 0 1rem !important;
     border-radius: 10px !important;
     border: 1px solid var(--user-btn-search-border) !important;
@@ -359,7 +387,10 @@ watch([page, size], () => {
     background: var(--user-btn-search-bg-hover) !important;
     color: var(--user-btn-search-text) !important;
     border-color: var(--user-btn-search-border) !important;
-    transform: translateY(-1px);
+}
+
+.table-scroll-wrap {
+    overflow-y: hidden;
 }
 
 :deep(.p-datatable-column-title) {

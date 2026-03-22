@@ -1147,6 +1147,19 @@ const getSortIconClass = (field) => {
   return sortOrder.value === 'asc' ? 'pi-angle-up' : 'pi-angle-down';
 };
 
+const handleHorizontalWheel = (event) => {
+  const container = event.currentTarget;
+
+  if (!(container instanceof HTMLElement)) return;
+  if (container.scrollWidth <= container.clientWidth + 1) return;
+
+  const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+  if (!delta) return;
+
+  event.preventDefault();
+  container.scrollLeft += delta;
+};
+
 // 监听筛选条件变化
 const handleFilterChange = () => {
   currentPage.value = 1;
@@ -1172,6 +1185,7 @@ onMounted(async () => {
 
 <template>
   <div class="admin-recruit-container">    
+    <div class="text-3xl font-bold mb-6">纳新管理</div>
     <!-- 筛选条件 -->
     <div class="filter-section">
       <div class="filter-row">
@@ -1272,7 +1286,7 @@ onMounted(async () => {
     </div>
 
     <!-- 数据表格 -->
-    <div class="table-container">
+    <div class="table-container" @wheel="handleHorizontalWheel">
       <table class="recruit-table">
         <thead>
           <tr>
@@ -2194,6 +2208,11 @@ onMounted(async () => {
   background: var(--bg-secondary);
   color: var(--text-primary);
   min-height: 100vh;
+}
+
+.text-3xl {
+  color: var(--text-primary);
+  transition: color 0.3s ease;
 }
 
 .dark .admin-recruit-container {
