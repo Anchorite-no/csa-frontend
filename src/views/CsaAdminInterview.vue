@@ -1824,8 +1824,6 @@ onMounted(() => {
   --interview-refresh-bg-hover: #5f8ce7;
   --interview-refresh-border: #4f7ede;
   --interview-refresh-text: #ffffff;
-  --interview-refresh-shadow: 0 12px 24px rgba(79, 126, 222, 0.24);
-  --interview-refresh-shadow-hover: 0 14px 28px rgba(79, 126, 222, 0.3);
 }
 
 .dark .interview-admin {
@@ -1846,8 +1844,6 @@ onMounted(() => {
   --interview-refresh-bg-hover: #5b95ee;
   --interview-refresh-border: #4b86df;
   --interview-refresh-text: #f8fbff;
-  --interview-refresh-shadow: 0 12px 28px rgba(15, 23, 42, 0.24);
-  --interview-refresh-shadow-hover: 0 14px 32px rgba(15, 23, 42, 0.32);
 }
 
 .page-header {
@@ -1955,14 +1951,13 @@ onMounted(() => {
   background: var(--interview-refresh-bg);
   color: var(--interview-refresh-text);
   white-space: nowrap;
-  box-shadow: var(--interview-refresh-shadow);
+  box-shadow: none;
 }
 
 .refresh-btn:hover {
   background: var(--interview-refresh-bg-hover);
   border-color: var(--interview-refresh-bg-hover);
   color: var(--interview-refresh-text);
-  box-shadow: var(--interview-refresh-shadow-hover);
   transform: translateY(-1px);
 }
 
