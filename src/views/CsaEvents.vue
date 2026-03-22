@@ -215,17 +215,70 @@ watch([page, size, category], () => {
 
 <style scoped>
 .events-container {
+    position: relative;
+    isolation: isolate;
     min-height: 100%;
     box-sizing: border-box;
-    background: var(--gradient-primary);
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 50% -12%, rgba(102, 126, 234, 0.18) 0%, rgba(102, 126, 234, 0) 32%),
+        linear-gradient(180deg, #edf3ff 0%, #f7f9fd 38%, #eef4ff 100%);
     padding: 40px 20px calc(40px + var(--page-footer-gap));
     transition: background 0.3s ease;
+}
+
+.events-container::before,
+.events-container::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.events-container::before {
+    top: 0;
+    width: min(88rem, 96vw);
+    height: 20rem;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(255, 255, 255, 0.78) 0%,
+        rgba(255, 255, 255, 0.22) 42%,
+        rgba(255, 255, 255, 0) 76%
+    );
+    filter: blur(10px);
+}
+
+.events-container::after {
+    top: 12rem;
+    width: min(96rem, 98vw);
+    height: 34rem;
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.32) 0%,
+        rgba(255, 255, 255, 0.12) 26%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    border-radius: 40px;
+    filter: blur(16px);
+    opacity: 0.75;
+}
+
+.events-container > * {
+    position: relative;
+    z-index: 1;
 }
 
 :global(.dark) .events-container {
     background:
         radial-gradient(circle at top center, rgba(96, 165, 250, 0.12) 0%, rgba(96, 165, 250, 0) 30%),
         linear-gradient(180deg, #0f172a 0%, #172335 24%, #1b2738 100%);
+}
+
+:global(.dark) .events-container::before,
+:global(.dark) .events-container::after {
+    display: none;
 }
 
 .page-header {
@@ -773,6 +826,18 @@ watch([page, size, category], () => {
 @media (max-width: 768px) {
     .events-container {
         padding: 20px 15px calc(20px + var(--page-footer-gap));
+    }
+
+    .events-container::before {
+        width: min(40rem, 118vw);
+        height: 13rem;
+    }
+
+    .events-container::after {
+        top: 10rem;
+        width: min(44rem, 116vw);
+        height: 22rem;
+        border-radius: 28px;
     }
     
     .page-title {
