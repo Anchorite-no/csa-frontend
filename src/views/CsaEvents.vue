@@ -223,7 +223,7 @@ watch([page, size, category], () => {
 }
 
 :global(.dark) .events-container {
-    background: linear-gradient(150deg, #0d1626 0%, #152237 34%, #1b2a44 68%, #222f4d 100%);
+    background: linear-gradient(155deg, #08111f 0%, #0d1830 28%, #16284b 64%, #233a63 100%);
 }
 
 .page-header {
