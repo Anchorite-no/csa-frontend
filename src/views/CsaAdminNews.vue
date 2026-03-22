@@ -128,11 +128,11 @@ watch([page, size], () => {
         :nid="operator"
     ></csa-edit-news>
     <ConfirmPopup></ConfirmPopup>
-    <div class="main-part-lg mx-auto">
+    <div class="main-part-lg mx-auto admin-news-page">
         <div class="text-3xl font-bold mb-6">信息管理</div>
         <Button
             label="创建信息"
-            class="mb-4"
+            class="mb-4 news-toolbar-btn news-toolbar-btn--primary"
             @click="
                 () => {
                     show = true
@@ -143,8 +143,7 @@ watch([page, size], () => {
         <Button
             v-if="isManager"
             label="清理废弃草稿"
-            class="mb-4 ml-2"
-            severity="warning"
+            class="mb-4 ml-2 news-toolbar-btn news-toolbar-btn--warning"
             @click="ConfirmCleanup"
         ></Button>
         <DataTable :value="data" class="mb-4">
@@ -161,9 +160,9 @@ watch([page, size], () => {
             </Column>
             <Column field="tag" header="标签">
                 <template #body="{ data }">
-                    <div class="flex gap-1" v-if="data.tag">
+                    <div class="flex gap-1 news-tag-list" v-if="data.tag">
                         <div v-for="tag in data.tag.split(' ')" :key="tag">
-                            <Tag :value="tag" class="text-nowrap"></Tag>
+                            <Tag :value="tag" class="text-nowrap news-tag-pill"></Tag>
                         </div>
                     </div>
                 </template>
@@ -181,7 +180,7 @@ watch([page, size], () => {
                         <Button
                             label="编辑"
                             size="small"
-                            class="whitespace-nowrap"
+                            class="whitespace-nowrap news-table-action news-table-action--edit"
                             @click="
                                 () => {
                                     operator = data.nid
@@ -197,9 +196,8 @@ watch([page, size], () => {
                     <div>
                         <Button
                             label="删除"
-                            severity="danger"
                             size="small"
-                            class="whitespace-nowrap"
+                            class="whitespace-nowrap news-table-action news-table-action--delete"
                             @click="$event => ConfirmDelete($event, data.nid)"
                         ></Button>
                     </div>
@@ -223,6 +221,48 @@ watch([page, size], () => {
 .text-3xl {
     color: var(--text-primary);
     transition: color 0.3s ease;
+}
+
+.admin-news-page {
+    --news-tag-bg: #eef2ff;
+    --news-tag-border: #c7d2fe;
+    --news-tag-text: #4f5fc7;
+    --news-btn-primary-bg: var(--accent-color);
+    --news-btn-primary-hover: var(--accent-hover);
+    --news-btn-primary-text: #ffffff;
+    --news-btn-warning-bg: #fff4db;
+    --news-btn-warning-bg-hover: #ffedc2;
+    --news-btn-warning-border: #f2d08f;
+    --news-btn-warning-text: #9a6700;
+    --news-btn-edit-bg: #eef2ff;
+    --news-btn-edit-bg-hover: #e4e9ff;
+    --news-btn-edit-border: #c7d2fe;
+    --news-btn-edit-text: #4f5fc7;
+    --news-btn-danger-bg: #ffe5e7;
+    --news-btn-danger-bg-hover: #ffd9dd;
+    --news-btn-danger-border: #f4bcc2;
+    --news-btn-danger-text: #c2415b;
+}
+
+.dark .admin-news-page {
+    --news-tag-bg: rgba(96, 165, 250, 0.16);
+    --news-tag-border: rgba(96, 165, 250, 0.28);
+    --news-tag-text: #b9dcff;
+    --news-btn-primary-bg: #3f8fdf;
+    --news-btn-primary-hover: #58a6ee;
+    --news-btn-primary-text: #f8fbff;
+    --news-btn-warning-bg: rgba(245, 158, 11, 0.18);
+    --news-btn-warning-bg-hover: rgba(245, 158, 11, 0.26);
+    --news-btn-warning-border: rgba(245, 158, 11, 0.34);
+    --news-btn-warning-text: #f7c56c;
+    --news-btn-edit-bg: rgba(66, 165, 245, 0.18);
+    --news-btn-edit-bg-hover: rgba(66, 165, 245, 0.26);
+    --news-btn-edit-border: rgba(66, 165, 245, 0.34);
+    --news-btn-edit-text: #8fd1ff;
+    --news-btn-danger-bg: rgba(239, 68, 68, 0.18);
+    --news-btn-danger-bg-hover: rgba(239, 68, 68, 0.26);
+    --news-btn-danger-border: rgba(239, 68, 68, 0.34);
+    --news-btn-danger-text: #ff9aa5;
 }
 
 :deep(.p-datatable-column-title) {
@@ -277,17 +317,113 @@ watch([page, size], () => {
 }
 
 /* 确保表格内的所有文字都使用正确的颜色 */
-:deep(.p-datatable .p-datatable-tbody > tr > td *) {
-    color: var(--text-primary) !important;
+:deep(.p-datatable .p-datatable-tbody > tr > td > div) {
+    color: inherit;
 }
 
 /* 确保按钮和标签等元素也使用正确的颜色 */
-:deep(.p-datatable .p-datatable-tbody > tr > td .p-button) {
-    color: inherit;
+.news-tag-list {
+    flex-wrap: wrap;
 }
 
-:deep(.p-datatable .p-datatable-tbody > tr > td .p-tag) {
-    color: inherit;
+:deep(.news-tag-pill.p-tag) {
+    background: var(--news-tag-bg) !important;
+    color: var(--news-tag-text) !important;
+    border: 1px solid var(--news-tag-border) !important;
+    border-radius: 999px !important;
+    padding: 0.18rem 0.65rem !important;
+    font-weight: 600;
+    box-shadow: none !important;
+}
+
+:deep(.news-tag-pill .p-tag-label) {
+    color: inherit !important;
+    font-weight: inherit;
+}
+
+:deep(.news-toolbar-btn.p-button),
+:deep(.news-table-action.p-button) {
+    border-radius: 10px !important;
+    border: 1px solid transparent !important;
+    font-weight: 600;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+:deep(.news-toolbar-btn.p-button) {
+    min-height: 2.75rem;
+    padding: 0 1.1rem !important;
+}
+
+:deep(.news-table-action.p-button) {
+    min-height: 2.125rem;
+    padding: 0 0.9rem !important;
+    box-shadow: none !important;
+}
+
+:deep(.news-toolbar-btn .p-button-label),
+:deep(.news-toolbar-btn .p-button-icon),
+:deep(.news-table-action .p-button-label),
+:deep(.news-table-action .p-button-icon) {
+    color: inherit !important;
+    font-weight: inherit;
+}
+
+:deep(.news-toolbar-btn--primary.p-button) {
+    background: var(--news-btn-primary-bg) !important;
+    color: var(--news-btn-primary-text) !important;
+    box-shadow: 0 10px 20px rgba(99, 102, 241, 0.18);
+}
+
+:deep(.news-toolbar-btn--primary.p-button:not(:disabled):hover) {
+    background: var(--news-btn-primary-hover) !important;
+    color: var(--news-btn-primary-text) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px rgba(99, 102, 241, 0.24);
+}
+
+:deep(.news-toolbar-btn--warning.p-button) {
+    background: var(--news-btn-warning-bg) !important;
+    color: var(--news-btn-warning-text) !important;
+    border-color: var(--news-btn-warning-border) !important;
+    box-shadow: none !important;
+}
+
+:deep(.news-toolbar-btn--warning.p-button:not(:disabled):hover) {
+    background: var(--news-btn-warning-bg-hover) !important;
+    color: var(--news-btn-warning-text) !important;
+    border-color: var(--news-btn-warning-border) !important;
+    transform: translateY(-1px);
+}
+
+:deep(.news-table-action--edit.p-button) {
+    background: var(--news-btn-edit-bg) !important;
+    color: var(--news-btn-edit-text) !important;
+    border-color: var(--news-btn-edit-border) !important;
+}
+
+:deep(.news-table-action--edit.p-button:not(:disabled):hover) {
+    background: var(--news-btn-edit-bg-hover) !important;
+    color: var(--news-btn-edit-text) !important;
+    border-color: var(--news-btn-edit-border) !important;
+    transform: translateY(-1px);
+}
+
+:deep(.news-table-action--delete.p-button) {
+    background: var(--news-btn-danger-bg) !important;
+    color: var(--news-btn-danger-text) !important;
+    border-color: var(--news-btn-danger-border) !important;
+}
+
+:deep(.news-table-action--delete.p-button:not(:disabled):hover) {
+    background: var(--news-btn-danger-bg-hover) !important;
+    color: var(--news-btn-danger-text) !important;
+    border-color: var(--news-btn-danger-border) !important;
+    transform: translateY(-1px);
 }
 
 .pagination-wrapper {
