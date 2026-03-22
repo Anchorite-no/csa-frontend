@@ -216,8 +216,7 @@ watch([page, size], () => {
                 :rows="size"
                 :totalRecords="total"
                 :rowsPerPageOptions="[10, 20, 30]"
-                template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown CurrentPageReport"
-                currentPageReportTemplate="第 {currentPage} 页，共 {totalPages} 页"
+                template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
                 @page="handlePageChange"
             ></Paginator>
         </div>
