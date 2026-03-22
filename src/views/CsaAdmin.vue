@@ -80,16 +80,16 @@ const menuItems = computed(() =>
 </script>
 
 <template>
-    <div class="admin-layout flex min-h-screen">
+    <div
+        class="admin-layout flex min-h-screen"
+        :class="themeStore.isDark ? 'dark' : ''"
+    >
         <aside
             class="admin-sidebar border-r theme-transition"
-            :class="[
-                themeStore.isDark ? 'dark' : '',
-                { 'is-collapsed': sidebarCollapsed },
-            ]"
+            :class="{ 'is-collapsed': sidebarCollapsed }"
             :style="{
                 backgroundColor: themeStore.isDark
-                    ? 'var(--bg-primary)'
+                    ? 'var(--admin-sidebar-bg)'
                     : 'var(--bg-surface)',
                 borderColor: 'var(--border-color)',
             }"
@@ -121,10 +121,9 @@ const menuItems = computed(() =>
 
         <div
             class="admin-content grow min-w-0 p-8 theme-transition"
-            :class="themeStore.isDark ? 'dark' : ''"
             :style="{
                 backgroundColor: themeStore.isDark
-                    ? 'var(--bg-primary)'
+                    ? 'var(--admin-content-bg)'
                     : 'var(--bg-secondary)',
             }"
         >
@@ -137,6 +136,15 @@ const menuItems = computed(() =>
 .admin-layout {
     width: 100%;
     --admin-sticky-offset: 70px;
+    --admin-sidebar-bg: var(--bg-surface);
+    --admin-content-bg: var(--bg-secondary);
+    background: var(--bg-secondary);
+}
+
+.admin-layout.dark {
+    --admin-sidebar-bg: #202938;
+    --admin-content-bg: #172030;
+    background: #111827;
 }
 
 .admin-sidebar {
@@ -149,6 +157,7 @@ const menuItems = computed(() =>
     height: calc(100vh - var(--admin-sticky-offset));
     display: flex;
     flex-direction: column;
+    box-shadow: inset -1px 0 0 rgba(148, 163, 184, 0.08);
     transition:
         width 0.28s ease,
         min-width 0.28s ease,
@@ -161,6 +170,10 @@ const menuItems = computed(() =>
     width: 5rem;
     min-width: 5rem;
     flex-basis: 5rem;
+}
+
+.admin-content {
+    min-height: calc(100vh - var(--admin-sticky-offset));
 }
 
 .admin-sidebar__header {
