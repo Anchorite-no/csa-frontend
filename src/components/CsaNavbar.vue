@@ -160,16 +160,17 @@ watch(
 
 /* 深色模式下的导航栏样式 */
 .dark .fixed-nav {
-    background-color: rgba(30, 30, 30, 0.95);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    --nav-action-border: rgba(255, 255, 255, 0.12);
-    --nav-action-border-hover: rgba(255, 255, 255, 0.18);
-    --nav-action-bg: rgba(255, 255, 255, 0.06);
-    --nav-action-bg-hover: rgba(255, 255, 255, 0.1);
-    --nav-action-color: var(--text-primary);
-    --nav-action-color-hover: var(--text-primary);
-    --nav-action-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
-    --nav-action-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.24);
+    background-color: rgba(15, 23, 42, 0.88);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    box-shadow: 0 10px 28px rgba(2, 6, 23, 0.24);
+    --nav-action-border: rgba(148, 163, 184, 0.18);
+    --nav-action-border-hover: rgba(129, 140, 248, 0.24);
+    --nav-action-bg: rgba(255, 255, 255, 0.04);
+    --nav-action-bg-hover: rgba(255, 255, 255, 0.08);
+    --nav-action-color: #cbd5e1;
+    --nav-action-color-hover: #f8fafc;
+    --nav-action-shadow: none;
+    --nav-action-shadow-hover: none;
 }
 
 .dark .fixed-nav.fixed-nav--admin {

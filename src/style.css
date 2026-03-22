@@ -39,19 +39,19 @@ html.dark {
 
 /* 深色主题变量 */
 .dark {
-    --bg-primary: #121212;
-    --bg-secondary: #1e1e1e;
-    --bg-surface: #2d2d2d;
-    --bg-surface-rgb: 45, 45, 45;
-    --text-primary: #ffffff;
-    --text-secondary: #b0b0b0;
-    --border-color: #404040;
-    --shadow-color: rgba(0, 0, 0, 0.3);
-    --accent-color: #42a5f5;
-    --accent-hover: #64b5f6;
-    --scrollbar-track: #242a33;
-    --scrollbar-thumb: #4d5c71;
-    --scrollbar-thumb-hover: #647791;
+    --bg-primary: #0f172a;
+    --bg-secondary: #172335;
+    --bg-surface: #233147;
+    --bg-surface-rgb: 35, 49, 71;
+    --text-primary: #f8fafc;
+    --text-secondary: #9eb0c7;
+    --border-color: rgba(148, 163, 184, 0.18);
+    --shadow-color: rgba(2, 6, 23, 0.34);
+    --accent-color: #60a5fa;
+    --accent-hover: #7cb9ff;
+    --scrollbar-track: #152031;
+    --scrollbar-thumb: #425671;
+    --scrollbar-thumb-hover: #58708f;
     /* 暗黑主题渐变 */
     --gradient-primary: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
     --gradient-primary-reverse: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent-color) 100%);
