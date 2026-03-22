@@ -1819,6 +1819,13 @@ onMounted(() => {
   --interview-table-action-delete-border: rgba(220, 38, 38, 0.22);
   --interview-table-action-delete-text: #b91c1c;
   --interview-table-action-shadow: 0 10px 24px -18px rgba(15, 23, 42, 0.45);
+  --interview-header-toolbar-height: calc(2.5rem + 1rem + 2px);
+  --interview-refresh-bg: #4f7ede;
+  --interview-refresh-bg-hover: #5f8ce7;
+  --interview-refresh-border: #4f7ede;
+  --interview-refresh-text: #ffffff;
+  --interview-refresh-shadow: 0 12px 24px rgba(79, 126, 222, 0.24);
+  --interview-refresh-shadow-hover: 0 14px 28px rgba(79, 126, 222, 0.3);
 }
 
 .dark .interview-admin {
@@ -1835,6 +1842,12 @@ onMounted(() => {
   --interview-table-action-delete-border: rgba(248, 113, 113, 0.22);
   --interview-table-action-delete-text: #fecaca;
   --interview-table-action-shadow: 0 10px 24px -20px rgba(2, 6, 23, 0.85);
+  --interview-refresh-bg: #4b86df;
+  --interview-refresh-bg-hover: #5b95ee;
+  --interview-refresh-border: #4b86df;
+  --interview-refresh-text: #f8fbff;
+  --interview-refresh-shadow: 0 12px 28px rgba(15, 23, 42, 0.24);
+  --interview-refresh-shadow-hover: 0 14px 32px rgba(15, 23, 42, 0.32);
 }
 
 .page-header {
@@ -1870,6 +1883,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  min-height: var(--interview-header-toolbar-height);
   background: var(--bg-surface);
   padding: 0.5rem 1rem;
   border-radius: 8px;
@@ -1934,13 +1948,32 @@ onMounted(() => {
 }
 
 .refresh-btn {
-  background: #2196f3;
-  color: white;
+  min-height: var(--interview-header-toolbar-height);
+  padding: 0 1.1rem;
+  border: 1px solid var(--interview-refresh-border);
+  border-radius: 12px;
+  background: var(--interview-refresh-bg);
+  color: var(--interview-refresh-text);
+  white-space: nowrap;
+  box-shadow: var(--interview-refresh-shadow);
 }
 
 .refresh-btn:hover {
-  background: #1976d2;
+  background: var(--interview-refresh-bg-hover);
+  border-color: var(--interview-refresh-bg-hover);
+  color: var(--interview-refresh-text);
+  box-shadow: var(--interview-refresh-shadow-hover);
   transform: translateY(-1px);
+}
+
+.refresh-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 14%, transparent);
+}
+
+.refresh-btn i,
+.refresh-btn span {
+  color: inherit;
 }
 
 .auto-schedule-btn {

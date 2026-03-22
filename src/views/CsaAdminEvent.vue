@@ -50,7 +50,12 @@ const handleHorizontalWheel = event => {
     const container = event.currentTarget
 
     if (!(container instanceof HTMLElement)) return
-    if (container.scrollWidth <= container.clientWidth + 1) return
+
+    const scrollTarget =
+        container.querySelector('.p-datatable-table-container') ?? container
+
+    if (!(scrollTarget instanceof HTMLElement)) return
+    if (scrollTarget.scrollWidth <= scrollTarget.clientWidth + 1) return
 
     const delta =
         Math.abs(event.deltaX) > Math.abs(event.deltaY)
@@ -60,7 +65,7 @@ const handleHorizontalWheel = event => {
     if (!delta) return
 
     event.preventDefault()
-    container.scrollLeft += delta
+    scrollTarget.scrollLeft += delta
 }
 
 const ConfirmDelete = (event, eid) => {
@@ -300,6 +305,12 @@ watch([page, size], () => {
 }
 
 .table-scroll-wrap {
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.table-scroll-wrap :deep(.p-datatable-table-container) {
+    overflow-x: auto;
     overflow-y: hidden;
 }
 
