@@ -223,9 +223,7 @@ watch([page, size, category], () => {
 }
 
 :global(.dark) .events-container {
-    background:
-        radial-gradient(circle at top center, rgba(96, 165, 250, 0.12) 0%, rgba(96, 165, 250, 0) 30%),
-        linear-gradient(180deg, #0f172a 0%, #172335 24%, #1b2738 100%);
+    background: linear-gradient(150deg, #0d1626 0%, #152237 34%, #1b2a44 68%, #222f4d 100%);
 }
 
 .page-header {
