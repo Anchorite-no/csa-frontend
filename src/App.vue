@@ -1,16 +1,25 @@
 <template>
-    <csa-navbar />
-    <div class="main-content-area">
+    <csa-navbar v-if="!immersiveShell" />
+    <div
+        class="main-content-area"
+        :class="{ 'main-content-area--immersive': immersiveShell }"
+    >
         <router-view />
     </div>
-    <csa-footer />
+    <csa-footer v-if="!immersiveShell" />
     <ConfirmDialog />
 </template>
 
 <script setup>
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+
 import CsaNavbar from './components/CsaNavbar.vue'
 import CsaFooter from './components/CsaFooter.vue'
 import ConfirmDialog from 'primevue/confirmdialog'
+
+const route = useRoute()
+const immersiveShell = computed(() => Boolean(route.meta?.immersiveShell))
 </script>
 
 <style>
@@ -49,5 +58,10 @@ body {
 .main-content-area > * {
     flex: 1 0 auto;
     width: 100%;
+}
+
+.main-content-area--immersive {
+    padding-top: 0;
+    --page-footer-gap: 0px;
 }
 </style>

@@ -108,6 +108,7 @@ const router = createRouter({
                     component: () => import('../experiments/gsap/GsapLabView.vue'),
                     meta: {
                         title: 'GSAP 实验',
+                        immersiveShell: true,
                     },
                 },
             ],

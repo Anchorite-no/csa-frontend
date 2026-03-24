@@ -203,6 +203,15 @@ onUnmounted(() => {
 
 <template>
     <div ref="rootRef" class="gsap-lab">
+        <header class="gsap-lab__chrome">
+            <RouterLink class="gsap-lab__brand" to="/">
+                <span class="gsap-lab__brand-mark"></span>
+                <span>ZJUCSA Motion Lab</span>
+            </RouterLink>
+
+            <a class="gsap-lab__chrome-link" href="#gsap-lab-sections">Skip to Sections</a>
+        </header>
+
         <section class="gsap-lab__hero">
             <div class="gsap-lab__grid"></div>
             <div class="gsap-lab__sweep"></div>
@@ -333,6 +342,42 @@ onUnmounted(() => {
                 </div>
             </section>
         </main>
+
+        <footer class="gsap-lab__footer">
+            <div class="gsap-lab__footer-shell gsap-lab__reveal">
+                <div class="gsap-lab__footer-copy">
+                    <p class="gsap-lab__footer-kicker">Portal Footer / Registry</p>
+                    <h2>让备案与门户身份一起收口，而不是像另一块外置底栏。</h2>
+                    <p>
+                        这个区域后续可以继续做成更像协会门户的收束段落，既保留学校与协会信息，
+                        也保留备案、地址和快速返回入口。
+                    </p>
+                </div>
+
+                <div class="gsap-lab__footer-meta">
+                    <div class="gsap-lab__footer-card">
+                        <p class="gsap-lab__footer-label">Association</p>
+                        <p>浙江大学学生网络空间安全协会</p>
+                    </div>
+                    <div class="gsap-lab__footer-card">
+                        <p class="gsap-lab__footer-label">Address</p>
+                        <p>浙江大学紫金港校区蒙民伟楼 226 室</p>
+                    </div>
+                    <div class="gsap-lab__footer-card">
+                        <p class="gsap-lab__footer-label">Registry</p>
+                        <p>浙 ICP 备 05074421 号-1</p>
+                        <p>浙公网安备 33010602010295</p>
+                    </div>
+                </div>
+
+                <div class="gsap-lab__footer-bottom">
+                    <span>&copy; {{ new Date().getFullYear() }} Zhejiang University</span>
+                    <RouterLink class="gsap-lab__footer-link" to="/">
+                        返回主站首页
+                    </RouterLink>
+                </div>
+            </div>
+        </footer>
     </div>
 </template>
 
@@ -357,9 +402,74 @@ onUnmounted(() => {
     color: var(--lab-text);
 }
 
+.gsap-lab__chrome {
+    position: fixed;
+    top: 1.1rem;
+    left: 50%;
+    z-index: 12;
+    width: min(100% - 2rem, 1180px);
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    pointer-events: none;
+}
+
+.gsap-lab__brand,
+.gsap-lab__chrome-link {
+    pointer-events: auto;
+}
+
+.gsap-lab__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 2.8rem;
+    padding: 0.65rem 1rem;
+    border-radius: 999px;
+    border: 1px solid rgba(88, 197, 255, 0.18);
+    background: rgba(6, 17, 29, 0.66);
+    color: var(--lab-text);
+    text-decoration: none;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 12px 32px rgba(2, 6, 23, 0.28);
+}
+
+.gsap-lab__brand-mark {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #35b7ff 0%, #4e72ff 100%);
+    box-shadow: 0 0 18px rgba(88, 197, 255, 0.4);
+}
+
+.gsap-lab__chrome-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.8rem;
+    padding: 0.65rem 1rem;
+    border-radius: 999px;
+    border: 1px solid rgba(88, 197, 255, 0.12);
+    background: rgba(6, 17, 29, 0.52);
+    color: rgba(239, 247, 255, 0.78);
+    text-decoration: none;
+    backdrop-filter: blur(18px);
+    transition:
+        transform 0.24s ease,
+        border-color 0.24s ease,
+        color 0.24s ease;
+}
+
+.gsap-lab__chrome-link:hover {
+    transform: translateY(-2px);
+    border-color: rgba(88, 197, 255, 0.26);
+    color: var(--lab-text);
+}
+
 .gsap-lab__hero {
     position: relative;
-    min-height: calc(100vh - 70px);
+    min-height: 100vh;
     padding: clamp(4.5rem, 9vw, 7rem) clamp(1.4rem, 3.2vw, 2.8rem)
         clamp(3rem, 7vw, 5rem);
     display: grid;
@@ -611,7 +721,7 @@ onUnmounted(() => {
     display: flex;
     flex-direction: column;
     gap: 1.2rem;
-    padding: 0 clamp(1.2rem, 3vw, 2.6rem) calc(4rem + var(--page-footer-gap));
+    padding: 0 clamp(1.2rem, 3vw, 2.6rem) 3rem;
 }
 
 .gsap-lab__section {
@@ -759,6 +869,81 @@ onUnmounted(() => {
     font-size: 0.78rem;
 }
 
+.gsap-lab__footer {
+    padding: 0 clamp(1.2rem, 3vw, 2.6rem) clamp(1.2rem, 3vw, 2.4rem);
+}
+
+.gsap-lab__footer-shell {
+    display: grid;
+    gap: 1.2rem;
+    padding: clamp(1.4rem, 2vw, 2rem);
+    border-radius: 30px;
+    border: 1px solid var(--lab-line);
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 38%),
+        rgba(7, 15, 29, 0.9);
+    box-shadow: 0 18px 44px rgba(2, 6, 23, 0.26);
+}
+
+.gsap-lab__footer-copy h2 {
+    margin: 0.35rem 0 0.8rem;
+    font-size: clamp(1.5rem, 3vw, 2.15rem);
+    line-height: 1.14;
+}
+
+.gsap-lab__footer-copy p {
+    margin: 0;
+    color: var(--lab-muted);
+    line-height: 1.75;
+}
+
+.gsap-lab__footer-kicker,
+.gsap-lab__footer-label {
+    margin: 0;
+    color: var(--lab-accent);
+    font-size: 0.78rem;
+    font-family: 'IBM Plex Mono', 'JetBrains Mono', 'Cascadia Code', monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.gsap-lab__footer-meta {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.gsap-lab__footer-card {
+    min-height: 100%;
+    padding: 1rem 1.05rem;
+    border-radius: 20px;
+    border: 1px solid rgba(88, 197, 255, 0.12);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.gsap-lab__footer-card p + p {
+    margin-top: 0.45rem;
+}
+
+.gsap-lab__footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 0.2rem;
+    color: rgba(239, 247, 255, 0.68);
+    border-top: 1px solid rgba(88, 197, 255, 0.1);
+}
+
+.gsap-lab__footer-link {
+    color: var(--lab-text);
+    text-decoration: none;
+}
+
+.gsap-lab__footer-link:hover {
+    color: var(--lab-accent);
+}
+
 @media (max-width: 1120px) {
     .gsap-lab__hero,
     .gsap-lab__section {
@@ -768,12 +953,23 @@ onUnmounted(() => {
     .gsap-lab__title {
         max-width: 11ch;
     }
+
+    .gsap-lab__footer-meta {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 760px) {
+    .gsap-lab__chrome {
+        top: 0.8rem;
+        width: calc(100% - 1.2rem);
+        flex-direction: column;
+        align-items: stretch;
+    }
+
     .gsap-lab__hero {
         min-height: auto;
-        padding-top: 4rem;
+        padding-top: 7.4rem;
     }
 
     .gsap-lab__panel-metrics,
@@ -783,6 +979,11 @@ onUnmounted(() => {
 
     .gsap-lab__timeline-shell {
         grid-template-columns: 18px minmax(0, 1fr);
+    }
+
+    .gsap-lab__footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
     }
 }
 </style>
