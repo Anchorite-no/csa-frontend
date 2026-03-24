@@ -107,7 +107,7 @@ const router = createRouter({
                     name: 'experiment-gsap',
                     component: () => import('../experiments/gsap/GsapLabView.vue'),
                     meta: {
-                        title: 'GSAP 实验',
+                        title: 'ZJU CSA Motion',
                         immersiveShell: true,
                     },
                 },
