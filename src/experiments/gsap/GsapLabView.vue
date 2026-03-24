@@ -6,15 +6,20 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 import {
     heroTags,
-    motionChecklist,
     pathwayCards,
     proofCards,
+    signalMarquee,
+    stageCards,
     timelineItems,
 } from './labData'
 
 gsap.registerPlugin(ScrollTrigger)
 
 const rootRef = ref(null)
+const traceRows = Array.from({ length: 6 }, (_, index) => index)
+const panelBars = Array.from({ length: 7 }, (_, index) => index)
+const storyBars = Array.from({ length: 8 }, (_, index) => index)
+const signalMarqueeLoop = [...signalMarquee, ...signalMarquee]
 let ctx
 
 const prefersReducedMotion = () =>
@@ -31,6 +36,7 @@ onMounted(async () => {
         const heroLines = root.querySelectorAll('.gsap-lab__hero-line')
         const heroTagsEls = root.querySelectorAll('.gsap-lab__hero-tag')
         const panel = root.querySelector('.gsap-lab__panel')
+        const metricCards = root.querySelectorAll('.gsap-lab__metric-card')
         const revealBlocks = root.querySelectorAll('.gsap-lab__reveal')
         const pathwayEls = root.querySelectorAll('.gsap-lab__pathway')
         const timelineEls = root.querySelectorAll('.gsap-lab__timeline-item')
@@ -38,16 +44,30 @@ onMounted(async () => {
         const sweep = root.querySelector('.gsap-lab__sweep')
         const radarLine = root.querySelector('.gsap-lab__radar-line')
         const blips = root.querySelectorAll('.gsap-lab__blip')
+        const pulses = root.querySelectorAll('.gsap-lab__pulse')
+        const traces = root.querySelectorAll('.gsap-lab__trace')
+        const panelBarsEls = root.querySelectorAll('.gsap-lab__panel-bar')
+        const marqueeTrack = root.querySelector('.gsap-lab__marquee-track')
+        const storySection = root.querySelector('.gsap-lab__story')
+        const storyInner = root.querySelector('.gsap-lab__story-inner')
+        const storySteps = root.querySelectorAll('.gsap-lab__story-step')
+        const storyNodes = root.querySelectorAll('.gsap-lab__story-node')
+        const storyBeam = root.querySelector('.gsap-lab__story-beam')
+        const storyBarsEls = root.querySelectorAll('.gsap-lab__story-bar')
 
         const reduced = prefersReducedMotion()
 
         gsap.set(heroLines, { y: 36, opacity: 0 })
         gsap.set(heroTagsEls, { y: 20, opacity: 0 })
         gsap.set(panel, { x: 48, opacity: 0, rotateY: -8 })
+        gsap.set(metricCards, { y: 18, opacity: 0 })
         gsap.set(revealBlocks, { y: 48, opacity: 0 })
         gsap.set(pathwayEls, { y: 36, opacity: 0 })
         gsap.set(timelineEls, { x: 32, opacity: 0 })
         gsap.set(timelineFill, { scaleY: 0, transformOrigin: 'top center' })
+        gsap.set(storySteps, { y: 24, opacity: 0.22 })
+        gsap.set(storyNodes, { scale: 0.76, opacity: 0.24 })
+        gsap.set(storyBarsEls, { scaleY: 0.18, transformOrigin: 'bottom center' })
 
         const intro = gsap.timeline({ defaults: { ease: 'power3.out' } })
 
@@ -77,6 +97,16 @@ onMounted(async () => {
                     duration: 1,
                 },
                 '-=0.7'
+            )
+            .to(
+                metricCards,
+                {
+                    y: 0,
+                    opacity: 1,
+                    duration: 0.48,
+                    stagger: 0.08,
+                },
+                '-=0.55'
             )
 
         if (!reduced && sweep) {
@@ -109,6 +139,54 @@ onMounted(async () => {
                 yoyo: true,
                 stagger: 0.22,
                 ease: 'sine.inOut',
+            })
+        }
+
+        if (!reduced && pulses.length) {
+            gsap.to(pulses, {
+                scale: 1.42,
+                opacity: 0,
+                duration: 2.8,
+                repeat: -1,
+                stagger: 0.8,
+                ease: 'power1.out',
+            })
+        }
+
+        if (!reduced && traces.length) {
+            gsap.fromTo(
+                traces,
+                { xPercent: -110, opacity: 0 },
+                {
+                    xPercent: 125,
+                    opacity: 0.82,
+                    duration: 2.1,
+                    repeat: -1,
+                    stagger: 0.2,
+                    ease: 'none',
+                }
+            )
+        }
+
+        if (!reduced && panelBarsEls.length) {
+            gsap.to(panelBarsEls, {
+                scaleY: index =>
+                    [0.32, 0.86, 0.56, 1.02, 0.74, 0.94, 0.42][index % 7],
+                duration: 1.15,
+                repeat: -1,
+                yoyo: true,
+                stagger: 0.11,
+                ease: 'sine.inOut',
+                transformOrigin: 'bottom center',
+            })
+        }
+
+        if (!reduced && marqueeTrack) {
+            gsap.to(marqueeTrack, {
+                xPercent: -50,
+                duration: 18,
+                repeat: -1,
+                ease: 'none',
             })
         }
 
@@ -192,6 +270,88 @@ onMounted(async () => {
                 delay: reduced ? 0 : index * 0.04,
             })
         })
+
+        if (storySection && storyInner && storySteps.length && storyNodes.length) {
+            const storyTimeline = gsap.timeline({
+                defaults: { ease: 'power2.inOut' },
+                scrollTrigger: {
+                    trigger: storySection,
+                    start: 'top top',
+                    end: reduced ? 'bottom bottom' : '+=220%',
+                    scrub: reduced ? false : true,
+                    pin: storyInner,
+                },
+            })
+
+            storyTimeline.to(
+                storyBeam,
+                {
+                    left: '84%',
+                    duration: stageCards.length,
+                    ease: 'none',
+                },
+                0
+            )
+
+            stageCards.forEach((_, index) => {
+                const position = index
+
+                storyTimeline.to(
+                    storySteps[index],
+                    {
+                        y: 0,
+                        opacity: 1,
+                        duration: 0.25,
+                    },
+                    position
+                )
+
+                storyTimeline.to(
+                    storyNodes[index],
+                    {
+                        scale: 1.25,
+                        opacity: 1,
+                        duration: 0.25,
+                    },
+                    position
+                )
+
+                storyTimeline.to(
+                    storyBarsEls,
+                    {
+                        scaleY: barIndex =>
+                            [0.28, 0.56, 0.92, 0.38, 1.08, 0.72, 0.44, 0.86][
+                                (barIndex + index) % 8
+                            ],
+                        duration: 0.34,
+                        stagger: 0.02,
+                    },
+                    position
+                )
+
+                if (index > 0) {
+                    storyTimeline.to(
+                        storySteps[index - 1],
+                        {
+                            y: -12,
+                            opacity: 0.28,
+                            duration: 0.2,
+                        },
+                        position
+                    )
+
+                    storyTimeline.to(
+                        storyNodes[index - 1],
+                        {
+                            scale: 0.84,
+                            opacity: 0.3,
+                            duration: 0.2,
+                        },
+                        position
+                    )
+                }
+            })
+        }
     }, root)
 })
 
@@ -217,13 +377,13 @@ onUnmounted(() => {
             <div class="gsap-lab__sweep"></div>
 
             <div class="gsap-lab__hero-copy">
-                <p class="gsap-lab__eyebrow gsap-lab__hero-line">GSAP Motion Lab / CSA</p>
+                <p class="gsap-lab__eyebrow gsap-lab__hero-line">ZJUCSA / GSAP HOME LAB</p>
                 <h1 class="gsap-lab__title gsap-lab__hero-line">
-                    为网络空间安全协会试一版
-                    <span>更有节奏的首页动效</span>
+                    让协会首页
+                    <span>像一段正在扫描中的门户</span>
                 </h1>
                 <p class="gsap-lab__lead gsap-lab__hero-line">
-                    不改现有正式页面，这里单独试验 GSAP 在首屏氛围、滚动节奏、时间线推进上的效果。
+                    少一点说明文，多一点滚动里的身份感、节奏感和加入感。
                 </p>
 
                 <div class="gsap-lab__tags">
@@ -237,12 +397,12 @@ onUnmounted(() => {
                 </div>
 
                 <div class="gsap-lab__actions gsap-lab__hero-line">
-                    <RouterLink class="gsap-lab__button gsap-lab__button--primary" to="/">
-                        返回现网站首页
-                    </RouterLink>
-                    <a class="gsap-lab__button gsap-lab__button--ghost" href="#gsap-lab-sections">
-                        继续查看实验段落
+                    <a class="gsap-lab__button gsap-lab__button--primary" href="#gsap-lab-story">
+                        进入滚动实验
                     </a>
+                    <RouterLink class="gsap-lab__button gsap-lab__button--ghost" to="/">
+                        返回主站首页
+                    </RouterLink>
                 </div>
             </div>
 
@@ -250,11 +410,22 @@ onUnmounted(() => {
                 <div class="gsap-lab__panel-shell">
                     <div class="gsap-lab__panel-top">
                         <span>SCAN MODE</span>
-                        <span>ZJUCSA</span>
+                        <span>LIVE SIGNAL</span>
                     </div>
                     <div class="gsap-lab__panel-screen">
                         <div class="gsap-lab__ring"></div>
                         <div class="gsap-lab__radar-line"></div>
+                        <span class="gsap-lab__pulse gsap-lab__pulse--one"></span>
+                        <span class="gsap-lab__pulse gsap-lab__pulse--two"></span>
+                        <span class="gsap-lab__pulse gsap-lab__pulse--three"></span>
+                        <div class="gsap-lab__trace-grid">
+                            <span
+                                v-for="row in traceRows"
+                                :key="row"
+                                class="gsap-lab__trace"
+                                :style="{ top: `${20 + row * 10}%` }"
+                            ></span>
+                        </div>
                         <span class="gsap-lab__blip gsap-lab__blip--one"></span>
                         <span class="gsap-lab__blip gsap-lab__blip--two"></span>
                         <span class="gsap-lab__blip gsap-lab__blip--three"></span>
@@ -271,6 +442,71 @@ onUnmounted(() => {
                             <p>{{ card.description }}</p>
                         </article>
                     </div>
+
+                    <div class="gsap-lab__panel-bars">
+                        <span
+                            v-for="bar in panelBars"
+                            :key="bar"
+                            class="gsap-lab__panel-bar"
+                        ></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="gsap-lab__marquee" aria-label="signal marquee">
+            <div class="gsap-lab__marquee-track">
+                <span
+                    v-for="(item, index) in signalMarqueeLoop"
+                    :key="`${item}-${index}`"
+                    class="gsap-lab__marquee-item"
+                >
+                    {{ item }}
+                </span>
+            </div>
+        </section>
+
+        <section id="gsap-lab-story" class="gsap-lab__story">
+            <div class="gsap-lab__story-inner">
+                <div class="gsap-lab__story-copy">
+                    <p class="gsap-lab__section-kicker">Scroll Story</p>
+                    <h2>把“关于我们”变成滚动里的进入过程。</h2>
+
+                    <div class="gsap-lab__story-steps">
+                        <article
+                            v-for="step in stageCards"
+                            :key="step.id"
+                            class="gsap-lab__story-step"
+                        >
+                            <p class="gsap-lab__story-step-index">{{ step.step }}</p>
+                            <h3>{{ step.title }}</h3>
+                            <p>{{ step.body }}</p>
+                        </article>
+                    </div>
+                </div>
+
+                <div class="gsap-lab__story-shell">
+                    <div class="gsap-lab__story-top">
+                        <span>MISSION FLOW</span>
+                        <span>ZJUCSA</span>
+                    </div>
+                    <div class="gsap-lab__story-network">
+                        <div class="gsap-lab__story-rail"></div>
+                        <span
+                            v-for="(step, index) in stageCards"
+                            :key="`${step.id}-node`"
+                            class="gsap-lab__story-node"
+                            :style="{ left: `${14 + index * 23}%` }"
+                        ></span>
+                        <div class="gsap-lab__story-beam"></div>
+                    </div>
+                    <div class="gsap-lab__story-bars">
+                        <span
+                            v-for="bar in storyBars"
+                            :key="bar"
+                            class="gsap-lab__story-bar"
+                        ></span>
+                    </div>
                 </div>
             </div>
         </section>
@@ -278,30 +514,8 @@ onUnmounted(() => {
         <main id="gsap-lab-sections" class="gsap-lab__sections">
             <section class="gsap-lab__section gsap-lab__reveal">
                 <div class="gsap-lab__section-copy">
-                    <p class="gsap-lab__section-kicker">为什么这更像网安协会</p>
-                    <h2>首页不该只是资讯入口，还应该先建立组织身份。</h2>
-                    <p>
-                        这版实验把动效重点放在“身份识别、可信证据、成长路径、时间线推进”四件事上。
-                        动起来，但不躁动；有技术感，但不做成黑客电影。
-                    </p>
-                </div>
-
-                <div class="gsap-lab__checklist">
-                    <div
-                        v-for="item in motionChecklist"
-                        :key="item"
-                        class="gsap-lab__checklist-item"
-                    >
-                        <span class="gsap-lab__checklist-mark"></span>
-                        <span>{{ item }}</span>
-                    </div>
-                </div>
-            </section>
-
-            <section class="gsap-lab__section gsap-lab__reveal">
-                <div class="gsap-lab__section-copy">
-                    <p class="gsap-lab__section-kicker">成长路径</p>
-                    <h2>竞赛、科研、宣教、活动运营，都可以成为首页里的清晰入口。</h2>
+                    <p class="gsap-lab__section-kicker">Paths</p>
+                    <h2>四条入口，直接告诉访客能做什么。</h2>
                 </div>
 
                 <div class="gsap-lab__pathways-grid">
@@ -319,8 +533,8 @@ onUnmounted(() => {
 
             <section class="gsap-lab__section gsap-lab__reveal">
                 <div class="gsap-lab__section-copy">
-                    <p class="gsap-lab__section-kicker">发展历程</p>
-                    <h2>时间线是最适合用 GSAP 先做出“滚动参与感”的模块。</h2>
+                    <p class="gsap-lab__section-kicker">Timeline</p>
+                    <h2>时间线继续保留，但要更像正在推进的协会脉搏。</h2>
                 </div>
 
                 <div class="gsap-lab__timeline-shell">
@@ -347,11 +561,7 @@ onUnmounted(() => {
             <div class="gsap-lab__footer-shell gsap-lab__reveal">
                 <div class="gsap-lab__footer-copy">
                     <p class="gsap-lab__footer-kicker">Portal Footer / Registry</p>
-                    <h2>让备案与门户身份一起收口，而不是像另一块外置底栏。</h2>
-                    <p>
-                        这个区域后续可以继续做成更像协会门户的收束段落，既保留学校与协会信息，
-                        也保留备案、地址和快速返回入口。
-                    </p>
+                    <h2>备案、地址、协会身份，也应该留在同一条叙事里。</h2>
                 </div>
 
                 <div class="gsap-lab__footer-meta">
@@ -660,6 +870,45 @@ onUnmounted(() => {
     box-shadow: 0 0 18px rgba(88, 197, 255, 0.55);
 }
 
+.gsap-lab__pulse {
+    position: absolute;
+    inset: 50% auto auto 50%;
+    border-radius: 50%;
+    border: 1px solid rgba(88, 197, 255, 0.18);
+    transform: translate(-50%, -50%);
+    opacity: 0;
+}
+
+.gsap-lab__pulse--one {
+    width: 6rem;
+    height: 6rem;
+}
+
+.gsap-lab__pulse--two {
+    width: 9rem;
+    height: 9rem;
+}
+
+.gsap-lab__pulse--three {
+    width: 12rem;
+    height: 12rem;
+}
+
+.gsap-lab__trace-grid {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+
+.gsap-lab__trace {
+    position: absolute;
+    left: -14%;
+    width: 58%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(136, 222, 255, 0.85), transparent);
+    opacity: 0;
+}
+
 .gsap-lab__blip {
     position: absolute;
     width: 0.7rem;
@@ -691,6 +940,23 @@ onUnmounted(() => {
     margin-top: 1rem;
 }
 
+.gsap-lab__panel-bars {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.5rem;
+    align-items: end;
+    height: 4.8rem;
+    margin-top: 1rem;
+    padding: 0 0.2rem;
+}
+
+.gsap-lab__panel-bar {
+    min-height: 0.7rem;
+    border-radius: 999px 999px 0 0;
+    background: linear-gradient(180deg, rgba(137, 222, 255, 0.95), rgba(88, 197, 255, 0.16));
+    transform-origin: bottom center;
+}
+
 .gsap-lab__metric-card {
     padding: 1rem;
     border-radius: 20px;
@@ -715,6 +981,183 @@ onUnmounted(() => {
     margin: 0;
     color: var(--lab-accent);
     font-size: 0.72rem;
+}
+
+.gsap-lab__marquee {
+    position: relative;
+    overflow: hidden;
+    border-top: 1px solid rgba(88, 197, 255, 0.08);
+    border-bottom: 1px solid rgba(88, 197, 255, 0.08);
+    background: rgba(5, 14, 25, 0.72);
+}
+
+.gsap-lab__marquee-track {
+    display: flex;
+    width: max-content;
+    padding: 1rem 0;
+    will-change: transform;
+}
+
+.gsap-lab__marquee-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0 1.5rem;
+    color: rgba(239, 247, 255, 0.72);
+    font-family: 'IBM Plex Mono', 'JetBrains Mono', 'Cascadia Code', monospace;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+}
+
+.gsap-lab__marquee-item::after {
+    content: '';
+    width: 0.38rem;
+    height: 0.38rem;
+    border-radius: 50%;
+    background: rgba(88, 197, 255, 0.58);
+    box-shadow: 0 0 12px rgba(88, 197, 255, 0.32);
+}
+
+.gsap-lab__story {
+    position: relative;
+    min-height: 260vh;
+    padding: 0 clamp(1.2rem, 3vw, 2.6rem);
+}
+
+.gsap-lab__story-inner {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+    align-items: center;
+    gap: clamp(1.6rem, 4vw, 3.5rem);
+}
+
+.gsap-lab__story-copy h2,
+.gsap-lab__section-copy h2,
+.gsap-lab__footer-copy h2 {
+    margin: 0.4rem 0 0;
+    font-size: clamp(1.9rem, 3.4vw, 2.9rem);
+    line-height: 1.08;
+}
+
+.gsap-lab__story-steps {
+    display: grid;
+    gap: 0.85rem;
+    margin-top: 1.4rem;
+}
+
+.gsap-lab__story-step {
+    padding: 0.95rem 1rem;
+    border-radius: 18px;
+    border: 1px solid rgba(88, 197, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.gsap-lab__story-top,
+.gsap-lab__story-step-index {
+    font-family: 'IBM Plex Mono', 'JetBrains Mono', 'Cascadia Code', monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.gsap-lab__story-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.35rem 0.2rem 0.8rem;
+    color: rgba(150, 183, 212, 0.86);
+    font-size: 0.75rem;
+}
+
+.gsap-lab__story-step-index {
+    margin: 0 0 0.25rem;
+    color: var(--lab-accent);
+    font-size: 0.74rem;
+}
+
+.gsap-lab__story-step h3 {
+    margin: 0;
+    font-size: 1.08rem;
+}
+
+.gsap-lab__story-step p:last-child {
+    margin: 0.4rem 0 0;
+    color: var(--lab-muted);
+    line-height: 1.68;
+}
+
+.gsap-lab__story-shell {
+    position: relative;
+    padding: 1.1rem;
+    border-radius: 28px;
+    border: 1px solid var(--lab-line);
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 28%),
+        rgba(7, 15, 29, 0.88);
+    box-shadow: var(--lab-shadow);
+}
+
+.gsap-lab__story-network {
+    position: relative;
+    min-height: 16rem;
+    border-radius: 22px;
+    overflow: hidden;
+    border: 1px solid rgba(88, 197, 255, 0.12);
+    background:
+        radial-gradient(circle at 18% 20%, rgba(88, 197, 255, 0.12), transparent 30%),
+        radial-gradient(circle at 82% 78%, rgba(88, 197, 255, 0.1), transparent 26%),
+        rgba(255, 255, 255, 0.02);
+}
+
+.gsap-lab__story-rail {
+    position: absolute;
+    top: 50%;
+    left: 12%;
+    right: 12%;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(88, 197, 255, 0.12), rgba(88, 197, 255, 0.42), rgba(88, 197, 255, 0.12));
+}
+
+.gsap-lab__story-node,
+.gsap-lab__story-beam {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+}
+
+.gsap-lab__story-node {
+    width: 1rem;
+    height: 1rem;
+    background: rgba(88, 197, 255, 0.34);
+    box-shadow: 0 0 0 0.6rem rgba(88, 197, 255, 0.04);
+}
+
+.gsap-lab__story-beam {
+    left: 14%;
+    width: 1.25rem;
+    height: 1.25rem;
+    background: #8ad8ff;
+    box-shadow:
+        0 0 0 0.78rem rgba(88, 197, 255, 0.08),
+        0 0 22px rgba(88, 197, 255, 0.46);
+}
+
+.gsap-lab__story-bars {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 0.45rem;
+    align-items: end;
+    height: 6.3rem;
+    margin-top: 1rem;
+    padding: 0 0.2rem;
+}
+
+.gsap-lab__story-bar {
+    min-height: 0.78rem;
+    border-radius: 999px 999px 0 0;
+    background: linear-gradient(180deg, rgba(137, 222, 255, 0.96), rgba(88, 197, 255, 0.14));
+    transform-origin: bottom center;
 }
 
 .gsap-lab__sections {
@@ -946,12 +1389,19 @@ onUnmounted(() => {
 
 @media (max-width: 1120px) {
     .gsap-lab__hero,
+    .gsap-lab__story-inner,
     .gsap-lab__section {
         grid-template-columns: 1fr;
     }
 
     .gsap-lab__title {
         max-width: 11ch;
+    }
+
+    .gsap-lab__story {
+        min-height: auto;
+        padding-top: 2rem;
+        padding-bottom: 2rem;
     }
 
     .gsap-lab__footer-meta {
@@ -975,6 +1425,15 @@ onUnmounted(() => {
     .gsap-lab__panel-metrics,
     .gsap-lab__pathways-grid {
         grid-template-columns: 1fr;
+    }
+
+    .gsap-lab__story-steps {
+        gap: 0.7rem;
+    }
+
+    .gsap-lab__story-bars,
+    .gsap-lab__panel-bars {
+        gap: 0.35rem;
     }
 
     .gsap-lab__timeline-shell {
