@@ -102,6 +102,14 @@ const router = createRouter({
                         title: '招新',
                     },
                 },
+                {
+                    path: 'experiments/gsap',
+                    name: 'experiment-gsap',
+                    component: () => import('../experiments/gsap/GsapLabView.vue'),
+                    meta: {
+                        title: 'GSAP 实验',
+                    },
+                },
             ],
         },
         {
