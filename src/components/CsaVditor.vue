@@ -694,12 +694,18 @@ onBeforeUnmount(() => {
 <style scoped>
 :deep(.csa-vditor-theme-option) {
     position: relative;
+    display: block;
     min-width: 220px;
+    width: 100%;
     padding: 0.75rem 1rem 0.75rem 4.6rem;
     text-align: left;
     font-size: 0.9rem;
     font-weight: 600;
-    color: var(--csa-theme-text);
+    color: color-mix(in srgb, var(--csa-theme-accent) 38%, #1f2937 62%);
+    border-radius: 0.7rem;
+    transition:
+        color 0.18s ease,
+        background 0.18s ease;
 }
 
 :deep(.csa-vditor-theme-option::before) {
@@ -714,19 +720,42 @@ onBeforeUnmount(() => {
     border-radius: 0.55rem;
     background:
         linear-gradient(var(--csa-theme-accent), var(--csa-theme-accent)) 0.45rem 0.45rem / 1rem 0.2rem no-repeat,
-        linear-gradient(var(--csa-theme-text), var(--csa-theme-text)) 0.45rem 0.82rem / 1.45rem 0.16rem no-repeat,
-        linear-gradient(var(--csa-theme-muted), var(--csa-theme-muted)) 0.45rem 1.12rem / 0.95rem 0.14rem no-repeat,
-        linear-gradient(135deg, var(--csa-theme-bg), var(--csa-theme-surface));
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        linear-gradient(
+            color-mix(in srgb, var(--csa-theme-text) 94%, var(--csa-theme-surface) 6%),
+            color-mix(in srgb, var(--csa-theme-text) 94%, var(--csa-theme-surface) 6%)
+        ) 0.45rem 0.82rem / 1.45rem 0.16rem no-repeat,
+        linear-gradient(
+            color-mix(in srgb, var(--csa-theme-muted) 92%, var(--csa-theme-surface) 8%),
+            color-mix(in srgb, var(--csa-theme-muted) 92%, var(--csa-theme-surface) 8%)
+        ) 0.45rem 1.12rem / 0.95rem 0.14rem no-repeat,
+        linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--csa-theme-bg) 96%, black 4%),
+            color-mix(in srgb, var(--csa-theme-surface) 92%, var(--csa-theme-bg) 8%)
+        );
+    box-shadow:
+        0 6px 12px color-mix(in srgb, var(--csa-theme-bg) 16%, transparent),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22);
 }
 
 :deep(.csa-vditor-theme-option:hover) {
-    background: color-mix(in srgb, var(--csa-theme-accent) 10%, transparent);
+    color: color-mix(in srgb, var(--csa-theme-accent) 48%, #111827 52%);
+    background: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--csa-theme-accent) 10%, transparent),
+        transparent 72%
+    );
 }
 
 :deep(.csa-vditor-theme-option--active) {
-    background: color-mix(in srgb, var(--csa-theme-accent) 16%, transparent);
-    color: var(--csa-theme-text);
+    color: color-mix(in srgb, var(--csa-theme-accent) 56%, #111827 44%);
+    background:
+        linear-gradient(
+            90deg,
+            color-mix(in srgb, var(--csa-theme-accent) 16%, transparent),
+            transparent 72%
+        );
+    box-shadow: inset 2px 0 0 color-mix(in srgb, var(--csa-theme-accent) 68%, transparent);
 }
 
 :deep(.csa-vditor-theme-option--active::before) {
