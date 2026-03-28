@@ -347,6 +347,7 @@ const cacheId = nextEditorId()
 let toolbarEnhancementFrameId = 0
 let toolbarEnhancementTimeoutId = 0
 let codeLanguageObserver = null
+let fullscreenClassObserver = null
 const inlineCodeThemeStyleId = 'csa-vditor-hljs-style'
 const contentThemeRootClassPrefix = 'csa-vditor--content-theme-'
 
@@ -381,6 +382,91 @@ const getCurrentContentTheme = () =>
     editor.value?.vditor?.options?.preview?.theme?.current || 'light'
 const getCurrentCodeTheme = () =>
     editor.value?.vditor?.options?.preview?.hljs?.style || 'github'
+
+const findFullscreenContainingBlock = (element) => {
+    let current = element?.parentElement
+
+    while (current && current !== document.body && current !== document.documentElement) {
+        const style = window.getComputedStyle(current)
+        const contain = style.contain || ''
+        const willChange = style.willChange || ''
+
+        if (
+            style.transform !== 'none' ||
+            style.perspective !== 'none' ||
+            style.filter !== 'none' ||
+            style.backdropFilter !== 'none' ||
+            contain.includes('paint') ||
+            contain.includes('layout') ||
+            contain.includes('strict') ||
+            contain.includes('content') ||
+            willChange.includes('transform') ||
+            willChange.includes('perspective') ||
+            willChange.includes('filter')
+        ) {
+            return current
+        }
+
+        current = current.parentElement
+    }
+
+    return null
+}
+
+const clearFullscreenOverrides = () => {
+    const root = editorElement.value
+
+    if (!root) {
+        return
+    }
+
+    ;['top', 'left', 'width', 'height', 'max-width'].forEach((property) => {
+        root.style.removeProperty(property)
+    })
+}
+
+const syncFullscreenPosition = () => {
+    const root = editorElement.value
+
+    if (!root) {
+        return
+    }
+
+    if (!root.classList.contains('vditor--fullscreen')) {
+        clearFullscreenOverrides()
+        return
+    }
+
+    const containingBlock = findFullscreenContainingBlock(root)
+    const rect = containingBlock?.getBoundingClientRect()
+    const offsetTop = rect ? -rect.top : 0
+    const offsetLeft = rect ? -rect.left : 0
+
+    root.style.setProperty('top', `${offsetTop}px`, 'important')
+    root.style.setProperty('left', `${offsetLeft}px`, 'important')
+    root.style.setProperty('width', '100vw', 'important')
+    root.style.setProperty('height', '100vh', 'important')
+    root.style.setProperty('max-width', '100vw', 'important')
+}
+
+const setupFullscreenObserver = () => {
+    fullscreenClassObserver?.disconnect()
+    window.removeEventListener('resize', syncFullscreenPosition)
+
+    if (!editorElement.value) {
+        return
+    }
+
+    fullscreenClassObserver = new MutationObserver(() => {
+        syncFullscreenPosition()
+    })
+    fullscreenClassObserver.observe(editorElement.value, {
+        attributes: true,
+        attributeFilter: ['class'],
+    })
+
+    window.addEventListener('resize', syncFullscreenPosition)
+}
 
 const isCodeLanguageInput = (input) => {
     if (!(input instanceof HTMLInputElement)) {
@@ -830,9 +916,11 @@ onMounted(() => {
         after() {
             syncContentThemeRootClass()
             setupCodeLanguageObserver()
+            setupFullscreenObserver()
             scheduleToolbarEnhancements()
             requestAnimationFrame(() => {
                 refreshCodeThemeInEditor()
+                syncFullscreenPosition()
             })
             emit('after', toRaw(editor.value))
         },
@@ -862,6 +950,7 @@ onMounted(() => {
 
     syncContentThemeRootClass()
     setupCodeLanguageObserver()
+    setupFullscreenObserver()
     scheduleToolbarEnhancements()
 })
 
@@ -875,6 +964,9 @@ watch(
 onBeforeUnmount(() => {
     clearToolbarEnhancementSchedule()
     codeLanguageObserver?.disconnect()
+    fullscreenClassObserver?.disconnect()
+    window.removeEventListener('resize', syncFullscreenPosition)
+    clearFullscreenOverrides()
     editor.value?.destroy()
     editor.value = null
 })
