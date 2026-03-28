@@ -351,6 +351,9 @@ let toolbarEnhancementTimeoutId = 0
 let codeLanguageObserver = null
 let fullscreenClassObserver = null
 let fullscreenScopeElement = null
+let fullscreenPlaceholderElement = null
+let fullscreenPlaceholderHeight = ''
+let lastMeasuredEditorHeight = 0
 const inlineCodeThemeStyleId = 'csa-vditor-hljs-style'
 const contentThemeRootClassPrefix = 'csa-vditor--content-theme-'
 
@@ -450,6 +453,35 @@ const findFullscreenContainingBlock = (element) => {
     return null
 }
 
+const rememberEditorHeight = () => {
+    const root = editorElement.value
+
+    if (!root || root.classList.contains('vditor--fullscreen')) {
+        return
+    }
+
+    const measuredHeight = Math.round(root.getBoundingClientRect().height)
+
+    if (measuredHeight > 0) {
+        lastMeasuredEditorHeight = measuredHeight
+    }
+}
+
+const clearFullscreenPlaceholder = () => {
+    if (!fullscreenPlaceholderElement) {
+        return
+    }
+
+    if (fullscreenPlaceholderHeight) {
+        fullscreenPlaceholderElement.style.setProperty('min-height', fullscreenPlaceholderHeight)
+    } else {
+        fullscreenPlaceholderElement.style.removeProperty('min-height')
+    }
+
+    fullscreenPlaceholderElement = null
+    fullscreenPlaceholderHeight = ''
+}
+
 const clearFullscreenScope = () => {
     fullscreenScopeElement?.classList.remove('csa-vditor-fullscreen-scope')
     fullscreenScopeElement = null
@@ -462,6 +494,7 @@ const clearFullscreenOverrides = () => {
         return
     }
 
+    clearFullscreenPlaceholder()
     clearFullscreenScope()
 
     ;['position', 'top', 'right', 'bottom', 'left', 'width', 'height', 'max-width'].forEach((property) => {
@@ -477,6 +510,7 @@ const syncFullscreenPosition = () => {
     }
 
     if (!root.classList.contains('vditor--fullscreen')) {
+        rememberEditorHeight()
         clearFullscreenOverrides()
         return
     }
@@ -490,6 +524,22 @@ const syncFullscreenPosition = () => {
 
         fullscreenScopeElement = dialogScope
         fullscreenScopeElement.classList.add('csa-vditor-fullscreen-scope')
+
+        if (
+            root.parentElement instanceof HTMLElement &&
+            fullscreenPlaceholderElement !== root.parentElement
+        ) {
+            fullscreenPlaceholderElement = root.parentElement
+            fullscreenPlaceholderHeight =
+                fullscreenPlaceholderElement.style.getPropertyValue('min-height')
+
+            if (lastMeasuredEditorHeight > 0) {
+                fullscreenPlaceholderElement.style.setProperty(
+                    'min-height',
+                    `${lastMeasuredEditorHeight}px`
+                )
+            }
+        }
 
         root.style.setProperty('position', 'absolute', 'important')
         root.style.setProperty('top', '0', 'important')
@@ -998,6 +1048,7 @@ onMounted(() => {
         value: props.modelValue ?? '',
         after() {
             syncContentThemeRootClass()
+            rememberEditorHeight()
             patchCodeLanguageHints()
             setupCodeLanguageObserver()
             setupFullscreenObserver()
@@ -1033,6 +1084,7 @@ onMounted(() => {
     })
 
     syncContentThemeRootClass()
+    rememberEditorHeight()
     patchCodeLanguageHints()
     setupCodeLanguageObserver()
     setupFullscreenObserver()
