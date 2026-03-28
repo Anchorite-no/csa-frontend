@@ -17,6 +17,82 @@ const codeThemeStyles = Object.fromEntries(
     ])
 )
 
+const commonCodeLanguages = [
+    'plaintext',
+    'markdown',
+    'bash',
+    'shell',
+    'powershell',
+    'json',
+    'yaml',
+    'html',
+    'xml',
+    'css',
+    'javascript',
+    'js',
+    'typescript',
+    'ts',
+    'python',
+    'java',
+    'go',
+    'rust',
+    'sql',
+    'php',
+    'cpp',
+    'c',
+    'csharp',
+    'nginx',
+    'ini',
+]
+
+const extendedCodeLanguages = [
+    'mermaid',
+    'echarts',
+    'mindmap',
+    'plantuml',
+    'abc',
+    'graphviz',
+    'flowchart',
+    'apache',
+    'properties',
+    'coffeescript',
+    'diff',
+    'http',
+    'kotlin',
+    'less',
+    'lua',
+    'makefile',
+    'objectivec',
+    'php-template',
+    'perl',
+    'python-repl',
+    'r',
+    'ruby',
+    'scss',
+    'swift',
+    'vbnet',
+    'ada',
+    'clojure',
+    'dart',
+    'erb',
+    'fortran',
+    'gradle',
+    'haskell',
+    'julia',
+    'julia-repl',
+    'lisp',
+    'matlab',
+    'pgsql',
+    'sql_more',
+    'stata',
+    'cmake',
+    'mathematica',
+    'solidity',
+    'yul',
+]
+
+const codeLanguageOptions = [...new Set([...commonCodeLanguages, ...extendedCodeLanguages])]
+
 const toolbarModes = {
     simple: [
         'emoji',
@@ -270,6 +346,7 @@ const isApplyingExternalValue = ref(false)
 const cacheId = nextEditorId()
 let toolbarEnhancementFrameId = 0
 let toolbarEnhancementTimeoutId = 0
+let codeLanguageObserver = null
 const inlineCodeThemeStyleId = 'csa-vditor-hljs-style'
 const contentThemeRootClassPrefix = 'csa-vditor--content-theme-'
 
@@ -304,6 +381,100 @@ const getCurrentContentTheme = () =>
     editor.value?.vditor?.options?.preview?.theme?.current || 'light'
 const getCurrentCodeTheme = () =>
     editor.value?.vditor?.options?.preview?.hljs?.style || 'github'
+
+const isCodeLanguageInput = (input) => {
+    if (!(input instanceof HTMLInputElement)) {
+        return false
+    }
+
+    const languageLabel = window.VditorI18n?.language || 'Language'
+
+    return (
+        input.classList.contains('vditor-input') &&
+        (input.placeholder?.includes(languageLabel) ||
+            input.parentElement?.getAttribute('aria-label')?.includes(languageLabel))
+    )
+}
+
+const renderCodeLanguageHints = (input) => {
+    const vditorState = editor.value?.vditor
+
+    if (!vditorState || !isCodeLanguageInput(input)) {
+        return
+    }
+
+    const cursorIndex = input.selectionStart ?? input.value.length
+    const key = input.value.substring(0, cursorIndex).trim().toLowerCase()
+    const matchLangData = codeLanguageOptions
+        .filter((language) => key === '' || language.includes(key))
+        .slice(0, 8)
+        .map((language) => ({
+            html: language,
+            value: language,
+        }))
+
+    if (matchLangData.length === 0) {
+        vditorState.hint.element.style.display = 'none'
+        return
+    }
+
+    vditorState.hint.genHTML(matchLangData, key, vditorState)
+}
+
+const bindCodeLanguageInput = (input) => {
+    if (!isCodeLanguageInput(input) || input.dataset.codeLanguageHintBound === 'true') {
+        return
+    }
+
+    input.dataset.codeLanguageHintBound = 'true'
+    input.onkeyup = (event) => {
+        if (
+            event.isComposing ||
+            event.key === 'Enter' ||
+            event.key === 'ArrowUp' ||
+            event.key === 'Escape' ||
+            event.key === 'ArrowDown'
+        ) {
+            return
+        }
+
+        renderCodeLanguageHints(input)
+    }
+
+    const openHints = () => {
+        requestAnimationFrame(() => {
+            if (document.activeElement === input) {
+                renderCodeLanguageHints(input)
+            }
+        })
+    }
+
+    input.addEventListener('focus', openHints)
+    input.addEventListener('click', openHints)
+}
+
+const bindCodeLanguageInputs = () => {
+    editorElement.value?.querySelectorAll('input.vditor-input').forEach((input) => {
+        bindCodeLanguageInput(input)
+    })
+}
+
+const setupCodeLanguageObserver = () => {
+    codeLanguageObserver?.disconnect()
+    bindCodeLanguageInputs()
+
+    if (!editorElement.value) {
+        return
+    }
+
+    codeLanguageObserver = new MutationObserver(() => {
+        bindCodeLanguageInputs()
+    })
+    codeLanguageObserver.observe(editorElement.value, {
+        childList: true,
+        subtree: true,
+    })
+}
 
 const syncContentThemeRootClass = () => {
     const root = editorElement.value
@@ -658,6 +829,7 @@ onMounted(() => {
         value: props.modelValue ?? '',
         after() {
             syncContentThemeRootClass()
+            setupCodeLanguageObserver()
             scheduleToolbarEnhancements()
             requestAnimationFrame(() => {
                 refreshCodeThemeInEditor()
@@ -689,6 +861,7 @@ onMounted(() => {
     })
 
     syncContentThemeRootClass()
+    setupCodeLanguageObserver()
     scheduleToolbarEnhancements()
 })
 
@@ -701,6 +874,7 @@ watch(
 
 onBeforeUnmount(() => {
     clearToolbarEnhancementSchedule()
+    codeLanguageObserver?.disconnect()
     editor.value?.destroy()
     editor.value = null
 })
