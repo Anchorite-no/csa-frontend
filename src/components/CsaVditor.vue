@@ -193,6 +193,17 @@ const codeThemeAccentMap = {
     xcode: '#0f62fe',
 }
 
+const nonHljsCodeLanguages = new Set([
+    'abc',
+    'echarts',
+    'flowchart',
+    'graphviz',
+    'math',
+    'mermaid',
+    'mindmap',
+    'plantuml',
+])
+
 const props = defineProps({
     mode: {
         type: String,
@@ -245,6 +256,11 @@ const hintOptions = computed(() => ({
 }))
 
 const getEditorValue = () => editor.value?.getValue?.() ?? ''
+const getEditorThemeMode = () => editor.value?.vditor?.options?.theme || 'classic'
+const getCurrentContentTheme = () =>
+    editor.value?.vditor?.options?.preview?.theme?.current || 'light'
+const getCurrentCodeTheme = () =>
+    editor.value?.vditor?.options?.preview?.hljs?.style || 'github'
 
 const getCodeThemePreviewStyles = (themeName) => {
     const accent = codeThemeAccentMap[themeName] || '#3b82f6'
@@ -303,6 +319,74 @@ const updateActiveThemeButton = (buttons, currentValue, getValue) => {
     })
 }
 
+const getSubmenuPanel = (triggerButton) =>
+    Array.from(triggerButton?.parentElement?.children || []).find(
+        (element) => element.classList?.contains('vditor-hint')
+    )
+
+const refreshCodeThemeInEditor = () => {
+    const instance = editor.value
+    const vditorState = instance?.vditor
+
+    if (!instance || !vditorState) {
+        return
+    }
+
+    const renderedCodeBlocks = editorElement.value?.querySelectorAll(
+        '.vditor-wysiwyg__preview, .vditor-ir__preview'
+    )
+
+    renderedCodeBlocks?.forEach((previewPanel) => {
+        const codeElement = previewPanel.firstElementChild
+
+        if (!(codeElement instanceof HTMLElement)) {
+            return
+        }
+
+        const language = codeElement.className.replace('language-', '')
+
+        if (!language || nonHljsCodeLanguages.has(language)) {
+            return
+        }
+
+        Vditor.highlightRender(
+            { ...vditorState.options.preview.hljs },
+            previewPanel,
+            vditorState.options.cdn
+        )
+        Vditor.codeRender(previewPanel)
+        previewPanel.setAttribute('data-render', '1')
+    })
+
+    if (vditorState.preview?.element?.style.display !== 'none') {
+        instance.renderPreview()
+    }
+}
+
+const applyThemeSelection = ({ contentTheme, codeTheme }) => {
+    const instance = editor.value
+    const vditorState = instance?.vditor
+
+    if (!instance || !vditorState) {
+        return
+    }
+
+    const nextContentTheme = contentTheme || getCurrentContentTheme()
+    const nextCodeTheme = codeTheme || getCurrentCodeTheme()
+
+    instance.setTheme(
+        getEditorThemeMode(),
+        nextContentTheme,
+        nextCodeTheme,
+        vditorState.options.preview.theme.path
+    )
+
+    requestAnimationFrame(() => {
+        refreshCodeThemeInEditor()
+        decorateThemeMenus()
+    })
+}
+
 const keepMoreMenuOpenForNestedThemes = () => {
     const root = editorElement.value
 
@@ -335,12 +419,14 @@ const decorateThemeMenus = () => {
 
     const contentThemeTrigger = root.querySelector('button[data-type="content-theme"]')
     const codeThemeTrigger = root.querySelector('button[data-type="code-theme"]')
+    const contentThemePanel = getSubmenuPanel(contentThemeTrigger)
+    const codeThemePanel = getSubmenuPanel(codeThemeTrigger)
 
     const contentThemeButtons = Array.from(
-        contentThemeTrigger?.parentElement?.querySelectorAll('.vditor-hint button[data-type]') || []
+        contentThemePanel?.querySelectorAll('button[data-type]') || []
     )
     const codeThemeButtons = Array.from(
-        codeThemeTrigger?.parentElement?.querySelectorAll('.vditor-hint button') || []
+        codeThemePanel?.querySelectorAll('button') || []
     )
 
     contentThemeButtons.forEach((button) => {
@@ -388,6 +474,32 @@ const decorateThemeMenus = () => {
 
     bindSelectionState(contentThemeButtons, (button) => button.getAttribute('data-type'))
     bindSelectionState(codeThemeButtons, (button) => button.getAttribute('data-theme-name'))
+
+    contentThemeButtons.forEach((button) => {
+        if (button.dataset.themeApplyBound === 'true') {
+            return
+        }
+
+        button.dataset.themeApplyBound = 'true'
+        button.addEventListener('click', () => {
+            applyThemeSelection({
+                contentTheme: button.getAttribute('data-type'),
+            })
+        })
+    })
+
+    codeThemeButtons.forEach((button) => {
+        if (button.dataset.themeApplyBound === 'true') {
+            return
+        }
+
+        button.dataset.themeApplyBound = 'true'
+        button.addEventListener('click', () => {
+            applyThemeSelection({
+                codeTheme: button.getAttribute('data-theme-name'),
+            })
+        })
+    })
 }
 
 const syncEditorValue = (nextValue) => {
