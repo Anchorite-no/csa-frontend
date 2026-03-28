@@ -1,6 +1,22 @@
 <script setup>
 import Vditor from 'vditor'
 
+const codeThemeStyleModules = import.meta.glob(
+    '../../node_modules/vditor/dist/js/highlight.js/styles/*.css',
+    {
+        eager: true,
+        import: 'default',
+        query: '?raw',
+    }
+)
+
+const codeThemeStyles = Object.fromEntries(
+    Object.entries(codeThemeStyleModules).map(([path, styles]) => [
+        path.match(/\/([^/]+)\.css$/)?.[1] || path,
+        styles,
+    ])
+)
+
 const toolbarModes = {
     simple: [
         'emoji',
@@ -236,15 +252,41 @@ const nextEditorId = () => {
     return `csa-vditor-${editorId}`
 }
 
+const normalizeVditorCdn = (cdn) => {
+    if (!cdn) {
+        return cdn
+    }
+
+    if (cdn.startsWith('https://cdn.jsdelivr.net/npm/')) {
+        return cdn.replace('https://cdn.jsdelivr.net/npm', 'https://unpkg.com')
+    }
+
+    return cdn
+}
+
 const editorElement = ref(null)
 const editor = ref(null)
 const isApplyingExternalValue = ref(false)
 const cacheId = nextEditorId()
+let toolbarEnhancementFrameId = 0
+let toolbarEnhancementTimeoutId = 0
+const inlineCodeThemeStyleId = 'csa-vditor-hljs-style'
 
 const toolbar = computed(() => toolbarModes[props.mode] || toolbarModes.full)
+const resolvedCdn = computed(() => normalizeVditorCdn(props.options?.cdn))
 const previewOptions = computed(() => ({
     actions: ['desktop', 'tablet', 'mobile'],
     ...(props.options?.preview || {}),
+    theme: {
+        ...(props.options?.preview?.theme || {}),
+        ...(props.options?.preview?.theme?.path || resolvedCdn.value
+            ? {
+                  path:
+                      props.options?.preview?.theme?.path ||
+                      `${resolvedCdn.value}/dist/css/content-theme`,
+              }
+            : {}),
+    },
 }))
 const hintOptions = computed(() => ({
     ...(props.options?.hint || {}),
@@ -304,6 +346,26 @@ const getCodeThemePreviewStyles = (themeName) => {
     }
 }
 
+const applyInlineCodeTheme = (themeName) => {
+    const styles = codeThemeStyles[themeName] || codeThemeStyles.github
+
+    if (!styles) {
+        return
+    }
+
+    document.getElementById('vditorHljsStyle')?.remove()
+
+    let styleElement = document.getElementById(inlineCodeThemeStyleId)
+
+    if (!(styleElement instanceof HTMLStyleElement)) {
+        styleElement = document.createElement('style')
+        styleElement.id = inlineCodeThemeStyleId
+        document.head.appendChild(styleElement)
+    }
+
+    styleElement.textContent = styles
+}
+
 const applyPreviewStyles = (button, styles) => {
     button.classList.add('csa-vditor-theme-option')
     button.style.setProperty('--csa-theme-accent', styles.accent)
@@ -324,43 +386,50 @@ const getSubmenuPanel = (triggerButton) =>
         (element) => element.classList?.contains('vditor-hint')
     )
 
+const getMoreMenuPanel = () =>
+    editorElement.value?.querySelector('.vditor-toolbar button[data-type="more"]')
+        ?.nextElementSibling
+
 const refreshCodeThemeInEditor = () => {
     const instance = editor.value
     const vditorState = instance?.vditor
+    const root = editorElement.value
 
-    if (!instance || !vditorState) {
-        return
+    if (!instance || !vditorState || !root) {
+        return false
     }
 
-    const renderedCodeBlocks = editorElement.value?.querySelectorAll(
-        '.vditor-wysiwyg__preview, .vditor-ir__preview'
+    Vditor.highlightRender(
+        { ...vditorState.options.preview.hljs },
+        root,
+        vditorState.options.cdn
     )
+    applyInlineCodeTheme(getCurrentCodeTheme())
 
-    renderedCodeBlocks?.forEach((previewPanel) => {
-        const codeElement = previewPanel.firstElementChild
+    root.querySelectorAll('.vditor-wysiwyg__preview code, .vditor-ir__preview code').forEach(
+        (codeElement) => {
+            if (!(codeElement instanceof HTMLElement)) {
+                return
+            }
 
-        if (!(codeElement instanceof HTMLElement)) {
-            return
+            const language = codeElement.className
+                .split(/\s+/)
+                .find((className) => className.startsWith('language-'))
+                ?.replace('language-', '')
+
+            if (!language || nonHljsCodeLanguages.has(language)) {
+                return
+            }
+
+            codeElement.classList.add('hljs')
         }
-
-        const language = codeElement.className.replace('language-', '')
-
-        if (!language || nonHljsCodeLanguages.has(language)) {
-            return
-        }
-
-        Vditor.highlightRender(
-            { ...vditorState.options.preview.hljs },
-            previewPanel,
-            vditorState.options.cdn
-        )
-        Vditor.codeRender(previewPanel)
-        previewPanel.setAttribute('data-render', '1')
-    })
+    )
 
     if (vditorState.preview?.element?.style.display !== 'none') {
         instance.renderPreview()
     }
+
+    return true
 }
 
 const applyThemeSelection = ({ contentTheme, codeTheme }) => {
@@ -377,26 +446,24 @@ const applyThemeSelection = ({ contentTheme, codeTheme }) => {
     instance.setTheme(
         getEditorThemeMode(),
         nextContentTheme,
-        nextCodeTheme,
-        vditorState.options.preview.theme.path
+        undefined,
+        previewOptions.value.theme?.path || vditorState.options.preview.theme.path
     )
+    vditorState.options.preview.hljs.style = nextCodeTheme
+    applyInlineCodeTheme(nextCodeTheme)
 
     requestAnimationFrame(() => {
         refreshCodeThemeInEditor()
-        decorateThemeMenus()
+        scheduleToolbarEnhancements()
     })
 }
 
 const keepMoreMenuOpenForNestedThemes = () => {
-    const root = editorElement.value
-
-    if (!root) {
-        return
-    }
-
-    const nestedThemeTriggers = root.querySelectorAll(
-        '.vditor-toolbar .vditor-hint > .vditor-toolbar__item > button[data-type="content-theme"], .vditor-toolbar .vditor-hint > .vditor-toolbar__item > button[data-type="code-theme"]'
-    )
+    const morePanel = getMoreMenuPanel()
+    const nestedThemeTriggers =
+        morePanel?.querySelectorAll(
+            'button[data-type="content-theme"], button[data-type="code-theme"]'
+        ) || []
 
     nestedThemeTriggers.forEach((button) => {
         if (button.dataset.keepMoreOpenBound === 'true') {
@@ -408,17 +475,19 @@ const keepMoreMenuOpenForNestedThemes = () => {
             event.stopPropagation()
         })
     })
+
+    return nestedThemeTriggers.length > 0
 }
 
 const decorateThemeMenus = () => {
-    const root = editorElement.value
+    const morePanel = getMoreMenuPanel()
 
-    if (!root) {
-        return
+    if (!morePanel) {
+        return false
     }
 
-    const contentThemeTrigger = root.querySelector('button[data-type="content-theme"]')
-    const codeThemeTrigger = root.querySelector('button[data-type="code-theme"]')
+    const contentThemeTrigger = morePanel.querySelector('button[data-type="content-theme"]')
+    const codeThemeTrigger = morePanel.querySelector('button[data-type="code-theme"]')
     const contentThemePanel = getSubmenuPanel(contentThemeTrigger)
     const codeThemePanel = getSubmenuPanel(codeThemeTrigger)
 
@@ -500,6 +569,37 @@ const decorateThemeMenus = () => {
             })
         })
     })
+
+    return contentThemeButtons.length > 0 && codeThemeButtons.length > 0
+}
+
+const clearToolbarEnhancementSchedule = () => {
+    if (toolbarEnhancementFrameId) {
+        cancelAnimationFrame(toolbarEnhancementFrameId)
+        toolbarEnhancementFrameId = 0
+    }
+
+    if (toolbarEnhancementTimeoutId) {
+        clearTimeout(toolbarEnhancementTimeoutId)
+        toolbarEnhancementTimeoutId = 0
+    }
+}
+
+const scheduleToolbarEnhancements = (attempt = 0) => {
+    clearToolbarEnhancementSchedule()
+
+    toolbarEnhancementFrameId = requestAnimationFrame(() => {
+        const hasNestedThemeTriggers = keepMoreMenuOpenForNestedThemes()
+        const hasDecoratedThemeMenus = decorateThemeMenus()
+
+        if ((hasNestedThemeTriggers && hasDecoratedThemeMenus) || attempt >= 12) {
+            return
+        }
+
+        toolbarEnhancementTimeoutId = window.setTimeout(() => {
+            scheduleToolbarEnhancements(attempt + 1)
+        }, 120)
+    })
 }
 
 const syncEditorValue = (nextValue) => {
@@ -517,6 +617,9 @@ const syncEditorValue = (nextValue) => {
 
     isApplyingExternalValue.value = true
     instance.setValue(normalizedValue)
+    requestAnimationFrame(() => {
+        refreshCodeThemeInEditor()
+    })
     queueMicrotask(() => {
         isApplyingExternalValue.value = false
     })
@@ -528,6 +631,7 @@ onMounted(() => {
     editor.value = new Vditor(editorElement.value, {
         toolbar: toolbar.value,
         ...rawOptions,
+        ...(resolvedCdn.value ? { cdn: resolvedCdn.value } : {}),
         preview: previewOptions.value,
         hint: hintOptions.value,
         cache: {
@@ -536,6 +640,10 @@ onMounted(() => {
         },
         value: props.modelValue ?? '',
         after() {
+            scheduleToolbarEnhancements()
+            requestAnimationFrame(() => {
+                refreshCodeThemeInEditor()
+            })
             emit('after', toRaw(editor.value))
         },
         input(value) {
@@ -562,10 +670,7 @@ onMounted(() => {
         },
     })
 
-    requestAnimationFrame(() => {
-        keepMoreMenuOpenForNestedThemes()
-        decorateThemeMenus()
-    })
+    scheduleToolbarEnhancements()
 })
 
 watch(
@@ -576,6 +681,7 @@ watch(
 )
 
 onBeforeUnmount(() => {
+    clearToolbarEnhancementSchedule()
     editor.value?.destroy()
     editor.value = null
 })
