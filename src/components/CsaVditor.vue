@@ -271,6 +271,7 @@ const cacheId = nextEditorId()
 let toolbarEnhancementFrameId = 0
 let toolbarEnhancementTimeoutId = 0
 const inlineCodeThemeStyleId = 'csa-vditor-hljs-style'
+const contentThemeRootClassPrefix = 'csa-vditor--content-theme-'
 
 const toolbar = computed(() => toolbarModes[props.mode] || toolbarModes.full)
 const resolvedCdn = computed(() => normalizeVditorCdn(props.options?.cdn))
@@ -303,6 +304,20 @@ const getCurrentContentTheme = () =>
     editor.value?.vditor?.options?.preview?.theme?.current || 'light'
 const getCurrentCodeTheme = () =>
     editor.value?.vditor?.options?.preview?.hljs?.style || 'github'
+
+const syncContentThemeRootClass = () => {
+    const root = editorElement.value
+
+    if (!root) {
+        return
+    }
+
+    Array.from(root.classList)
+        .filter((className) => className.startsWith(contentThemeRootClassPrefix))
+        .forEach((className) => root.classList.remove(className))
+
+    root.classList.add(`${contentThemeRootClassPrefix}${getCurrentContentTheme()}`)
+}
 
 const getCodeThemePreviewStyles = (themeName) => {
     const accent = codeThemeAccentMap[themeName] || '#3b82f6'
@@ -449,8 +464,10 @@ const applyThemeSelection = ({ contentTheme, codeTheme }) => {
         undefined,
         previewOptions.value.theme?.path || vditorState.options.preview.theme.path
     )
+    vditorState.options.preview.theme.current = nextContentTheme
     vditorState.options.preview.hljs.style = nextCodeTheme
     applyInlineCodeTheme(nextCodeTheme)
+    syncContentThemeRootClass()
 
     requestAnimationFrame(() => {
         refreshCodeThemeInEditor()
@@ -640,6 +657,7 @@ onMounted(() => {
         },
         value: props.modelValue ?? '',
         after() {
+            syncContentThemeRootClass()
             scheduleToolbarEnhancements()
             requestAnimationFrame(() => {
                 refreshCodeThemeInEditor()
@@ -670,6 +688,7 @@ onMounted(() => {
         },
     })
 
+    syncContentThemeRootClass()
     scheduleToolbarEnhancements()
 })
 
@@ -763,5 +782,26 @@ onBeforeUnmount(() => {
     box-shadow:
         0 0 0 2px color-mix(in srgb, var(--csa-theme-accent) 22%, transparent),
         inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.csa-vditor.csa-vditor--content-theme-dark :deep(.vditor-wysiwyg),
+.csa-vditor.csa-vditor--content-theme-dark :deep(.vditor-preview),
+.csa-vditor.csa-vditor--content-theme-dark :deep(.vditor-ir) {
+    background: #0f1720 !important;
+}
+
+.csa-vditor.csa-vditor--content-theme-dark :deep(pre.vditor-reset),
+.csa-vditor.csa-vditor--content-theme-dark :deep(.vditor-preview .vditor-reset),
+.csa-vditor.csa-vditor--content-theme-dark :deep(.vditor-wysiwyg .vditor-reset),
+.csa-vditor.csa-vditor--content-theme-dark :deep(.vditor-wysiwyg__preview),
+.csa-vditor.csa-vditor--content-theme-dark :deep(.vditor-ir__preview) {
+    background: #0f1720 !important;
+    color: #d1d5da !important;
+    caret-color: #f8fafc !important;
+}
+
+.csa-vditor.csa-vditor--content-theme-dark :deep(.vditor-wysiwyg .vditor-panel--none),
+.csa-vditor.csa-vditor--content-theme-dark :deep(.vditor-preview .vditor-panel--none) {
+    background: #0f1720 !important;
 }
 </style>
