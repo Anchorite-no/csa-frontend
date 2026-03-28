@@ -303,6 +303,29 @@ const updateActiveThemeButton = (buttons, currentValue, getValue) => {
     })
 }
 
+const keepMoreMenuOpenForNestedThemes = () => {
+    const root = editorElement.value
+
+    if (!root) {
+        return
+    }
+
+    const nestedThemeTriggers = root.querySelectorAll(
+        '.vditor-toolbar .vditor-hint > .vditor-toolbar__item > button[data-type="content-theme"], .vditor-toolbar .vditor-hint > .vditor-toolbar__item > button[data-type="code-theme"]'
+    )
+
+    nestedThemeTriggers.forEach((button) => {
+        if (button.dataset.keepMoreOpenBound === 'true') {
+            return
+        }
+
+        button.dataset.keepMoreOpenBound = 'true'
+        button.addEventListener('click', (event) => {
+            event.stopPropagation()
+        })
+    })
+}
+
 const decorateThemeMenus = () => {
     const root = editorElement.value
 
@@ -428,6 +451,7 @@ onMounted(() => {
     })
 
     requestAnimationFrame(() => {
+        keepMoreMenuOpenForNestedThemes()
         decorateThemeMenus()
     })
 })
