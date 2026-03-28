@@ -13,15 +13,11 @@ const toolbarModes = {
         'list',
         'ordered-list',
         'check',
-        'outdent',
-        'indent',
         '|',
         'quote',
         'line',
         'code',
         'inline-code',
-        'insert-before',
-        'insert-after',
         '|',
         'table',
     ],
@@ -36,15 +32,11 @@ const toolbarModes = {
         'list',
         'ordered-list',
         'check',
-        'outdent',
-        'indent',
         '|',
         'quote',
         'line',
         'code',
         'inline-code',
-        'insert-before',
-        'insert-after',
         '|',
         'upload',
         'record',
@@ -60,7 +52,7 @@ const toolbarModes = {
         'code-theme',
         {
             name: 'more',
-            toolbar: ['both', 'export', 'outline', 'preview', 'devtools'],
+            toolbar: ['both', 'export', 'outline', 'preview'],
         },
     ],
     mobile: [
@@ -70,9 +62,43 @@ const toolbarModes = {
         'edit-mode',
         {
             name: 'more',
-            toolbar: ['insert-after', 'fullscreen', 'preview'],
+            toolbar: ['fullscreen', 'preview'],
         },
     ],
+}
+
+const defaultHintEmoji = {
+    '+1': '👍',
+    '-1': '👎',
+    confused: '😕',
+    eyes: '👀',
+    heart: '❤️',
+    rocket: '🚀',
+    smile: '😃',
+    tada: '🎉',
+}
+
+const extraHintEmoji = {
+    clap: '👏',
+    cry: '😢',
+    fire: '🔥',
+    grin: '😁',
+    joy: '😂',
+    laughing: '😆',
+    ok_hand: '👌',
+    party: '🥳',
+    pray: '🙏',
+    scream: '😱',
+    sparkles: '✨',
+    star: '⭐',
+    sweat_smile: '😅',
+    think: '🤔',
+    thumbsdown: '👎',
+    thumbsup: '👍',
+    warning: '⚠️',
+    wave: '👋',
+    x: '❌',
+    zany_face: '🤪',
 }
 
 const props = defineProps({
@@ -117,6 +143,14 @@ const previewOptions = computed(() => ({
     actions: ['desktop', 'tablet', 'mobile'],
     ...(props.options?.preview || {}),
 }))
+const hintOptions = computed(() => ({
+    ...(props.options?.hint || {}),
+    emoji: {
+        ...defaultHintEmoji,
+        ...extraHintEmoji,
+        ...(props.options?.hint?.emoji || {}),
+    },
+}))
 
 const getEditorValue = () => editor.value?.getValue?.() ?? ''
 
@@ -147,6 +181,7 @@ onMounted(() => {
         toolbar: toolbar.value,
         ...rawOptions,
         preview: previewOptions.value,
+        hint: hintOptions.value,
         cache: {
             ...(rawOptions.cache || {}),
             id: cacheId,
