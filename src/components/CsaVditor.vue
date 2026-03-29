@@ -980,6 +980,42 @@ const decorateThemeMenus = () => {
     return contentThemeButtons.length > 0 && codeThemeButtons.length > 0
 }
 
+const bindToolbarDismissBehavior = () => {
+    const toolbarElement = editorElement.value?.querySelector('.vditor-toolbar')
+
+    if (!(toolbarElement instanceof HTMLElement) || toolbarElement.dataset.dismissBound === 'true') {
+        return false
+    }
+
+    toolbarElement.dataset.dismissBound = 'true'
+    toolbarElement.addEventListener('click', (event) => {
+        const triggerButton = event.target?.closest?.('button[data-type]')
+
+        if (!(triggerButton instanceof HTMLButtonElement)) {
+            return
+        }
+
+        const itemContainer = triggerButton.parentElement
+        const hasNestedPanel = Array.from(itemContainer?.children || []).some(
+            (element) => element.classList?.contains('vditor-hint')
+        )
+
+        if (hasNestedPanel) {
+            return
+        }
+
+        requestAnimationFrame(() => {
+            toolbarElement.querySelectorAll('.vditor-hint').forEach((panel) => {
+                if (panel instanceof HTMLElement) {
+                    panel.style.display = 'none'
+                }
+            })
+        })
+    })
+
+    return true
+}
+
 const clearToolbarEnhancementSchedule = () => {
     if (toolbarEnhancementFrameId) {
         cancelAnimationFrame(toolbarEnhancementFrameId)
@@ -996,10 +1032,11 @@ const scheduleToolbarEnhancements = (attempt = 0) => {
     clearToolbarEnhancementSchedule()
 
     toolbarEnhancementFrameId = requestAnimationFrame(() => {
+        const hasBoundDismissBehavior = bindToolbarDismissBehavior()
         const hasNestedThemeTriggers = keepMoreMenuOpenForNestedThemes()
         const hasDecoratedThemeMenus = decorateThemeMenus()
 
-        if ((hasNestedThemeTriggers && hasDecoratedThemeMenus) || attempt >= 12) {
+        if ((hasBoundDismissBehavior && hasNestedThemeTriggers && hasDecoratedThemeMenus) || attempt >= 12) {
             return
         }
 
