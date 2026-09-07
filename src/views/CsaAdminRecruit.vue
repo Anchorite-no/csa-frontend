@@ -210,13 +210,10 @@ const assignDepartmentOptions = [
 ];
 
 // 年级选项
-const gradeOptions = [
-  { value: 21, label: '21级' },
-  { value: 22, label: '22级' },
-  { value: 23, label: '23级' },
-  { value: 24, label: '24级' },
-  { value: 25, label: '25级' }
-];
+const gradeOptions = Array.from(
+  { length: new Date().getFullYear() % 100 - 20 },
+  (_, index) => ({ value: 21 + index, label: `${21 + index}级` }),
+);
 
 const DEGREE_ALL_VALUE = '__all_degree__';
 const GRADE_ALL_VALUE = '__all_grade__';
@@ -1370,7 +1367,10 @@ onMounted(async () => {
             <td>{{ recruit.render ? '女' : '男' }}</td>
             <td>{{ getDegreeLabel(recruit.degree) }}</td>
             <td>{{ recruit.grade }}级</td>
-            <td>{{ recruit.major_name }}</td>
+            <td>
+              {{ recruit.major_name }}
+              <small v-if="recruit.major_verification_required" style="display: block;">手填，待核验</small>
+            </td>
             <td>{{ recruit.college_name }}</td>
             <td class="col-department-preference">
               <div class="department-order">
@@ -1466,7 +1466,7 @@ onMounted(async () => {
                   </div>
                   <div class="info-item">
                     <label>专业:</label>
-                    <span>{{ selectedRecruit.major_name }}</span>
+                    <span>{{ selectedRecruit.major_name }}<small v-if="selectedRecruit.major_verification_required">（手填，待核验）</small></span>
                   </div>
                   <div class="info-item">
                     <label>学院:</label>

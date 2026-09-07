@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, inject,onMounted } from 'vue';
+import { ref, reactive, inject, onMounted, computed, watch } from 'vue';
 import draggable from 'vuedraggable';
 import { formatRecruitDeadline, recruitmentIsOpen } from '@/utils/recruitDeadline';
 
@@ -8,6 +8,9 @@ const axios = inject('axios')
 const isLoading = ref(true);
 const isRecruiting = ref(false); // 
 const recruitDeadline = ref(''); //
+const recruitYear = ref(new Date().getFullYear());
+const gradeOptions = ref([]);
+const catalogGrades = ref([]);
 
 const form = reactive({
   name: '',
@@ -29,6 +32,19 @@ const form = reactive({
   introduction: '',
   skill: '',
   interview_time_slots: [], // 面试时间段选择
+});
+
+const manualUndergraduateMajor = computed(() =>
+  form.degree === '学士' && form.grade !== null &&
+  !catalogGrades.value.includes(Number(form.grade))
+);
+
+watch(() => [form.grade, form.degree], () => {
+  form.major_id = null;
+  form.major_name = '';
+  form.college_id = null;
+  form.college_name = '';
+  majorSearchResults.value = [];
 });
 
 // Validation errors
@@ -147,7 +163,12 @@ const validateForm = () => {
   const timeSlotsValid = validateTimeSlots();
   
   if (form.degree === '学士' || (typeof form.degree === 'number' && form.degree === 0)) {
-    if (!form.major_id || !form.college_id || !form.college_name) {
+    if (manualUndergraduateMajor.value) {
+      if (!form.major_name.trim() || !form.college_name.trim()) {
+        window.notyf.error('请填写专业和学院名称');
+        return false;
+      }
+    } else if (!form.major_id || !form.college_id || !form.college_name) {
       window.notyf.error('请从专业列表中选择您的专业');
       return false;
     }
@@ -226,6 +247,10 @@ const isTimeSlotSelected = (slotId) => {
 
 // Function to handle major name search
 const searchMajor = async () => {
+  if (manualUndergraduateMajor.value) {
+    majorSearchResults.value = [];
+    return;
+  }
   // Only search if input has at least 2 characters
   if (form.major_name.length < 2) {
     majorSearchResults.value = [];
@@ -241,6 +266,7 @@ const searchMajor = async () => {
 
 // Function to handle major confirmation on blur
 const confirmMajor = async () => {
+  if (manualUndergraduateMajor.value) return;
   // If user leaves the input field, confirm the major
   if (!form.major_name) return;
   try {
@@ -459,8 +485,19 @@ const submitForm = async () => {
   }
 };
 
-onMounted(() => {
-    fetchDeadline();
+onMounted(async () => {
+    try {
+      const { data } = await axios.get('/recruit/options');
+      recruitYear.value = data.year;
+      gradeOptions.value = data.grades;
+      catalogGrades.value = data.catalog_grades;
+      await fetchDeadline(false);
+    } catch (error) {
+      isRecruiting.value = false;
+      recruitDeadline.value = '报名配置加载失败，请稍后重试';
+    } finally {
+      isLoading.value = false;
+    }
 });
 
 </script>
@@ -514,7 +551,7 @@ onMounted(() => {
 
   <div v-else class="form-container">
     <form @submit.prevent="submitForm">
-      <h2 class="form-title" style="font-size: 24px;">2025浙江大学学生网络空间安全协会纳新报名表</h2>
+      <h2 class="form-title" style="font-size: 24px;">{{ recruitYear }}浙江大学学生网络空间安全协会纳新报名表</h2>
       <div class="description">
         <span style="color: rgb(1, 98, 244);">欢迎报名浙江大学网络空间安全协会！</span>
         <div>请抽出5-10分钟的时间认真阅读并填写本问卷，以便协会统计面试信息，谢谢您的配合~</div>
@@ -579,16 +616,15 @@ onMounted(() => {
         <label for="grade">年级:<span class="required">*</span></label>
         <select id="grade" v-model.number="form.grade" required>
           <option disabled value="">请选择年级</option>
-          <option value="25">25级</option>
-          <option value="24">24级</option>
-          <option value="23">23级</option>
-          <option value="22">22级</option>
-          <option value="21">21级</option>
+          <option v-for="grade in gradeOptions" :key="grade" :value="grade">{{ grade }}级</option>
         </select>
       </div>
       <div class="form-group" v-if="form.degree == '学士' && form.grade !== null">
         <label for="major_name">专业:<span class="required">*</span></label>
-        <input type="text" id="major_name" v-model="form.major_name" @input="searchMajor" @blur="confirmMajor" required>
+        <input type="text" id="major_name" v-model="form.major_name" @input="searchMajor" @blur="confirmMajor" maxlength="24" required>
+        <p v-if="manualUndergraduateMajor" class="time-slots-hint">
+          本届专业目录尚未更新，请按实际情况填写专业和学院，协会将在面试时核验。
+        </p>
         <ul v-if="majorSearchResults.length > 0" class="major-search-results">
           <li v-for="major in majorSearchResults" :key="major.major_id" @click="selectMajor(major)">
             {{ major.major_name }}
@@ -601,14 +637,14 @@ onMounted(() => {
       </div>
       <div class="form-group" v-if="form.degree == '学士' && form.grade !== null">
         <label for="college_name">学院:<span class="required">*</span></label>
-        <input type="text" id="college_name" v-model="form.college_name" disabled>
+        <input type="text" id="college_name" v-model="form.college_name" :disabled="!manualUndergraduateMajor" :required="manualUndergraduateMajor" maxlength="24">
       </div>
       <div class="form-group" v-if="form.degree !== null && form.degree !== '学士' && form.grade !== null">
         <label for="college_name">学院:<span class="required">*</span></label>
         <input type="text" id="college_name" v-model="form.college_name" required>
       </div>
 
-      <div class="form-group" v-if="form.degree == '学士' && form.grade !== null">
+      <div class="form-group" v-if="form.degree == '学士' && form.grade !== null && !manualUndergraduateMajor">
         <label for="major_id">教学计划号:<span class="required">*</span></label>
         <input type="text" id="major_id" v-model="form.major_id" disabled>
       </div>
