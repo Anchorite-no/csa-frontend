@@ -1,6 +1,7 @@
 <script setup>
 import { ref, reactive, inject,onMounted } from 'vue';
 import draggable from 'vuedraggable';
+import { formatRecruitDeadline, recruitmentIsOpen } from '@/utils/recruitDeadline';
 
 const axios = inject('axios')
 
@@ -345,31 +346,27 @@ const uploadResume = async () => {
 };
 
 // 
-const fetchDeadline = async () => {
-    isLoading.value = true;
+const fetchDeadline = async (showLoading = true) => {
+    if (showLoading) isLoading.value = true;
     try {
         const response = await axios.get(`/recruit/get_deadline`);
         const deadlineString = response.data.deadline; 
         
-        const deadlineDate = new Date(deadlineString);
-        const currentDate = new Date();
-        
-        recruitDeadline.value = deadlineString;
-        isRecruiting.value = currentDate < deadlineDate; 
+        recruitDeadline.value = formatRecruitDeadline(deadlineString);
+        isRecruiting.value = recruitmentIsOpen(response.data);
         
     } catch (error) {
         console.error("获取纳新截止日期失败:", error);
         isRecruiting.value = false; // 失败时，保守处理，假设已截止或无法判断。
         recruitDeadline.value = '状态获取失败'; 
     } finally {
-        isLoading.value = false;
+        if (showLoading) isLoading.value = false;
     }
 };
 
 // Function to submit the form
 const submitForm = async () => {
-
-// 
+  await fetchDeadline(false);
   if (!isRecruiting.value) {
     window.notyf.error(`纳新已于 ${recruitDeadline.value} 截止，无法提交表单。`);
     return;

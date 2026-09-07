@@ -3,6 +3,12 @@ import { computed, ref, reactive, inject, onMounted } from 'vue';
 import { useConfirm } from 'primevue/useconfirm';
 import AdminDateField from '@/components/admin/AdminDateField.vue';
 import AdminFilterSelect from '@/components/admin/AdminFilterSelect.vue';
+import {
+  formatRecruitDeadline,
+  recruitmentIsOpen,
+  serializeRecruitDeadlineInput,
+  toRecruitDeadlineInput,
+} from '@/utils/recruitDeadline';
 
 const confirm = useConfirm();
 const axios = inject('axios');
@@ -39,14 +45,10 @@ const fetchDeadline = async () => {
     try {
         const response = await axios.get(`/recruit/get_deadline`); 
         const deadlineString = response.data.deadline; 
-        console.log(response);
         if (deadlineString) {
-            currentDeadline.value = deadlineString;
-            const deadlineDate = new Date(deadlineString);
-            const currentDate = new Date();
-            isRecruiting.value = currentDate > deadlineDate; 
-            
-            newDeadline.value = deadlineString.split('T')[0] || deadlineString; 
+            currentDeadline.value = formatRecruitDeadline(deadlineString);
+            isRecruiting.value = recruitmentIsOpen(response.data);
+            newDeadline.value = toRecruitDeadlineInput(deadlineString);
         } else {
             currentDeadline.value = '未设置截止日期';
             isRecruiting.value = true; 
@@ -73,12 +75,12 @@ const handleSetDeadline = async () => {
     
     try {
         await axios.post('/admin/set_recruit_deadline', {
-            deadline: newDeadline.value
+            deadline: serializeRecruitDeadlineInput(newDeadline.value)
         });
         
         messageType.value = 'success';
         await fetchDeadline(); 
-        window.notyf.success(`招新截止日期设置成功：${newDeadline.value}`);
+        window.notyf.success(`招新截止时间设置成功：${currentDeadline.value}`);
         modifyDeadline.value = false;
     } catch (error) {
         const errorMessage = error.response?.data?.detail || error.response?.data?.message || '请检查您的管理员权限或后端';
@@ -1218,10 +1220,14 @@ onMounted(async () => {
           />
         </div>
         <div class="filter-item">
-          <label>表单截止日期:</label>
-          <AdminDateField
+          <label for="recruit-deadline">截止时间（北京时间）:</label>
+          <input
+            id="recruit-deadline"
+            type="datetime-local"
+            step="60"
             v-model="newDeadline"
-            @update:modelValue="handleSetDeadline"
+            :disabled="isSubmitting"
+            @change="handleSetDeadline"
           />
         </div>
       </div>
